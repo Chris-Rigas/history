@@ -19,6 +19,7 @@ import { generateTimelinePeople } from './generators/person-generator';
 import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
 import { serializeError, summarizeError } from './utils/error';
+import { supabaseAdmin } from '@/lib/supabase';
 
 interface GenerationOptions {
   timeline?: string;
@@ -100,7 +101,7 @@ async function generateCompleteTimeline(
       timelineId = timelineResult.timelineId;
     } else {
       // Find existing timeline
-      const timeline = await getTimelineBySlug(seed.slug || '');
+      const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
       if (!timeline) {
         throw new Error('Timeline not found. Run without --events-only or --people-only first.');
       }
@@ -112,7 +113,7 @@ async function generateCompleteTimeline(
     }
 
     // Get timeline data
-    const timeline = await getTimelineBySlug(seed.slug || '');
+    const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
     if (!timeline) {
       throw new Error('Timeline not found after creation');
     }
@@ -137,10 +138,10 @@ async function generateCompleteTimeline(
       }
 
       // Get generated events
-      events = await getEventsByTimelineId(timelineId);
+      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
     } else {
       // Load existing events
-      events = await getEventsByTimelineId(timelineId);
+      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
     }
 
     // Step 3: Generate people (unless events-only)

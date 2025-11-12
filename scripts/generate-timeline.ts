@@ -20,6 +20,7 @@ import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
 import { serializeError, summarizeError } from './utils/error';
 import { supabaseAdmin } from '@/lib/supabase';
+import { slugify } from '@/lib/utils';
 
 interface GenerationOptions {
   timeline?: string;
@@ -87,6 +88,7 @@ async function generateCompleteTimeline(
 
   try {
     let timelineId: string | undefined;
+    const slug = slugify(seed.title);
 
     // Step 1: Generate timeline (unless events/people only)
     if (!options.eventsOnly && !options.peopleOnly) {
@@ -101,7 +103,7 @@ async function generateCompleteTimeline(
       timelineId = timelineResult.timelineId;
     } else {
       // Find existing timeline
-      const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
+      const timeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
       if (!timeline) {
         throw new Error('Timeline not found. Run without --events-only or --people-only first.');
       }
@@ -113,7 +115,7 @@ async function generateCompleteTimeline(
     }
 
     // Get timeline data
-    const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
+    const timeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
     if (!timeline) {
       throw new Error('Timeline not found after creation');
     }
@@ -168,7 +170,7 @@ async function generateCompleteTimeline(
     console.log(`✅ GENERATION COMPLETE: ${timelineTitle}`);
     console.log(`${'='.repeat(80)}\n`);
     console.log(`Timeline ID: ${timelineId}`);
-    console.log(`URL: /timelines/${seed.slug || ''}`);
+    console.log(`URL: /timelines/${slug}`);
     console.log();
 
   } catch (error) {

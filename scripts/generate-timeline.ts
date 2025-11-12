@@ -190,6 +190,23 @@ async function generateCompleteTimeline(
 async function main() {
   const options = parseArgs();
 
+  const maskKey = (value?: string) => {
+    if (!value) return 'undefined';
+    if (value.length <= 8) return `${value} (length ${value.length})`;
+    return `${value.slice(0, 4)}...${value.slice(-4)} (length ${value.length})`;
+  };
+
+  console.log('Supabase environment variables:');
+  console.log('  NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'undefined');
+  console.log(
+    '  NEXT_PUBLIC_SUPABASE_ANON_KEY:',
+    maskKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
+  console.log(
+    '  SUPABASE_SERVICE_ROLE_KEY:',
+    maskKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  );
+
   // Show help if no options
   if (!options.timeline && !options.all) {
     console.log(`

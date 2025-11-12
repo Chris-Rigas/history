@@ -9,6 +9,7 @@ import {
 import { slugify } from '@/lib/utils';
 import type { TimelineSeed } from '../ingest';
 import { serializeError, summarizeError } from '../utils/error';
+import { supabaseAdmin } from '@/lib/supabase';
 
 /**
  * Generate and save a complete timeline
@@ -34,7 +35,7 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
 
     // Create timeline record
     const slug = slugify(seed.title);
-    const existingTimeline = await getTimelineBySlug(slug);
+    const existingTimeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
 
     console.log('   💾 Saving to database...');
     const timeline = existingTimeline

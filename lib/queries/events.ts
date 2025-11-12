@@ -1,3 +1,5 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+
 import { supabaseClient, supabaseAdmin } from '../supabase';
 import type {
   Event,
@@ -90,16 +92,27 @@ export async function getEventWithTimeline(
 /**
  * Get events for a specific timeline (by timeline ID)
  */
+type QueryClient = SupabaseClient<Database>;
+
+interface QueryOptions {
+  client?: QueryClient;
+  limit?: number;
+  importance?: number;
+  type?: string;
+  tags?: string[];
+}
+
+function getClient(options?: QueryOptions) {
+  return options?.client ?? supabaseClient;
+}
+
 export async function getEventsByTimelineId(
   timelineId: string,
-  options?: {
-    limit?: number;
-    importance?: number;
-    type?: string;
-    tags?: string[];
-  }
+  options?: QueryOptions
 ): Promise<Event[]> {
-  let query = supabaseClient
+  const client = getClient(options);
+
+  let query = client
     .from('timeline_events')
     .select(`
       display_order,

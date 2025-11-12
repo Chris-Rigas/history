@@ -1,3 +1,5 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+
 import { supabaseClient, supabaseAdmin } from '../supabase';
 import type {
   Timeline,
@@ -26,8 +28,23 @@ export async function getAllTimelines(): Promise<Timeline[]> {
 /**
  * Get a timeline by slug
  */
-export async function getTimelineBySlug(slug: string): Promise<Timeline | null> {
-  const { data, error } = await supabaseClient
+type QueryClient = SupabaseClient<Database>;
+
+interface QueryOptions {
+  client?: QueryClient;
+}
+
+function getClient(options?: QueryOptions) {
+  return options?.client ?? supabaseClient;
+}
+
+export async function getTimelineBySlug(
+  slug: string,
+  options?: QueryOptions
+): Promise<Timeline | null> {
+  const client = getClient(options);
+
+  const { data, error } = await client
     .from('timelines')
     .select('*')
     .eq('slug', slug)
@@ -44,13 +61,18 @@ export async function getTimelineBySlug(slug: string): Promise<Timeline | null> 
 /**
  * Get a timeline with all its events (ordered by year)
  */
-export async function getTimelineWithEvents(slug: string): Promise<TimelineWithEvents | null> {
+export async function getTimelineWithEvents(
+  slug: string,
+  options?: QueryOptions
+): Promise<TimelineWithEvents | null> {
   // First get the timeline
-  const timeline = await getTimelineBySlug(slug);
+  const timeline = await getTimelineBySlug(slug, options);
   if (!timeline) return null;
 
   // Then get its events through the join table
-  const { data: eventData, error } = await supabaseClient
+  const client = getClient(options);
+
+  const { data: eventData, error } = await client
     .from('timeline_events')
     .select(`
       display_order,
@@ -76,11 +98,16 @@ export async function getTimelineWithEvents(slug: string): Promise<TimelineWithE
 /**
  * Get a timeline with its key people
  */
-export async function getTimelineWithPeople(slug: string): Promise<TimelineWithPeople | null> {
-  const timeline = await getTimelineBySlug(slug);
+export async function getTimelineWithPeople(
+  slug: string,
+  options?: QueryOptions
+): Promise<TimelineWithPeople | null> {
+  const timeline = await getTimelineBySlug(slug, options);
   if (!timeline) return null;
 
-  const { data: peopleData, error } = await supabaseClient
+  const client = getClient(options);
+
+  const { data: peopleData, error } = await client
     .from('timeline_people')
     .select(`
       role,
@@ -105,11 +132,14 @@ export async function getTimelineWithPeople(slug: string): Promise<TimelineWithP
 /**
  * Get a timeline with all related data (events and people)
  */
-export async function getTimelineFull(slug: string): Promise<TimelineFull | null> {
-  const timelineWithEvents = await getTimelineWithEvents(slug);
+export async function getTimelineFull(
+  slug: string,
+  options?: QueryOptions
+): Promise<TimelineFull | null> {
+  const timelineWithEvents = await getTimelineWithEvents(slug, options);
   if (!timelineWithEvents) return null;
 
-  const timelineWithPeople = await getTimelineWithPeople(slug);
+  const timelineWithPeople = await getTimelineWithPeople(slug, options);
   if (!timelineWithPeople) return null;
 
   return {
@@ -123,9 +153,12 @@ export async function getTimelineFull(slug: string): Promise<TimelineFull | null
  */
 export async function getTimelineHighlightEvents(
   timelineId: string,
-  limit: number = 8
+  limit: number = 8,
+  options?: QueryOptions
 ): Promise<Event[]> {
-  const { data, error } = await supabaseClient
+  const client = getClient(options);
+
+  const { data, error } = await client
     .from('timeline_events')
     .select(`
       events (*)

@@ -19,6 +19,7 @@ import { generateTimelinePeople } from './generators/person-generator';
 import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
 import { serializeError, summarizeError } from './utils/error';
+import { supabaseAdmin } from '@/lib/supabase';
 
 interface GenerationOptions {
   timeline?: string;
@@ -100,7 +101,7 @@ async function generateCompleteTimeline(
       timelineId = timelineResult.timelineId;
     } else {
       // Find existing timeline
-      const timeline = await getTimelineBySlug(seed.slug || '');
+      const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
       if (!timeline) {
         throw new Error('Timeline not found. Run without --events-only or --people-only first.');
       }
@@ -112,7 +113,7 @@ async function generateCompleteTimeline(
     }
 
     // Get timeline data
-    const timeline = await getTimelineBySlug(seed.slug || '');
+    const timeline = await getTimelineBySlug(seed.slug || '', { client: supabaseAdmin });
     if (!timeline) {
       throw new Error('Timeline not found after creation');
     }
@@ -137,10 +138,10 @@ async function generateCompleteTimeline(
       }
 
       // Get generated events
-      events = await getEventsByTimelineId(timelineId);
+      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
     } else {
       // Load existing events
-      events = await getEventsByTimelineId(timelineId);
+      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
     }
 
     // Step 3: Generate people (unless events-only)
@@ -189,6 +190,23 @@ async function generateCompleteTimeline(
  */
 async function main() {
   const options = parseArgs();
+
+  const maskKey = (value?: string) => {
+    if (!value) return 'undefined';
+    if (value.length <= 8) return `${value} (length ${value.length})`;
+    return `${value.slice(0, 4)}...${value.slice(-4)} (length ${value.length})`;
+  };
+
+  console.log('Supabase environment variables:');
+  console.log('  NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'undefined');
+  console.log(
+    '  NEXT_PUBLIC_SUPABASE_ANON_KEY:',
+    maskKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
+  console.log(
+    '  SUPABASE_SERVICE_ROLE_KEY:',
+    maskKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  );
 
   // Show help if no options
   if (!options.timeline && !options.all) {

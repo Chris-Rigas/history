@@ -1,190 +1,145 @@
-/**
- * Site-wide constants and configuration
- */
+import { z } from 'zod';
+import { IMPORTANCE_LEVELS, MAX_YEAR, MIN_YEAR } from './constants';
 
-// Site Information
-export const SITE_NAME = 'History Timelines';
-export const SITE_DESCRIPTION = 'Explore comprehensive interactive timelines of historical events, civilizations, and key figures.';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://historytimelines.com';
+const optionalTrimmedString = (options?: { maxLength?: number }) =>
+  z
+    .string()
+    .optional()
+    .nullable()
+    .transform(value => {
+      if (value === undefined || value === null) {
+        return null;
+      }
+      const trimmed = value.trim();
+      if (trimmed.length === 0) {
+        return null;
+      }
+      return trimmed;
+    })
+    .refine(value => {
+      if (value === null) {
+        return true;
+      }
+      if (options?.maxLength) {
+        return value.length <= options.maxLength;
+      }
+      return true;
+    }, options?.maxLength ? { message: `Must be ${options.maxLength} characters or fewer` } : undefined);
 
-// Social Media
-export const TWITTER_HANDLE = '@historytimelines';
-export const FACEBOOK_URL = 'https://facebook.com/historytimelines';
+const timelineSchema = z
+  .object({
+    title: z.string().trim().min(1, 'Title is required').max(255),
+    slug: z.string().trim().min(1, 'Slug is required').max(255),
+    start_year: z
+      .number()
+      .int('Start year must be an integer')
+      .gte(MIN_YEAR, `Start year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `Start year must be before ${MAX_YEAR}`),
+    end_year: z
+      .number()
+      .int('End year must be an integer')
+      .gte(MIN_YEAR, `End year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `End year must be before ${MAX_YEAR}`),
+    region: optionalTrimmedString({ maxLength: 255 }),
+    summary: optionalTrimmedString({ maxLength: 5000 }),
+  })
+  .refine(data => data.end_year >= data.start_year, {
+    message: 'End year must be greater than or equal to start year',
+    path: ['end_year'],
+  });
 
-// Pagination
-export const TIMELINES_PER_PAGE = 20;
-export const EVENTS_PER_PAGE = 50;
-export const PEOPLE_PER_PAGE = 30;
+const eventSchema = z
+  .object({
+    title: z.string().trim().min(1, 'Title is required').max(255),
+    slug: z.string().trim().min(1, 'Slug is required').max(255),
+    start_year: z
+      .number()
+      .int('Start year must be an integer')
+      .gte(MIN_YEAR, `Start year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `Start year must be before ${MAX_YEAR}`),
+    end_year: z
+      .number()
+      .int('End year must be an integer')
+      .gte(MIN_YEAR, `End year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `End year must be before ${MAX_YEAR}`)
+      .nullable()
+      .optional(),
+    location: optionalTrimmedString({ maxLength: 255 }),
+    type: optionalTrimmedString({ maxLength: 100 }),
+    tags: z
+      .array(z.string().trim().min(1, 'Tag cannot be empty').max(50))
+      .optional()
+      .transform(value => value ?? []),
+    importance: z
+      .number()
+      .int('Importance must be an integer')
+      .min(IMPORTANCE_LEVELS.NOTABLE)
+      .max(IMPORTANCE_LEVELS.MAJOR)
+      .nullable()
+      .optional(),
+    summary: optionalTrimmedString({ maxLength: 5000 }),
+    description_html: optionalTrimmedString(),
+    significance_html: optionalTrimmedString(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.end_year !== undefined && data.end_year !== null && data.end_year < data.start_year) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End year must be greater than or equal to start year',
+        path: ['end_year'],
+      });
+    }
+  });
 
-// Content Limits
-export const MAX_TIMELINE_EVENTS = 100;
-export const MAX_TIMELINE_PEOPLE = 50;
-export const MAX_EVENT_PEOPLE = 20;
+const personSchema = z
+  .object({
+    name: z.string().trim().min(1, 'Name is required').max(255),
+    slug: z.string().trim().min(1, 'Slug is required').max(255),
+    birth_year: z
+      .number()
+      .int('Birth year must be an integer')
+      .gte(MIN_YEAR, `Birth year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `Birth year must be before ${MAX_YEAR}`)
+      .nullable()
+      .optional(),
+    death_year: z
+      .number()
+      .int('Death year must be an integer')
+      .gte(MIN_YEAR, `Death year must be after ${MIN_YEAR}`)
+      .lte(MAX_YEAR, `Death year must be before ${MAX_YEAR}`)
+      .nullable()
+      .optional(),
+    bio_short: optionalTrimmedString({ maxLength: 2000 }),
+    bio_long: optionalTrimmedString(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.birth_year !== undefined &&
+      data.birth_year !== null &&
+      data.death_year !== undefined &&
+      data.death_year !== null &&
+      data.death_year < data.birth_year
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Death year must be greater than or equal to birth year',
+        path: ['death_year'],
+      });
+    }
+  });
 
-// Display Limits
-export const HIGHLIGHT_EVENTS_COUNT = 8;
-export const KEY_PEOPLE_DISPLAY_COUNT = 12;
-export const SUGGESTED_QUESTIONS_COUNT = 5;
-export const NEIGHBOR_EVENTS_COUNT = 3;
+export type TimelineValidationInput = z.infer<typeof timelineSchema>;
+export type EventValidationInput = z.infer<typeof eventSchema>;
+export type PersonValidationInput = z.infer<typeof personSchema>;
 
-// Word Count Targets (for content generation)
-export const TIMELINE_WORD_COUNT_MIN = 1000;
-export const TIMELINE_WORD_COUNT_MAX = 1800;
-export const EVENT_WORD_COUNT_MIN = 400;
-export const EVENT_WORD_COUNT_MAX = 900;
-export const PERSON_WORD_COUNT_MIN = 600;
-export const PERSON_WORD_COUNT_MAX = 1000;
+export function validateTimeline(data: unknown): TimelineValidationInput {
+  return timelineSchema.parse(data);
+}
 
-// Importance Levels
-export const IMPORTANCE_LEVELS = {
-  NOTABLE: 1,
-  SIGNIFICANT: 2,
-  MAJOR: 3,
-} as const;
+export function validateEvent(data: unknown): EventValidationInput {
+  return eventSchema.parse(data);
+}
 
-export const IMPORTANCE_LABELS = {
-  [IMPORTANCE_LEVELS.NOTABLE]: 'Notable Event',
-  [IMPORTANCE_LEVELS.SIGNIFICANT]: 'Significant Event',
-  [IMPORTANCE_LEVELS.MAJOR]: 'Major Event',
-} as const;
-
-export const IMPORTANCE_COLORS = {
-  [IMPORTANCE_LEVELS.NOTABLE]: 'gray',
-  [IMPORTANCE_LEVELS.SIGNIFICANT]: 'blue',
-  [IMPORTANCE_LEVELS.MAJOR]: 'red',
-} as const;
-
-// Event Types
-export const EVENT_TYPES = [
-  'Battle',
-  'Treaty',
-  'Coronation',
-  'Discovery',
-  'Revolution',
-  'Conquest',
-  'Foundation',
-  'Collapse',
-  'Reform',
-  'Cultural',
-  'Economic',
-  'Religious',
-  'Technological',
-] as const;
-
-// Regions
-export const REGIONS = [
-  'Europe',
-  'Asia',
-  'Africa',
-  'Americas',
-  'Middle East',
-  'Oceania',
-  'Mediterranean',
-  'Central Asia',
-  'East Asia',
-  'South Asia',
-  'Southeast Asia',
-  'North America',
-  'South America',
-  'Central America',
-  'Caribbean',
-] as const;
-
-// Cache & Revalidation
-export const REVALIDATE_TIME = 3600; // 1 hour in seconds
-export const CACHE_TAGS = {
-  TIMELINES: 'timelines',
-  EVENTS: 'events',
-  PEOPLE: 'people',
-  TIMELINE: (slug: string) => `timeline-${slug}`,
-  EVENT: (slug: string) => `event-${slug}`,
-  PERSON: (slug: string) => `person-${slug}`,
-} as const;
-
-// API Configuration
-export const GEMINI_MODEL = 'gemini-1.5-pro';
-export const GEMINI_MAX_TOKENS = 1000;
-export const GEMINI_CONTEXT_WINDOW = 1000000; // 1M tokens
-export const GPT_MODEL = 'gpt-4-turbo-preview';
-export const GPT_MAX_TOKENS = 4000;
-export const GPT_CONTEXT_WINDOW = 400000; // 400k tokens
-
-// Rate Limits
-export const GEMINI_REQUESTS_PER_MINUTE = 10;
-export const GPT_REQUESTS_PER_MINUTE = 5;
-
-// Date Ranges
-export const MIN_YEAR = -3000; // 3000 BCE
-export const MAX_YEAR = new Date().getFullYear();
-export const DEFAULT_YEAR_RANGE = [MIN_YEAR, MAX_YEAR] as const;
-
-// Search
-export const SEARCH_RESULTS_LIMIT = 20;
-export const SEARCH_MIN_QUERY_LENGTH = 2;
-
-// Navigation
-export const NAV_LINKS = [
-  { label: 'Home', href: '/' },
-  { label: 'Timelines', href: '/timelines' },
-  { label: 'About', href: '/about' },
-] as const;
-
-export const FOOTER_LINKS = {
-  explore: [
-    { label: 'All Timelines', href: '/timelines' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
-  ],
-  legal: [
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
-  ],
-} as const;
-
-// Error Messages
-export const ERROR_MESSAGES = {
-  TIMELINE_NOT_FOUND: 'Timeline not found',
-  EVENT_NOT_FOUND: 'Event not found',
-  PERSON_NOT_FOUND: 'Person not found',
-  GENERIC_ERROR: 'An error occurred. Please try again.',
-  NETWORK_ERROR: 'Network error. Please check your connection.',
-  VALIDATION_ERROR: 'Invalid input. Please check your data.',
-} as const;
-
-// Success Messages
-export const SUCCESS_MESSAGES = {
-  DATA_LOADED: 'Data loaded successfully',
-  SEARCH_COMPLETE: 'Search completed',
-} as const;
-
-// Loading States
-export const LOADING_MESSAGES = {
-  LOADING_TIMELINE: 'Loading timeline...',
-  LOADING_EVENT: 'Loading event...',
-  LOADING_PERSON: 'Loading person...',
-  GENERATING_ANSWER: 'Generating answer...',
-  SEARCHING: 'Searching...',
-} as const;
-
-// Breakpoints (matching Tailwind defaults)
-export const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  '2xl': 1536,
-} as const;
-
-// Animation Durations (in milliseconds)
-export const ANIMATION_DURATION = {
-  fast: 150,
-  normal: 300,
-  slow: 500,
-} as const;
-
-// Local Storage Keys
-export const STORAGE_KEYS = {
-  RECENT_SEARCHES: 'history-timelines:recent-searches',
-  FAVORITES: 'history-timelines:favorites',
-  THEME: 'history-timelines:theme',
-} as const;
+export function validatePerson(data: unknown): PersonValidationInput {
+  return personSchema.parse(data);
+}

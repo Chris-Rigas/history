@@ -18,6 +18,7 @@ import { generateTimelineEvents } from './generators/event-generator';
 import { generateTimelinePeople } from './generators/person-generator';
 import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
+import { serializeError, summarizeError } from './utils/error';
 
 interface GenerationOptions {
   timeline?: string;
@@ -170,7 +171,14 @@ async function generateCompleteTimeline(
     console.log();
 
   } catch (error) {
-    console.error(`\n❌ GENERATION FAILED: ${error}`);
+    const message = summarizeError(error);
+    console.error(`\n❌ GENERATION FAILED: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('ℹ️  Error details:', details);
+    }
+
     console.log();
     process.exit(1);
   }
@@ -240,6 +248,13 @@ ${TIMELINE_SEEDS.map(s => `  - ${s.title}`).join('\n')}
 
 // Run the script
 main().catch(error => {
-  console.error(`\n❌ Fatal error: ${error}`);
+  const message = summarizeError(error);
+  console.error(`\n❌ Fatal error: ${message}`);
+
+  const details = serializeError(error);
+  if (details) {
+    console.error('ℹ️  Error details:', details);
+  }
+
   process.exit(1);
 });

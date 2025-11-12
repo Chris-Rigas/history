@@ -1,9 +1,10 @@
 import { generatePersonBio, generatePeopleOutline } from '@/lib/openai';
 import { createPerson } from '@/lib/queries/people';
-import { linkPersonToTimeline, linkPersonToEvent } from '@/lib/queries/timelines';
+import { linkPersonToTimeline } from '@/lib/queries/timelines';
 import { linkPersonToEvent as linkToEvent } from '@/lib/queries/events';
 import { slugify } from '@/lib/utils';
 import type { Timeline, Event } from '@/lib/database.types';
+import { serializeError, summarizeError } from '../utils/error';
 
 /**
  * Generate people outline for a timeline
@@ -33,7 +34,14 @@ export async function generatePeopleOutline(
     console.log(`   ✅ Generated ${outline.length} people`);
     return outline;
   } catch (error) {
-    console.error(`   ❌ Error generating outline: ${error}`);
+    const message = summarizeError(error);
+    console.error(`   ❌ Error generating outline: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('   ℹ️  Full error details:', details);
+    }
+
     return [];
   }
 }
@@ -87,10 +95,17 @@ export async function generatePerson(params: {
       personId: person.id,
     };
   } catch (error) {
-    console.error(`      ❌ Error generating person: ${error}`);
+    const message = summarizeError(error);
+    console.error(`      ❌ Error generating person: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('      ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }
@@ -157,7 +172,13 @@ export async function generateTimelinePeople(
           try {
             await linkToEvent(event.id, result.personId, personOutline.role);
           } catch (err) {
-            console.error(`      ⚠️  Failed to link to event ${event.title}`);
+            const linkError = summarizeError(err);
+            console.error(`      ⚠️  Failed to link to event ${event.title}: ${linkError}`);
+
+            const details = serializeError(err);
+            if (details) {
+              console.error('      ℹ️  Link error details:', details);
+            }
           }
         }
       } else {
@@ -184,13 +205,20 @@ export async function generateTimelinePeople(
       errors,
     };
   } catch (error) {
-    console.error(`❌ Error generating timeline people: ${error}`);
+    const message = summarizeError(error);
+    console.error(`❌ Error generating timeline people: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
       peopleIds,
       errors: [
         ...errors,
-        { person: 'Timeline people', error: error instanceof Error ? error.message : 'Unknown error' }
+        { person: 'Timeline people', error: message }
       ],
     };
   }
@@ -243,10 +271,17 @@ export async function regeneratePerson(
 
     return { success: true };
   } catch (error) {
-    console.error(`   ❌ Error regenerating person: ${error}`);
+    const message = summarizeError(error);
+    console.error(`   ❌ Error regenerating person: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('   ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }

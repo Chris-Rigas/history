@@ -3,6 +3,7 @@ import { createEvent } from '@/lib/queries/events';
 import { linkEventToTimeline } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { Timeline } from '@/lib/database.types';
+import { serializeError, summarizeError } from '../utils/error';
 
 /**
  * Generate events outline for a timeline
@@ -26,7 +27,14 @@ export async function generateEventsOutline(
     console.log(`   ✅ Generated ${outline.length} events`);
     return outline;
   } catch (error) {
-    console.error(`   ❌ Error generating outline: ${error}`);
+    const message = summarizeError(error);
+    console.error(`   ❌ Error generating outline: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('   ℹ️  Full error details:', details);
+    }
+
     return [];
   }
 }
@@ -83,10 +91,17 @@ export async function generateEvent(params: {
       eventId: event.id,
     };
   } catch (error) {
-    console.error(`      ❌ Error generating event: ${error}`);
+    const message = summarizeError(error);
+    console.error(`      ❌ Error generating event: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('      ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }
@@ -167,13 +182,20 @@ export async function generateTimelineEvents(
       errors,
     };
   } catch (error) {
-    console.error(`❌ Error generating timeline events: ${error}`);
+    const message = summarizeError(error);
+    console.error(`❌ Error generating timeline events: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
       eventIds,
       errors: [
         ...errors,
-        { event: 'Timeline events', error: error instanceof Error ? error.message : 'Unknown error' }
+        { event: 'Timeline events', error: message }
       ],
     };
   }
@@ -227,10 +249,17 @@ export async function regenerateEvent(
 
     return { success: true };
   } catch (error) {
-    console.error(`   ❌ Error regenerating event: ${error}`);
+    const message = summarizeError(error);
+    console.error(`   ❌ Error regenerating event: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('   ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }

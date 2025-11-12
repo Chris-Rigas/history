@@ -2,6 +2,7 @@ import { generateTimelineContent } from '@/lib/openai';
 import { createTimeline, linkEventToTimeline, linkPersonToTimeline } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { TimelineSeed } from '../ingest';
+import { serializeError, summarizeError } from '../utils/error';
 
 /**
  * Generate and save a complete timeline
@@ -45,10 +46,17 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
       timelineId: timeline.id,
     };
   } catch (error) {
-    console.error(`   ❌ Error generating timeline: ${error}`);
+    const message = summarizeError(error);
+    console.error(`   ❌ Error generating timeline: ${message}`);
+
+    const details = serializeError(error);
+    if (details) {
+      console.error('   ℹ️  Full error details:', details);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }

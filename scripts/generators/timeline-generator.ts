@@ -1,5 +1,11 @@
 import { generateTimelineContent } from '@/lib/openai';
-import { createTimeline, linkEventToTimeline, linkPersonToTimeline } from '@/lib/queries/timelines';
+import {
+  createTimeline,
+  getTimelineBySlug,
+  linkEventToTimeline,
+  linkPersonToTimeline,
+  updateTimeline,
+} from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { TimelineSeed } from '../ingest';
 import { serializeError, summarizeError } from '../utils/error';
@@ -27,19 +33,37 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
     });
 
     // Create timeline record
-    console.log('   💾 Saving to database...');
-    const timeline = await createTimeline({
-      title: seed.title,
-      slug: slugify(seed.title),
-      start_year: seed.startYear,
-      end_year: seed.endYear,
-      region: seed.region || null,
-      summary: content.summary,
-      interpretation_html: formatAsHtml(content.interpretation),
-      map_image_url: null, // Could integrate with image generation API
-    });
+    const slug = slugify(seed.title);
+    const existingTimeline = await getTimelineBySlug(slug);
 
-    console.log(`   ✅ Timeline created: ${timeline.id}`);
+    console.log('   💾 Saving to database...');
+    const timeline = existingTimeline
+      ? await updateTimeline(existingTimeline.id, {
+          title: seed.title,
+          slug,
+          start_year: seed.startYear,
+          end_year: seed.endYear,
+          region: seed.region || null,
+          summary: content.summary,
+          interpretation_html: formatAsHtml(content.interpretation),
+          map_image_url: existingTimeline.map_image_url || null,
+        })
+      : await createTimeline({
+          title: seed.title,
+          slug,
+          start_year: seed.startYear,
+          end_year: seed.endYear,
+          region: seed.region || null,
+          summary: content.summary,
+          interpretation_html: formatAsHtml(content.interpretation),
+          map_image_url: null, // Could integrate with image generation API
+        });
+
+    console.log(
+      existingTimeline
+        ? `   🔄 Timeline updated: ${timeline.id}`
+        : `   ✅ Timeline created: ${timeline.id}`
+    );
 
     return {
       success: true,

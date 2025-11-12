@@ -2,13 +2,15 @@
 
 /**
  * Main script for generating complete timeline content
- * 
+ *
  * Usage:
  *   npm run generate -- --timeline "Aztec Empire"
  *   npm run generate -- --all
  *   npm run generate -- --timeline "Aztec Empire" --events-only
  *   npm run generate -- --timeline "Aztec Empire" --people-only
  */
+
+import './load-env';
 
 import { getTimelineSeed, TIMELINE_SEEDS } from './ingest';
 import { generateTimeline } from './generators/timeline-generator';

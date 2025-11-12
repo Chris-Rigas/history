@@ -7,6 +7,7 @@
  *   npm run seed
  */
 
+import './load-env';
 import { supabaseAdmin } from '@/lib/supabase';
 import { TIMELINE_SEEDS, parseTimelineSeed } from './ingest';
 

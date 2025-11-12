@@ -142,20 +142,17 @@ export interface Database {
         Row: {
           timeline_id: string;
           event_id: string;
-          display_order: number | null;
-          created_at: string;
+          position: number | null;
         };
         Insert: {
           timeline_id: string;
           event_id: string;
-          display_order?: number | null;
-          created_at?: string;
+          position?: number | null;
         };
         Update: {
           timeline_id?: string;
           event_id?: string;
-          display_order?: number | null;
-          created_at?: string;
+          position?: number | null;
         };
       };
       event_people: {
@@ -163,19 +160,16 @@ export interface Database {
           event_id: string;
           person_id: string;
           role: string | null;
-          created_at: string;
         };
         Insert: {
           event_id: string;
           person_id: string;
           role?: string | null;
-          created_at?: string;
         };
         Update: {
           event_id?: string;
           person_id?: string;
           role?: string | null;
-          created_at?: string;
         };
       };
       timeline_people: {
@@ -183,22 +177,16 @@ export interface Database {
           timeline_id: string;
           person_id: string;
           role: string | null;
-          display_order: number | null;
-          created_at: string;
         };
         Insert: {
           timeline_id: string;
           person_id: string;
           role?: string | null;
-          display_order?: number | null;
-          created_at?: string;
         };
         Update: {
           timeline_id?: string;
           person_id?: string;
           role?: string | null;
-          display_order?: number | null;
-          created_at?: string;
         };
       };
     };

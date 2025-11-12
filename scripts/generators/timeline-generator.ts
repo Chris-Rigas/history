@@ -205,11 +205,11 @@ export async function linkEventsToTimeline(
   eventIds: string[]
 ): Promise<void> {
   console.log(`   🔗 Linking ${eventIds.length} events to timeline...`);
-  
+
   for (let i = 0; i < eventIds.length; i++) {
-    await linkEventToTimeline(timelineId, eventIds[i], i);
+    await linkEventToTimeline(timelineId, eventIds[i]);
   }
-  
+
   console.log(`   ✅ Events linked`);
 }
 
@@ -222,12 +222,12 @@ export async function linkPeopleToTimeline(
   roles?: Record<string, string>
 ): Promise<void> {
   console.log(`   🔗 Linking ${peopleIds.length} people to timeline...`);
-  
+
   for (let i = 0; i < peopleIds.length; i++) {
     const personId = peopleIds[i];
     const role = roles?.[personId];
-    await linkPersonToTimeline(timelineId, personId, role, i);
+    await linkPersonToTimeline(timelineId, personId, role);
   }
-  
+
   console.log(`   ✅ People linked`);
 }

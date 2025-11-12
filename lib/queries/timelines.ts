@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { supabaseClient, supabaseAdmin } from '../supabase';
 import type {
+  Database,
   Timeline,
   TimelineInsert,
   TimelineUpdate,
@@ -75,19 +76,42 @@ export async function getTimelineWithEvents(
   const { data: eventData, error } = await client
     .from('timeline_events')
     .select(`
-      display_order,
+      position,
       events (*)
     `)
     .eq('timeline_id', timeline.id)
-    .order('display_order', { ascending: true });
+    .order('position', { ascending: true, nullsFirst: false });
 
   if (error) throw error;
 
-  // Extract events from the joined data and sort by year if no display_order
-  const events = (eventData || [])
-    .map(te => te.events as Event)
-    .filter(Boolean)
-    .sort((a, b) => a.start_year - b.start_year);
+  // Extract events from the joined data and sort by year for consistency
+  const events = ((eventData || []) as Array<{
+    position?: number | null;
+    events?: Event | null;
+  }>)
+    .map(row => ({
+      position: row.position ?? null,
+      event: row.events ?? null,
+    }))
+    .filter(item => item.event)
+    .sort((a, b) => {
+      const positionA = a.position ?? Number.MAX_SAFE_INTEGER;
+      const positionB = b.position ?? Number.MAX_SAFE_INTEGER;
+      if (positionA !== positionB) {
+        return positionA - positionB;
+      }
+
+      const yearA = a.event?.start_year ?? Number.MAX_SAFE_INTEGER;
+      const yearB = b.event?.start_year ?? Number.MAX_SAFE_INTEGER;
+      if (yearA !== yearB) {
+        return yearA - yearB;
+      }
+
+      const titleA = a.event?.title ?? '';
+      const titleB = b.event?.title ?? '';
+      return titleA.localeCompare(titleB);
+    })
+    .map(item => item.event as Event);
 
   return {
     ...timeline,
@@ -111,11 +135,10 @@ export async function getTimelineWithPeople(
     .from('timeline_people')
     .select(`
       role,
-      display_order,
       people (*)
     `)
     .eq('timeline_id', timeline.id)
-    .order('display_order', { ascending: true });
+    .order('name', { ascending: true, foreignTable: 'people' });
 
   if (error) throw error;
 
@@ -161,16 +184,41 @@ export async function getTimelineHighlightEvents(
   const { data, error } = await client
     .from('timeline_events')
     .select(`
+      position,
       events (*)
     `)
     .eq('timeline_id', timelineId)
-    .order('display_order', { ascending: true });
+    .order('position', { ascending: true, nullsFirst: false });
 
   if (error) throw error;
 
-  const events = (data || [])
-    .map(te => te.events as Event)
-    .filter(Boolean)
+  const events = ((data || []) as Array<{
+    position?: number | null;
+    events?: Event | null;
+  }>)
+    .map(row => ({
+      position: row.position ?? null,
+      event: row.events ?? null,
+    }))
+    .filter(item => item.event)
+    .sort((a, b) => {
+      const positionA = a.position ?? Number.MAX_SAFE_INTEGER;
+      const positionB = b.position ?? Number.MAX_SAFE_INTEGER;
+      if (positionA !== positionB) {
+        return positionA - positionB;
+      }
+
+      const yearA = a.event?.start_year ?? Number.MAX_SAFE_INTEGER;
+      const yearB = b.event?.start_year ?? Number.MAX_SAFE_INTEGER;
+      if (yearA !== yearB) {
+        return yearA - yearB;
+      }
+
+      const titleA = a.event?.title ?? '';
+      const titleB = b.event?.title ?? '';
+      return titleA.localeCompare(titleB);
+    })
+    .map(item => item.event as Event)
     .filter(event => event.importance === 3)
     .slice(0, limit);
 
@@ -214,15 +262,29 @@ export async function updateTimeline(
  */
 export async function linkEventToTimeline(
   timelineId: string,
-  eventId: string,
-  displayOrder?: number
+  eventId: string
 ): Promise<void> {
+  const { data: existingRows, error: existingError } = await supabaseAdmin
+    .from('timeline_events')
+    .select('position')
+    .eq('timeline_id', timelineId);
+
+  if (existingError) throw existingError;
+
+  const positions = (existingRows || [])
+    .map(row => row.position)
+    .filter((value): value is number => typeof value === 'number');
+
+  const nextPosition = positions.length > 0
+    ? Math.max(...positions) + 1
+    : ((existingRows?.length ?? 0) + 1);
+
   const { error } = await supabaseAdmin
     .from('timeline_events')
     .insert({
       timeline_id: timelineId,
       event_id: eventId,
-      display_order: displayOrder,
+      position: nextPosition,
     });
 
   if (error) throw error;
@@ -234,8 +296,7 @@ export async function linkEventToTimeline(
 export async function linkPersonToTimeline(
   timelineId: string,
   personId: string,
-  role?: string,
-  displayOrder?: number
+  role?: string
 ): Promise<void> {
   const { error } = await supabaseAdmin
     .from('timeline_people')
@@ -243,7 +304,6 @@ export async function linkPersonToTimeline(
       timeline_id: timelineId,
       person_id: personId,
       role,
-      display_order: displayOrder,
     });
 
   if (error) throw error;

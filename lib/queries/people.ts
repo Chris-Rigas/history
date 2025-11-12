@@ -96,12 +96,11 @@ export async function getPeopleByTimelineId(timelineId: string): Promise<Person[
   const { data, error } = await supabaseClient
     .from('timeline_people')
     .select(`
-      display_order,
       role,
       people (*)
     `)
     .eq('timeline_id', timelineId)
-    .order('display_order', { ascending: true });
+    .order('name', { ascending: true, foreignTable: 'people' });
 
   if (error) throw error;
 
@@ -159,8 +158,7 @@ export async function getPersonTimelineEvents(
   const { data: timelineEventData, error: timelineError } = await supabaseClient
     .from('timeline_events')
     .select(`
-      event_id,
-      display_order
+      event_id
     `)
     .eq('timeline_id', timelineId);
 

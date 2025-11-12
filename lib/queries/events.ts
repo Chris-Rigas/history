@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { supabaseClient, supabaseAdmin } from '../supabase';
 import type {
+  Database,
   Event,
   EventInsert,
   EventUpdate,
@@ -106,6 +107,34 @@ function getClient(options?: QueryOptions) {
   return options?.client ?? supabaseClient;
 }
 
+interface TimelineEventRow {
+  event_id: string;
+  position: number | null;
+  events: Event | null;
+}
+
+function sortTimelineEventRows(rows: TimelineEventRow[]): TimelineEventRow[] {
+  return rows
+    .filter(row => row.events)
+    .sort((a, b) => {
+      const positionA = a.position ?? Number.MAX_SAFE_INTEGER;
+      const positionB = b.position ?? Number.MAX_SAFE_INTEGER;
+      if (positionA !== positionB) {
+        return positionA - positionB;
+      }
+
+      const yearA = a.events?.start_year ?? Number.MAX_SAFE_INTEGER;
+      const yearB = b.events?.start_year ?? Number.MAX_SAFE_INTEGER;
+      if (yearA !== yearB) {
+        return yearA - yearB;
+      }
+
+      const titleA = a.events?.title ?? '';
+      const titleB = b.events?.title ?? '';
+      return titleA.localeCompare(titleB);
+    });
+}
+
 export async function getEventsByTimelineId(
   timelineId: string,
   options?: QueryOptions
@@ -115,18 +144,29 @@ export async function getEventsByTimelineId(
   let query = client
     .from('timeline_events')
     .select(`
-      display_order,
+      event_id,
+      position,
       events (*)
     `)
     .eq('timeline_id', timelineId);
 
-  const { data, error } = await query.order('display_order', { ascending: true });
+  const { data, error } = await query.order('position', { ascending: true, nullsFirst: false });
 
   if (error) throw error;
 
-  let events = (data || [])
-    .map(te => te.events as Event)
-    .filter(Boolean);
+  const rows = ((data || []) as Array<{
+    event_id: string;
+    position?: number | null;
+    events?: Event | null;
+  }>).map(row => ({
+    event_id: row.event_id,
+    position: row.position ?? null,
+    events: row.events ?? null,
+  }));
+
+  const sorted = sortTimelineEventRows(rows);
+
+  let events = sorted.map(row => row.events as Event);
 
   // Apply filters if provided
   if (options?.importance) {
@@ -159,53 +199,47 @@ export async function getNeighborEvents(
   beforeCount: number = 3,
   afterCount: number = 3
 ): Promise<{ before: Event[]; after: Event[] }> {
-  // Get the event's display order
-  const { data: currentEventData, error: currentError } = await supabaseClient
-    .from('timeline_events')
-    .select('display_order')
-    .eq('timeline_id', timelineId)
-    .eq('event_id', eventId)
-    .single();
-
-  if (currentError) throw currentError;
-
-  const currentOrder = currentEventData?.display_order || 0;
-
-  // Get events before
-  const { data: beforeData, error: beforeError } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('timeline_events')
     .select(`
-      display_order,
+      event_id,
+      position,
       events (*)
     `)
     .eq('timeline_id', timelineId)
-    .lt('display_order', currentOrder)
-    .order('display_order', { ascending: false })
-    .limit(beforeCount);
+    .order('position', { ascending: true, nullsFirst: false });
 
-  if (beforeError) throw beforeError;
+  if (error) throw error;
 
-  // Get events after
-  const { data: afterData, error: afterError } = await supabaseClient
-    .from('timeline_events')
-    .select(`
-      display_order,
-      events (*)
-    `)
-    .eq('timeline_id', timelineId)
-    .gt('display_order', currentOrder)
-    .order('display_order', { ascending: true })
-    .limit(afterCount);
+  const rows = ((data || []) as Array<{
+    event_id: string;
+    position?: number | null;
+    events?: Event | null;
+  }>).map(row => ({
+    event_id: row.event_id,
+    position: row.position ?? null,
+    events: row.events ?? null,
+  }));
 
-  if (afterError) throw afterError;
+  const items = sortTimelineEventRows(rows).map(row => ({
+    eventId: row.event_id,
+    event: row.events as Event,
+  }));
 
-  const before = (beforeData || [])
-    .map(te => te.events as Event)
-    .filter(Boolean)
-    .reverse(); // Reverse to get chronological order
+  const currentIndex = items.findIndex(item => item.eventId === eventId);
 
-  const after = (afterData || [])
-    .map(te => te.events as Event)
+  if (currentIndex === -1) {
+    return { before: [], after: [] };
+  }
+
+  const before = items
+    .slice(Math.max(0, currentIndex - beforeCount), currentIndex)
+    .map(item => item.event)
+    .filter(Boolean);
+
+  const after = items
+    .slice(currentIndex + 1, currentIndex + 1 + afterCount)
+    .map(item => item.event)
     .filter(Boolean);
 
   return { before, after };

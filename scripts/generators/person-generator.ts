@@ -1,4 +1,4 @@
-import { generatePersonBio, generatePeopleOutline } from '@/lib/openai';
+import { generatePersonBio, generatePeopleOutline as generatePeopleOutlineFromOpenAI } from '@/lib/openai';
 import { createPerson } from '@/lib/queries/people';
 import { linkPersonToTimeline } from '@/lib/queries/timelines';
 import { linkPersonToEvent as linkToEvent } from '@/lib/queries/events';
@@ -23,7 +23,7 @@ export async function generatePeopleOutline(
   console.log(`   Requested people: ${personCount}`);
 
   try {
-    const outline = await generatePeopleOutline({
+    const outline = await generatePeopleOutlineFromOpenAI({
       timelineTitle: timeline.title,
       startYear: timeline.start_year,
       endYear: timeline.end_year,

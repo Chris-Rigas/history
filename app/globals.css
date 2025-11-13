@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply text-gray-900;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* Timeline-specific components */
+  .timeline-dot {
+    @apply w-3 h-3 rounded-full border-2 border-white shadow-md;
+  }
+  
+  .timeline-dot-1 {
+    @apply bg-gray-400;
+  }
+  
+  .timeline-dot-2 {
+    @apply bg-blue-500;
+  }
+  
+  .timeline-dot-3 {
+    @apply bg-red-500;
+  }
+  
+  /* Content containers */
+  .content-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .prose-historical {
+    @apply prose prose-gray max-w-none;
+    @apply prose-headings:font-serif prose-headings:text-gray-900;
+    @apply prose-p:text-gray-700 prose-p:leading-relaxed;
+    @apply prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline;
+    @apply prose-strong:text-gray-900 prose-strong:font-semibold;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

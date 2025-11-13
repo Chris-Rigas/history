@@ -1,59 +1,69 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { NextResponse } from 'next/server';
+import { askGemini, generateSuggestedQuestions, prepareTimelineContext } from '@/lib/gemini';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: {
-    template: '%s | History Timelines',
-    default: 'History Timelines - Interactive Historical Timelines & Events',
-  },
-  description: 'Explore comprehensive interactive timelines of historical events, civilizations, and key figures. Deep dive into the Aztec Empire, Hun conquests, and more.',
-  keywords: ['history', 'timeline', 'historical events', 'civilizations', 'world history'],
-  authors: [{ name: 'History Timelines' }],
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: 'History Timelines',
-    title: 'History Timelines - Interactive Historical Timelines & Events',
-    description: 'Explore comprehensive interactive timelines of historical events, civilizations, and key figures.',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'History Timelines',
-    description: 'Explore comprehensive interactive timelines of historical events',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+type ConversationMessage = {
+  role: 'user' | 'model';
+  parts: string;
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-50`}>
-        <Header />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-      </body>
-    </html>
-  );
+type TimelineContext = Parameters<typeof prepareTimelineContext>[0];
+
+type ChatRequestBody = {
+  action?: 'suggest';
+  question?: string;
+  context?: TimelineContext;
+  conversationHistory?: ConversationMessage[];
+};
+
+function buildContextString(context?: TimelineContext): string {
+  if (!context) {
+    return '';
+  }
+
+  try {
+    return prepareTimelineContext(context);
+  } catch (error) {
+    console.error('Error preparing context:', error);
+    return '';
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body: ChatRequestBody = await request.json();
+    const { action, question, context, conversationHistory = [] } = body;
+
+    const contextString = buildContextString(context);
+
+    if (action === 'suggest') {
+      if (!context) {
+        return NextResponse.json(
+          { error: 'Context is required to generate suggested questions.' },
+          { status: 400 },
+        );
+      }
+
+      const questions = await generateSuggestedQuestions(contextString);
+      return NextResponse.json({ questions });
+    }
+
+    if (!question) {
+      return NextResponse.json({ error: 'Question is required.' }, { status: 400 });
+    }
+
+    const answer = await askGemini({
+      context: contextString,
+      question,
+      conversationHistory,
+    });
+
+    return NextResponse.json({ answer });
+  } catch (error) {
+    console.error('Chat API error:', error);
+
+    return NextResponse.json(
+      { error: 'Failed to process the chat request. Please try again later.' },
+      { status: 500 },
+    );
+  }
 }

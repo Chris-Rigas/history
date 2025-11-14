@@ -46,6 +46,8 @@ export default function KeyPeopleGrid({ timeline, people }: KeyPeopleGridProps) 
               <div className="w-16 h-16 bg-antiqueBronze-200 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-antiqueBronze-300 transition-colors">
                 <svg
                   className="w-8 h-8 text-antiqueBronze-600"
+                  width={32}
+                  height={32}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -83,6 +85,8 @@ export default function KeyPeopleGrid({ timeline, people }: KeyPeopleGridProps) 
                 <span>Learn More</span>
                 <svg
                   className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
+                  width={16}
+                  height={16}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

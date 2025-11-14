@@ -49,6 +49,8 @@ export default function EventCard({ event, timeline }: EventCardProps) {
           <div className="flex items-center text-sm text-gray-500">
             <svg
               className="w-4 h-4 mr-1"
+              width={16}
+              height={16}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,6 +117,8 @@ export default function EventCard({ event, timeline }: EventCardProps) {
           <span>Read More</span>
           <svg
             className="w-4 h-4"
+            width={16}
+            height={16}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

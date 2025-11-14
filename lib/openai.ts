@@ -9,6 +9,22 @@ const openai = new OpenAI({
 const DEFAULT_MODEL = 'gpt-4-turbo-preview';
 const MAX_TOKENS = 4000;
 
+function extractJsonPayload(content: string): string {
+  const trimmed = content.trim();
+
+  const fencedBlockMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
+  if (fencedBlockMatch) {
+    return fencedBlockMatch[1].trim();
+  }
+
+  const inlineFenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (inlineFenceMatch) {
+    return inlineFenceMatch[1].trim();
+  }
+
+  return trimmed;
+}
+
 /**
  * Generate timeline content using GPT
  */
@@ -131,10 +147,11 @@ Format as JSON with keys: summary, description, significance, type, importance, 
   });
 
   const content = response.choices[0].message.content || '';
-  
+  const normalizedContent = extractJsonPayload(content);
+
   try {
     // Try to parse as JSON
-    const parsed = JSON.parse(content);
+    const parsed = JSON.parse(normalizedContent);
     return {
       summary: parsed.summary || '',
       description: parsed.description || '',
@@ -146,8 +163,8 @@ Format as JSON with keys: summary, description, significance, type, importance, 
   } catch {
     // Fallback: extract manually
     return {
-      summary: content.slice(0, 200),
-      description: content,
+      summary: normalizedContent.slice(0, 200),
+      description: normalizedContent,
       significance: '',
       tags: [],
       type: 'Event',

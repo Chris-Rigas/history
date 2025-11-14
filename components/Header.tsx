@@ -10,6 +10,8 @@ export default function Header() {
             <div className="w-8 h-8 bg-antiqueBronze-600 rounded flex items-center justify-center">
               <svg
                 className="w-5 h-5 text-white"
+                width={20}
+                height={20}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -50,6 +52,8 @@ export default function Header() {
           >
             <svg
               className="w-6 h-6"
+              width={24}
+              height={24}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

@@ -107,6 +107,8 @@ export default function PersonTimeline({ timeline, person, events }: PersonTimel
                     <span>View Event Details</span>
                     <svg
                       className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
+                      width={16}
+                      height={16}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

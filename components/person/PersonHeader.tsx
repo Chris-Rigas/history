@@ -39,6 +39,8 @@ export default function PersonHeader({ person, timeline }: PersonHeaderProps) {
         >
           <svg
             className="w-4 h-4 mr-2"
+            width={16}
+            height={16}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -60,6 +62,8 @@ export default function PersonHeader({ person, timeline }: PersonHeaderProps) {
             <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-parchment-100 rounded-full flex items-center justify-center">
               <svg
                 className="w-12 h-12 md:w-16 md:h-16 text-antiqueBronze-600"
+                width={48}
+                height={48}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -119,6 +123,8 @@ export default function PersonHeader({ person, timeline }: PersonHeaderProps) {
             <div className="flex items-center text-parchment-200">
               <svg
                 className="w-5 h-5 mr-2"
+                width={20}
+                height={20}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

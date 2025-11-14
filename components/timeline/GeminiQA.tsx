@@ -213,6 +213,8 @@ export default function GeminiQA({ timeline, events, people }: GeminiQAProps) {
               {isLoading ? (
                 <svg
                   className="w-5 h-5 animate-spin"
+                  width={20}
+                  height={20}
                   fill="none"
                   viewBox="0 0 24 24"
                 >

@@ -28,6 +28,8 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
         <li className="text-gray-400">
           <svg
             className="w-4 h-4"
+            width={16}
+            height={16}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -51,6 +53,8 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
             <span className="text-gray-400">
               <svg
                 className="w-4 h-4"
+                width={16}
+                height={16}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >

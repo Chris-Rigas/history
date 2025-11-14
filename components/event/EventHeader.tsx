@@ -42,6 +42,8 @@ export default function EventHeader({ event, timeline }: EventHeaderProps) {
         >
           <svg
             className="w-4 h-4 mr-2"
+            width={16}
+            height={16}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

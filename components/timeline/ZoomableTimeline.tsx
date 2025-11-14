@@ -80,6 +80,8 @@ export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineP
         <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
           <svg
             className="w-16 h-16 text-gray-300 mx-auto mb-4"
+            width={64}
+            height={64}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

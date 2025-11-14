@@ -49,6 +49,8 @@ export default function HighlightCards({ timeline, events }: HighlightCardsProps
                   <div className="flex items-center text-sm text-gray-500 ml-2">
                     <svg
                       className="w-4 h-4"
+                      width={16}
+                      height={16}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -96,6 +98,8 @@ export default function HighlightCards({ timeline, events }: HighlightCardsProps
                 <span className="mr-1">Explore Event</span>
                 <svg
                   className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                  width={16}
+                  height={16}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

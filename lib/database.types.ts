@@ -218,6 +218,53 @@ export interface Database {
           updated_at?: string;
         };
       };
+      timeline_metadata: {
+        Row: {
+          id: string;
+          timeline_id: string;
+          seo_title: string | null;
+          meta_description: string | null;
+          related_keywords: string[] | null;
+          initial_understanding: string | null;
+          research_digest: string | null;
+          unique_sources: Json | null;
+          primary_sources: Json | null;
+          total_sources: number | null;
+          structured_content: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          timeline_id: string;
+          seo_title?: string | null;
+          meta_description?: string | null;
+          related_keywords?: string[] | null;
+          initial_understanding?: string | null;
+          research_digest?: string | null;
+          unique_sources?: Json | null;
+          primary_sources?: Json | null;
+          total_sources?: number | null;
+          structured_content?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          timeline_id?: string;
+          seo_title?: string | null;
+          meta_description?: string | null;
+          related_keywords?: string[] | null;
+          initial_understanding?: string | null;
+          research_digest?: string | null;
+          unique_sources?: Json | null;
+          primary_sources?: Json | null;
+          total_sources?: number | null;
+          structured_content?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -250,6 +297,9 @@ export type TimelinePerson = Database['public']['Tables']['timeline_people']['Ro
 export type TimelineSource = Database['public']['Tables']['timeline_sources']['Row'];
 export type TimelineSourceInsert = Database['public']['Tables']['timeline_sources']['Insert'];
 export type TimelineSourceUpdate = Database['public']['Tables']['timeline_sources']['Update'];
+export type TimelineMetadata = Database['public']['Tables']['timeline_metadata']['Row'];
+export type TimelineMetadataInsert = Database['public']['Tables']['timeline_metadata']['Insert'];
+export type TimelineMetadataUpdate = Database['public']['Tables']['timeline_metadata']['Update'];
 
 // Extended types with relations for use in queries
 export type TimelineWithEvents = Timeline & {
@@ -281,4 +331,5 @@ export type TimelineFull = Timeline & {
   events: Event[];
   people: Person[];
   sources: TimelineSource[];
+  metadata: TimelineMetadata | null;
 };

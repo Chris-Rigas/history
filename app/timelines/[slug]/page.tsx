@@ -36,22 +36,41 @@ export async function generateMetadata({ params }: TimelinePageProps): Promise<M
     };
   }
 
+  const defaultTitle = `${timeline.title} — Timeline & Key Events`;
+  const metaTitle = timeline.metadata?.seo_title?.trim() || defaultTitle;
+
+  const fallbackDescription =
+    (timeline.summary && stripTimelineFormatting(timeline.summary)) ||
+    `Explore the complete timeline of ${timeline.title} with key events, turning points, and historical figures from ${timeline.start_year} to ${timeline.end_year}.`;
+
+  const metaDescription =
+    timeline.metadata?.meta_description?.trim() || fallbackDescription;
+
+  const keywordSet = new Set<string>();
+  [
+    timeline.title,
+    'timeline',
+    'history',
+    timeline.region || '',
+    `${timeline.start_year}`,
+    `${timeline.end_year}`,
+  ]
+    .filter(Boolean)
+    .forEach(keyword => keywordSet.add(keyword));
+
+  (timeline.metadata?.related_keywords || [])
+    .filter(Boolean)
+    .forEach(keyword => keywordSet.add(keyword));
+
+  const keywords = Array.from(keywordSet);
+
   return {
-    title: `${timeline.title} — Timeline & Key Events`,
-    description:
-      (timeline.summary && stripTimelineFormatting(timeline.summary)) ||
-      `Explore the complete timeline of ${timeline.title} with key events, turning points, and historical figures from ${timeline.start_year} to ${timeline.end_year}.`,
-    keywords: [
-      timeline.title,
-      'timeline',
-      'history',
-      timeline.region || '',
-      `${timeline.start_year}`,
-      `${timeline.end_year}`,
-    ].filter(Boolean),
+    title: metaTitle,
+    description: metaDescription,
+    keywords,
     openGraph: {
-      title: `${timeline.title} — Timeline & Key Events`,
-      description: timeline.summary ? stripTimelineFormatting(timeline.summary) : '',
+      title: metaTitle,
+      description: metaDescription,
       type: 'website',
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/timelines/${timeline.slug}`,
       images: timeline.map_image_url ? [timeline.map_image_url] : [],

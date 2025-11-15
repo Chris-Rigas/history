@@ -1,5 +1,5 @@
 import Script from 'next/script';
-import type { Timeline, Event, Person } from '@/lib/database.types';
+import type { Timeline, Event, Person, TimelineFull } from '@/lib/database.types';
 import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 
 interface BaseSchemaProps {
@@ -8,7 +8,7 @@ interface BaseSchemaProps {
 
 interface TimelineSchemaProps extends BaseSchemaProps {
   type: 'timeline';
-  timeline: Timeline;
+  timeline: TimelineFull;
   events?: Event[];
 }
 
@@ -59,12 +59,17 @@ function generateTimelineSchema(
   baseUrl: string
 ) {
   const { timeline, events = [] } = props;
-  
+  const description = timeline.metadata?.meta_description
+    ? timeline.metadata.meta_description
+    : timeline.summary
+    ? stripTimelineFormatting(timeline.summary)
+    : '';
+
   return {
     '@context': 'https://schema.org',
     '@type': 'EventSeries',
     name: timeline.title,
-    description: timeline.summary ? stripTimelineFormatting(timeline.summary) : '',
+    description,
     startDate: `${timeline.start_year}-01-01`,
     endDate: `${timeline.end_year}-12-31`,
     location: timeline.region

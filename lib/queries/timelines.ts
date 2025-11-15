@@ -169,7 +169,21 @@ export async function getTimelineSources(
     .eq('timeline_id', timelineId)
     .order('number', { ascending: true });
 
-  if (error) throw error;
+  if (error) {
+    // Handle deployments where the optional timeline_sources table has not been
+    // created yet. Supabase returns PGRST205 when a table is missing from the
+    // schema cache, so in that case we silently fall back to returning no
+    // sources rather than surfacing an exception that prevents generation.
+    if (error.code === 'PGRST205') {
+      console.warn(
+        'timeline_sources table not found; skipping citation retrieval. '
+          + 'Run the latest database migrations if you need citation support.'
+      );
+      return [];
+    }
+
+    throw error;
+  }
 
   return (data as TimelineSource[]) || [];
 }
@@ -294,7 +308,17 @@ export async function replaceTimelineSources(
     .delete()
     .eq('timeline_id', timelineId);
 
-  if (deleteError) throw deleteError;
+  if (deleteError) {
+    if (deleteError.code === 'PGRST205') {
+      console.warn(
+        'timeline_sources table not found; skipping citation storage. '
+          + 'Run the latest database migrations if you need citation support.'
+      );
+      return;
+    }
+
+    throw deleteError;
+  }
 
   if (sources.length === 0) {
     return;
@@ -311,7 +335,17 @@ export async function replaceTimelineSources(
     .from('timeline_sources')
     .insert(payload);
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn(
+        'timeline_sources table not found; skipping citation storage. '
+          + 'Run the latest database migrations if you need citation support.'
+      );
+      return;
+    }
+
+    throw error;
+  }
 }
 
 /**

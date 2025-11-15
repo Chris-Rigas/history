@@ -19,7 +19,7 @@ export interface TimelineSeed {
  */
 export const TIMELINE_SEEDS: TimelineSeed[] = [
   {
-    title: 'Julio-Claudian Dynasty Timeline',
+    title: 'Julio-Claudian Dynasty',
     startYear: -27,
     endYear: 68,
     region: 'Roman Empire',
@@ -28,7 +28,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Year of the Four Emperors Timeline',
+    title: 'Year of the Four Emperors',
     startYear: 68,
     endYear: 69,
     region: 'Roman Empire',
@@ -37,7 +37,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Flavian Dynasty Timeline',
+    title: 'Flavian Dynasty',
     startYear: 69,
     endYear: 96,
     region: 'Roman Empire',
@@ -46,7 +46,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Five Good Emperors Timeline',
+    title: 'Five Good Emperors',
     startYear: 96,
     endYear: 180,
     region: 'Roman Empire',
@@ -55,7 +55,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Crisis of the Third Century Timeline',
+    title: 'Crisis of the Third Century',
     startYear: 235,
     endYear: 284,
     region: 'Roman Empire',
@@ -64,7 +64,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 12,
   },
   {
-    title: 'Fall of the Western Roman Empire Timeline',
+    title: 'Fall of the Western Roman Empire',
     startYear: 376,
     endYear: 476,
     region: 'Western Roman Empire',
@@ -73,7 +73,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 12,
   },
   {
-    title: 'Punic Wars Timeline',
+    title: 'Punic Wars',
     startYear: -264,
     endYear: -146,
     region: 'Mediterranean',
@@ -82,7 +82,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Conquest of Gaul Timeline',
+    title: 'Roman Conquest of Gaul',
     startYear: -58,
     endYear: -50,
     region: 'Western Europe',
@@ -91,7 +91,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Conquest of Britain Timeline',
+    title: 'Roman Conquest of Britain',
     startYear: 43,
     endYear: 84,
     region: 'Britannia',
@@ -100,7 +100,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Parthian Wars Timeline',
+    title: 'Roman Parthian Wars',
     startYear: -54,
     endYear: 217,
     region: 'Near East',
@@ -109,7 +109,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Germanic Wars Timeline',
+    title: 'Roman Germanic Wars',
     startYear: -113,
     endYear: 476,
     region: 'Northern Frontiers',
@@ -118,7 +118,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 12,
   },
   {
-    title: 'Jewish Roman Wars Timeline',
+    title: 'Jewish Roman Wars',
     startYear: 66,
     endYear: 135,
     region: 'Judea',
@@ -127,7 +127,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Julius Caesar Timeline',
+    title: 'Julius Caesar',
     startYear: -100,
     endYear: -44,
     region: 'Roman Republic',
@@ -136,7 +136,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Augustus Timeline',
+    title: 'Augustus',
     startYear: -63,
     endYear: 14,
     region: 'Roman Empire',
@@ -145,7 +145,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Constantine the Great Timeline',
+    title: 'Constantine the Great',
     startYear: 272,
     endYear: 337,
     region: 'Roman Empire',
@@ -154,7 +154,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Marcus Aurelius Timeline',
+    title: 'Marcus Aurelius',
     startYear: 121,
     endYear: 180,
     region: 'Roman Empire',
@@ -163,7 +163,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Nero Timeline',
+    title: 'Nero',
     startYear: 37,
     endYear: 68,
     region: 'Roman Empire',
@@ -172,7 +172,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Trajan Timeline',
+    title: 'Trajan',
     startYear: 53,
     endYear: 117,
     region: 'Roman Empire',
@@ -181,7 +181,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Severan Dynasty Timeline',
+    title: 'Severan Dynasty',
     startYear: 193,
     endYear: 235,
     region: 'Roman Empire',
@@ -190,7 +190,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Tetrarchy Reforms Timeline',
+    title: 'Tetrarchy Reforms',
     startYear: 293,
     endYear: 313,
     region: 'Roman Empire',
@@ -199,7 +199,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Civil Wars Timeline',
+    title: 'Roman Civil Wars',
     startYear: -133,
     endYear: -30,
     region: 'Roman Republic',
@@ -208,7 +208,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 12,
   },
   {
-    title: 'Social War Timeline',
+    title: 'Social War',
     startYear: -91,
     endYear: -87,
     region: 'Italian Peninsula',
@@ -217,7 +217,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Roman Expansion into Hispania Timeline',
+    title: 'Roman Expansion into Hispania',
     startYear: -218,
     endYear: -19,
     region: 'Iberian Peninsula',
@@ -226,7 +226,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Dacian Wars Timeline',
+    title: 'Roman Dacian Wars',
     startYear: 85,
     endYear: 106,
     region: 'Danubian Frontier',
@@ -235,7 +235,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Macedonian Wars Timeline',
+    title: 'Macedonian Wars',
     startYear: -214,
     endYear: -148,
     region: 'Eastern Mediterranean',
@@ -244,7 +244,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Seleucid Conflict Timeline',
+    title: 'Roman Seleucid Conflict',
     startYear: -192,
     endYear: -188,
     region: 'Eastern Mediterranean',
@@ -253,7 +253,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Third Servile War Timeline',
+    title: 'Third Servile War',
     startYear: -73,
     endYear: -71,
     region: 'Italian Peninsula',
@@ -262,7 +262,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Carthaginian Decline Timeline',
+    title: 'Carthaginian Decline',
     startYear: -241,
     endYear: -146,
     region: 'Western Mediterranean',
@@ -271,7 +271,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Rise of Rome over the Hellenistic Kingdoms Timeline',
+    title: 'Rise of Rome over the Hellenistic Kingdoms',
     startYear: -200,
     endYear: -30,
     region: 'Mediterranean',
@@ -280,7 +280,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Early Byzantine Empire Timeline',
+    title: 'Early Byzantine Empire',
     startYear: 330,
     endYear: 602,
     region: 'Eastern Roman Empire',
@@ -289,7 +289,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 12,
   },
   {
-    title: 'Roman Populism Timeline',
+    title: 'Roman Populism',
     startYear: -133,
     endYear: -27,
     region: 'Roman Republic',
@@ -298,7 +298,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Slavery Timeline',
+    title: 'Roman Slavery',
     startYear: -200,
     endYear: 476,
     region: 'Roman World',
@@ -307,7 +307,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Stoicism Timeline',
+    title: 'Roman Stoicism',
     startYear: -150,
     endYear: 200,
     region: 'Roman Empire',
@@ -316,7 +316,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Roman Citizenship Timeline',
+    title: 'Roman Citizenship',
     startYear: -90,
     endYear: 212,
     region: 'Roman Empire',
@@ -325,7 +325,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 6,
   },
   {
-    title: 'Roman Republicanism Timeline',
+    title: 'Roman Republicanism',
     startYear: -509,
     endYear: -27,
     region: 'Roman Republic',
@@ -334,7 +334,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Urbanization Timeline',
+    title: 'Roman Urbanization',
     startYear: -500,
     endYear: 400,
     region: 'Roman World',
@@ -343,7 +343,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Roads Timeline',
+    title: 'Roman Roads',
     startYear: -312,
     endYear: 400,
     region: 'Roman World',
@@ -352,7 +352,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Aqueducts Timeline',
+    title: 'Roman Aqueducts',
     startYear: -312,
     endYear: 226,
     region: 'Roman World',
@@ -361,7 +361,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Concrete Timeline',
+    title: 'Roman Concrete',
     startYear: -200,
     endYear: 476,
     region: 'Roman World',
@@ -370,7 +370,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 8,
   },
   {
-    title: 'Roman Military Engineering Timeline',
+    title: 'Roman Military Engineering',
     startYear: -264,
     endYear: 378,
     region: 'Roman World',
@@ -379,7 +379,7 @@ export const TIMELINE_SEEDS: TimelineSeed[] = [
     peopleCount: 10,
   },
   {
-    title: 'Roman Siege Weapons Timeline',
+    title: 'Roman Siege Weapons',
     startYear: -396,
     endYear: 410,
     region: 'Roman World',
@@ -416,7 +416,7 @@ export function extractTimelineMetadata(source: string): Partial<TimelineSeed> {
   // Could integrate with APIs, scraping, or structured data sources
   
   return {
-    title: 'Unknown Timeline',
+    title: 'Unknown',
     startYear: 0,
     endYear: 0,
   };

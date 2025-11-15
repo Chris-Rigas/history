@@ -1,5 +1,6 @@
 import Script from 'next/script';
 import type { Timeline, Event, Person } from '@/lib/database.types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 
 interface BaseSchemaProps {
   type: 'timeline' | 'event' | 'person';
@@ -63,7 +64,7 @@ function generateTimelineSchema(
     '@context': 'https://schema.org',
     '@type': 'EventSeries',
     name: timeline.title,
-    description: timeline.summary || '',
+    description: timeline.summary ? stripTimelineFormatting(timeline.summary) : '',
     startDate: `${timeline.start_year}-01-01`,
     endDate: `${timeline.end_year}-12-31`,
     location: timeline.region

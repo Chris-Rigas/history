@@ -1,10 +1,16 @@
-import type { Timeline } from '@/lib/database.types';
+import type { TimelineFull } from '@/lib/database.types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 
 interface TimelineHeaderProps {
-  timeline: Timeline;
+  timeline: TimelineFull;
 }
 
 export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
+  const summaryPlain = timeline.summary ? stripTimelineFormatting(timeline.summary) : '';
+  const firstSentence = summaryPlain
+    ? summaryPlain.split(/(?<=[.?!])\s+/)[0]
+    : '';
+
   return (
     <header className="bg-gradient-to-br from-antiqueBronze-600 to-antiqueBronze-500 text-white py-12">
       <div className="content-container">
@@ -14,9 +20,9 @@ export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
         </h1>
 
         {/* Subheading */}
-        {timeline.summary && (
+        {firstSentence && (
           <p className="text-xl md:text-2xl text-parchment-100 mb-8 max-w-4xl">
-            {timeline.summary.split('.')[0]}.
+            {firstSentence}
           </p>
         )}
 

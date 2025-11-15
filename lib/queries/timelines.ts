@@ -11,6 +11,8 @@ import type {
   TimelineFull,
   Event,
   Person,
+  TimelineSource,
+  TimelineSourceInsert,
 } from '../database.types';
 
 /**
@@ -153,6 +155,26 @@ export async function getTimelineWithPeople(
 }
 
 /**
+ * Get stored citation sources for a timeline
+ */
+export async function getTimelineSources(
+  timelineId: string,
+  options?: QueryOptions
+): Promise<TimelineSource[]> {
+  const client = getClient(options);
+
+  const { data, error } = await client
+    .from('timeline_sources')
+    .select('*')
+    .eq('timeline_id', timelineId)
+    .order('number', { ascending: true });
+
+  if (error) throw error;
+
+  return (data as TimelineSource[]) || [];
+}
+
+/**
  * Get a timeline with all related data (events and people)
  */
 export async function getTimelineFull(
@@ -165,9 +187,12 @@ export async function getTimelineFull(
   const timelineWithPeople = await getTimelineWithPeople(slug, options);
   if (!timelineWithPeople) return null;
 
+  const sources = await getTimelineSources(timelineWithEvents.id, options);
+
   return {
     ...timelineWithEvents,
     people: timelineWithPeople.people,
+    sources,
   };
 }
 
@@ -255,6 +280,38 @@ export async function updateTimeline(
 
   if (error) throw error;
   return data;
+}
+
+/**
+ * Replace timeline citation sources
+ */
+export async function replaceTimelineSources(
+  timelineId: string,
+  sources: TimelineSourceInsert[]
+): Promise<void> {
+  const { error: deleteError } = await supabaseAdmin
+    .from('timeline_sources')
+    .delete()
+    .eq('timeline_id', timelineId);
+
+  if (deleteError) throw deleteError;
+
+  if (sources.length === 0) {
+    return;
+  }
+
+  const payload = sources.map(source => ({
+    timeline_id: timelineId,
+    number: source.number,
+    source: source.source,
+    url: source.url,
+  }));
+
+  const { error } = await supabaseAdmin
+    .from('timeline_sources')
+    .insert(payload);
+
+  if (error) throw error;
 }
 
 /**

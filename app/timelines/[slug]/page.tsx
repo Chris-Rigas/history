@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTimelineFull, getTimelineHighlightEvents } from '@/lib/queries/timelines';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import SEOSchema, { BreadcrumbSchema } from '@/components/SEO';
 import TimelineHeader from '@/components/timeline/TimelineHeader';
@@ -37,7 +38,9 @@ export async function generateMetadata({ params }: TimelinePageProps): Promise<M
 
   return {
     title: `${timeline.title} — Timeline & Key Events`,
-    description: timeline.summary || `Explore the complete timeline of ${timeline.title} with key events, turning points, and historical figures from ${timeline.start_year} to ${timeline.end_year}.`,
+    description:
+      (timeline.summary && stripTimelineFormatting(timeline.summary)) ||
+      `Explore the complete timeline of ${timeline.title} with key events, turning points, and historical figures from ${timeline.start_year} to ${timeline.end_year}.`,
     keywords: [
       timeline.title,
       'timeline',
@@ -48,7 +51,7 @@ export async function generateMetadata({ params }: TimelinePageProps): Promise<M
     ].filter(Boolean),
     openGraph: {
       title: `${timeline.title} — Timeline & Key Events`,
-      description: timeline.summary || '',
+      description: timeline.summary ? stripTimelineFormatting(timeline.summary) : '',
       type: 'website',
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/timelines/${timeline.slug}`,
       images: timeline.map_image_url ? [timeline.map_image_url] : [],

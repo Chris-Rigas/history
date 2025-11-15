@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Timeline, Event, Person } from '@/lib/database.types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 
 interface EventQAProps {
   timeline: Timeline;
@@ -37,7 +38,7 @@ export default function EventQA({ timeline, event, people }: EventQAProps) {
           start_year: timeline.start_year,
           end_year: timeline.end_year,
           region: timeline.region,
-          summary: timeline.summary,
+          summary: timeline.summary ? stripTimelineFormatting(timeline.summary) : null,
         },
         events: [{
           title: event.title,
@@ -105,7 +106,7 @@ export default function EventQA({ timeline, event, people }: EventQAProps) {
           start_year: timeline.start_year,
           end_year: timeline.end_year,
           region: timeline.region,
-          summary: timeline.summary,
+          summary: timeline.summary ? stripTimelineFormatting(timeline.summary) : null,
         },
         events: [{
           title: event.title,

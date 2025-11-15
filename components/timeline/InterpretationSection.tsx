@@ -1,7 +1,7 @@
-import type { Timeline } from '@/lib/database.types';
+import type { TimelineFull } from '@/lib/database.types';
 
 interface InterpretationSectionProps {
-  timeline: Timeline;
+  timeline: TimelineFull;
 }
 
 export default function InterpretationSection({ timeline }: InterpretationSectionProps) {
@@ -32,6 +32,28 @@ export default function InterpretationSection({ timeline }: InterpretationSectio
       <div className="flex items-center justify-center my-8">
         <div className="h-1 w-24 bg-gradient-to-r from-transparent via-antiqueBronze-400 to-transparent rounded-full" />
       </div>
+
+      {timeline.sources.length > 0 && (
+        <div className="mt-10">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            Sources &amp; Further Reading
+          </h3>
+          <ol className="list-decimal list-inside space-y-3 text-gray-700">
+            {timeline.sources.map((source) => (
+              <li key={`${source.number}-${source.url}`} className="leading-relaxed">
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {source.source}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

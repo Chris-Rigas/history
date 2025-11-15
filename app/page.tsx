@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getAllTimelines } from '@/lib/queries/timelines';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -41,38 +42,44 @@ export default async function HomePage() {
 
           {timelines.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {timelines.slice(0, 6).map((timeline) => (
-                <Link
-                  key={timeline.id}
-                  href={`/timelines/${timeline.slug}`}
-                  className="group block bg-parchment-50 rounded-lg p-6 border border-parchment-200 hover:border-antiqueBronze-400 hover:shadow-lg transition-all"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-antiqueBronze-600">
-                      {timeline.start_year} - {timeline.end_year}
-                    </span>
-                    {timeline.region && (
-                      <span className="text-sm text-gray-500">
-                        {timeline.region}
+              {timelines.slice(0, 6).map((timeline) => {
+                const summaryPlain = timeline.summary
+                  ? stripTimelineFormatting(timeline.summary)
+                  : '';
+
+                return (
+                  <Link
+                    key={timeline.id}
+                    href={`/timelines/${timeline.slug}`}
+                    className="group block bg-parchment-50 rounded-lg p-6 border border-parchment-200 hover:border-antiqueBronze-400 hover:shadow-lg transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-antiqueBronze-600">
+                        {timeline.start_year} - {timeline.end_year}
                       </span>
+                      {timeline.region && (
+                        <span className="text-sm text-gray-500">
+                          {timeline.region}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-antiqueBronze-700 transition-colors">
+                      {timeline.title}
+                    </h3>
+
+                    {summaryPlain && (
+                      <p className="text-gray-600 line-clamp-3">
+                        {summaryPlain}
+                      </p>
                     )}
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-antiqueBronze-700 transition-colors">
-                    {timeline.title}
-                  </h3>
-                  
-                  {timeline.summary && (
-                    <p className="text-gray-600 line-clamp-3">
-                      {timeline.summary}
-                    </p>
-                  )}
-                  
-                  <div className="mt-4 text-blue-600 font-medium group-hover:text-blue-700">
-                    Explore Timeline →
-                  </div>
-                </Link>
-              ))}
+
+                    <div className="mt-4 text-blue-600 font-medium group-hover:text-blue-700">
+                      Explore Timeline →
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">

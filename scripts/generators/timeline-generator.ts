@@ -4,12 +4,18 @@ import {
   getTimelineBySlug,
   linkEventToTimeline,
   linkPersonToTimeline,
+  replaceTimelineSources,
   updateTimeline,
 } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { TimelineSeed } from '../ingest';
 import { serializeError, summarizeError } from '../utils/error';
 import { supabaseAdmin } from '@/lib/supabase';
+import {
+  dedupeTimelineCitations,
+  formatTimelineInterpretation,
+  linkifyTimelineCitations,
+} from '@/lib/timelines/formatting';
 
 /**
  * Generate and save a complete timeline
@@ -33,6 +39,12 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
       context: seed.summary,
     });
 
+    const citations = dedupeTimelineCitations(content.citations || []);
+    const interpretationHtml = linkifyTimelineCitations(
+      formatTimelineInterpretation(content.interpretation),
+      citations,
+    );
+
     // Create timeline record
     const slug = slugify(seed.title);
     const existingTimeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
@@ -46,7 +58,7 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
           end_year: seed.endYear,
           region: seed.region || null,
           summary: content.summary,
-          interpretation_html: formatAsHtml(content.interpretation),
+          interpretation_html: interpretationHtml,
           map_image_url: existingTimeline.map_image_url || null,
         })
       : await createTimeline({
@@ -56,9 +68,18 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
           end_year: seed.endYear,
           region: seed.region || null,
           summary: content.summary,
-          interpretation_html: formatAsHtml(content.interpretation),
+          interpretation_html: interpretationHtml,
           map_image_url: null, // Could integrate with image generation API
         });
+
+    await replaceTimelineSources(
+      timeline.id,
+      citations.map(citation => ({
+        number: citation.number,
+        source: citation.source,
+        url: citation.url,
+      })),
+    );
 
     console.log(
       existingTimeline
@@ -136,16 +157,31 @@ export async function regenerateTimelineContent(
       context: seed.summary,
     });
 
+    const citations = dedupeTimelineCitations(content.citations || []);
+    const interpretationHtml = linkifyTimelineCitations(
+      formatTimelineInterpretation(content.interpretation),
+      citations,
+    );
+
     // Update timeline record
     const { supabaseAdmin } = await import('@/lib/supabase');
     await supabaseAdmin
       .from('timelines')
       .update({
         summary: content.summary,
-        interpretation_html: formatAsHtml(content.interpretation),
+        interpretation_html: interpretationHtml,
         updated_at: new Date().toISOString(),
       })
       .eq('id', timelineId);
+
+    await replaceTimelineSources(
+      timelineId,
+      citations.map(citation => ({
+        number: citation.number,
+        source: citation.source,
+        url: citation.url,
+      })),
+    );
 
     console.log(`   ✅ Content regenerated`);
 
@@ -157,44 +193,6 @@ export async function regenerateTimelineContent(
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
-}
-
-/**
- * Format text as HTML with proper paragraphs and structure
- */
-function formatAsHtml(text: string): string {
-  // Split into sections based on headings
-  const sections = text.split(/\n(?=[A-Z][a-z]+:)/);
-  
-  let html = '';
-  
-  for (const section of sections) {
-    const lines = section.trim().split('\n');
-    
-    // Check if first line is a heading
-    if (lines[0].match(/^([A-Z][a-z\s]+):/)) {
-      const heading = lines[0].replace(':', '').trim();
-      html += `<h3>${heading}</h3>\n`;
-      
-      // Process remaining paragraphs
-      const paragraphs = lines.slice(1).join('\n').split('\n\n');
-      for (const para of paragraphs) {
-        if (para.trim()) {
-          html += `<p>${para.trim()}</p>\n`;
-        }
-      }
-    } else {
-      // No heading, just paragraphs
-      const paragraphs = section.split('\n\n');
-      for (const para of paragraphs) {
-        if (para.trim()) {
-          html += `<p>${para.trim()}</p>\n`;
-        }
-      }
-    }
-  }
-  
-  return html;
 }
 
 /**

@@ -4,6 +4,7 @@ import { linkPersonToTimeline } from '@/lib/queries/timelines';
 import { linkPersonToEvent as linkToEvent } from '@/lib/queries/events';
 import { slugify } from '@/lib/utils';
 import type { Timeline, Event } from '@/lib/database.types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { serializeError, summarizeError } from '../utils/error';
 
 /**
@@ -71,7 +72,9 @@ export async function generatePerson(params: {
       name,
       birthYear,
       deathYear,
-      timelineContext: timeline.summary || timeline.title,
+      timelineContext: timeline.summary
+        ? stripTimelineFormatting(timeline.summary)
+        : timeline.title,
       relatedEvents: relatedEvents?.map(e => ({ title: e.title, year: e.start_year })),
     });
 
@@ -252,7 +255,9 @@ export async function regeneratePerson(
       name: person.name,
       birthYear: person.birth_year || undefined,
       deathYear: person.death_year || undefined,
-      timelineContext: timeline.summary || timeline.title,
+      timelineContext: timeline.summary
+        ? stripTimelineFormatting(timeline.summary)
+        : timeline.title,
       relatedEvents: relatedEvents?.map(e => ({ title: e.title, year: e.start_year })),
     });
 

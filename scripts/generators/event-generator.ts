@@ -3,6 +3,7 @@ import { createEvent } from '@/lib/queries/events';
 import { linkEventToTimeline } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { Timeline } from '@/lib/database.types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { serializeError, summarizeError } from '../utils/error';
 
 /**
@@ -62,7 +63,9 @@ export async function generateEvent(params: {
     const content = await generateEventContent({
       title,
       year,
-      timelineContext: timeline.summary || timeline.title,
+      timelineContext: timeline.summary
+        ? stripTimelineFormatting(timeline.summary)
+        : timeline.title,
       existingEvents,
     });
 

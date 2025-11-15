@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { safeJsonParse } from './utils';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -21,6 +22,11 @@ export async function generateTimelineContent(params: {
 }): Promise<{
   summary: string;
   interpretation: string;
+  citations: Array<{
+    number?: number;
+    source?: string;
+    url?: string;
+  }>;
 }> {
   const { title, startYear, endYear, region, context } = params;
 
@@ -28,26 +34,28 @@ export async function generateTimelineContent(params: {
 
 ${context ? `Context: ${context}\n` : ''}
 
-Generate two sections:
+Return JSON with this exact structure:
+{
+  "summary": "2-3 paragraphs (180-260 words) using **bold** for pivotal concepts and [citations] for evidence",
+  "interpretation": "Three sections labelled on their own lines as Rise:, Peak:, Decline & Legacy:, each followed by 2-3 paragraphs (total 600-800 words) with **bold** emphasis and [citations]",
+  "citations": [
+    { "number": 1, "source": "Source title", "url": "https://example.com" }
+  ]
+}
 
-1. SUMMARY (2-3 paragraphs, 150-250 words):
-   - Overview of the timeline's scope
-   - Major phases or periods
-   - Key themes
-
-2. INTERPRETATION (600-800 words, structured with subheadings):
-   - Rise: How this civilization/period began
-   - Peak: Its height and major accomplishments
-   - Decline/Legacy: How it ended or evolved, and its lasting impact
-
-Write in an engaging, educational style. Use clear, accessible language.`;
+Requirements:
+- Cite only high-quality references (museums, academic publishers, major newspapers, encyclopedias)
+- Reference every major claim with [n] markers aligned to the citations array
+- Do not include bare URLs in the prose
+- Ensure each section references multiple citations`;
 
   const response = await openai.chat.completions.create({
     model: DEFAULT_MODEL,
     messages: [
       {
         role: 'system',
-        content: 'You are an expert historical content writer who creates engaging, accurate, and well-structured content about historical periods and civilizations.',
+        content:
+          'You are an expert historical content writer who creates engaging, accurate, and well-structured content about historical periods and civilizations. Always follow structured JSON instructions exactly.',
       },
       {
         role: 'user',
@@ -56,17 +64,21 @@ Write in an engaging, educational style. Use clear, accessible language.`;
     ],
     max_tokens: MAX_TOKENS,
     temperature: 0.7,
+    response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0].message.content || '';
-  
-  // Parse sections
-  const summaryMatch = content.match(/SUMMARY[:\s]*([\s\S]*?)(?=INTERPRETATION|$)/i);
-  const interpretationMatch = content.match(/INTERPRETATION[:\s]*([\s\S]*?)$/i);
+  const content = response.choices[0].message.content || '{}';
+
+  const parsed = safeJsonParse(content, {
+    summary: '',
+    interpretation: '',
+    citations: [],
+  });
 
   return {
-    summary: summaryMatch ? summaryMatch[1].trim() : content.slice(0, 500),
-    interpretation: interpretationMatch ? interpretationMatch[1].trim() : content,
+    summary: parsed.summary || '',
+    interpretation: parsed.interpretation || '',
+    citations: Array.isArray(parsed.citations) ? parsed.citations : [],
   };
 }
 

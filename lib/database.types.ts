@@ -189,6 +189,35 @@ export interface Database {
           role?: string | null;
         };
       };
+      timeline_sources: {
+        Row: {
+          id: string;
+          timeline_id: string;
+          number: number;
+          source: string;
+          url: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          timeline_id: string;
+          number: number;
+          source: string;
+          url: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          timeline_id?: string;
+          number?: number;
+          source?: string;
+          url?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -218,6 +247,9 @@ export type PersonUpdate = Database['public']['Tables']['people']['Update'];
 export type TimelineEvent = Database['public']['Tables']['timeline_events']['Row'];
 export type EventPerson = Database['public']['Tables']['event_people']['Row'];
 export type TimelinePerson = Database['public']['Tables']['timeline_people']['Row'];
+export type TimelineSource = Database['public']['Tables']['timeline_sources']['Row'];
+export type TimelineSourceInsert = Database['public']['Tables']['timeline_sources']['Insert'];
+export type TimelineSourceUpdate = Database['public']['Tables']['timeline_sources']['Update'];
 
 // Extended types with relations for use in queries
 export type TimelineWithEvents = Timeline & {
@@ -248,4 +280,5 @@ export type PersonWithTimeline = Person & {
 export type TimelineFull = Timeline & {
   events: Event[];
   people: Person[];
+  sources: TimelineSource[];
 };

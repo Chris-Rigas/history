@@ -6,6 +6,7 @@ import {
   linkPersonToTimeline,
   replaceTimelineSources,
   updateTimeline,
+  upsertTimelineMetadata,
 } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { TimelineSeed } from '../ingest';
@@ -16,6 +17,7 @@ import {
   formatTimelineInterpretation,
   linkifyTimelineCitations,
 } from '@/lib/timelines/formatting';
+import type { Json } from '@/lib/database.types';
 
 /**
  * Generate and save a complete timeline
@@ -80,6 +82,31 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
         url: citation.url,
       })),
     );
+
+    const structuredContentJson = JSON.parse(
+      JSON.stringify(content.structured),
+    ) as Json;
+    const uniqueSourcesJson = content.research.uniqueSources.length
+      ? (JSON.parse(JSON.stringify(content.research.uniqueSources)) as Json)
+      : null;
+    const primarySourcesJson = content.research.primarySources.length
+      ? (JSON.parse(JSON.stringify(content.research.primarySources)) as Json)
+      : null;
+
+    await upsertTimelineMetadata(timeline.id, {
+      seoTitle: content.seo.seoTitle || null,
+      metaDescription: content.seo.metaDescription || null,
+      relatedKeywords:
+        content.seo.relatedKeywords.length > 0
+          ? content.seo.relatedKeywords
+          : null,
+      initialUnderstanding: content.research.initialUnderstanding || null,
+      researchDigest: content.research.researchDigest || null,
+      uniqueSources: uniqueSourcesJson,
+      primarySources: primarySourcesJson,
+      totalSources: content.research.totalSources || null,
+      structuredContent: structuredContentJson,
+    });
 
     console.log(
       existingTimeline

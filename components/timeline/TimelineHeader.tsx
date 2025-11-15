@@ -7,16 +7,20 @@ interface TimelineHeaderProps {
 
 export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
   const summaryPlain = timeline.summary ? stripTimelineFormatting(timeline.summary) : '';
-  const firstSentence = summaryPlain
-    ? summaryPlain.split(/(?<=[.?!])\s+/)[0]
+  const metaDescription = timeline.metadata?.meta_description?.trim();
+  const subheadingSource = metaDescription || summaryPlain;
+  const firstSentence = subheadingSource
+    ? subheadingSource.split(/(?<=[.?!])\s+/)[0]
     : '';
+  const headingTitle =
+    timeline.metadata?.seo_title?.trim() || `${timeline.title} — Timeline & Key Events`;
 
   return (
     <header className="bg-gradient-to-br from-antiqueBronze-600 to-antiqueBronze-500 text-white py-12">
       <div className="content-container">
         {/* Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-balance">
-          {timeline.title} — Timeline & Key Events
+          {headingTitle}
         </h1>
 
         {/* Subheading */}
@@ -28,15 +32,15 @@ export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
 
         {/* Fast Facts */}
         <div className="flex flex-wrap gap-6 text-parchment-100">
-        <div className="flex items-center space-x-2">
-          <svg
-            className="w-5 h-5"
-            width={20}
-            height={20}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <div className="flex items-center space-x-2">
+            <svg
+              className="w-5 h-5"
+              width={20}
+              height={20}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -76,15 +80,15 @@ export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
             </div>
           )}
 
-        <div className="flex items-center space-x-2">
-          <svg
-            className="w-5 h-5"
-            width={20}
-            height={20}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <div className="flex items-center space-x-2">
+            <svg
+              className="w-5 h-5"
+              width={20}
+              height={20}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

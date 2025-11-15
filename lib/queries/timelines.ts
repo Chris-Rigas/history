@@ -13,7 +13,10 @@ import type {
   Person,
   TimelineSource,
   TimelineSourceInsert,
+  TimelineMetadata,
+  TimelineMetadataInsert,
 } from '../database.types';
+import type { Json } from '../database.types';
 
 /**
  * Get all timelines (for listing/browse pages)
@@ -189,6 +192,91 @@ export async function getTimelineSources(
 }
 
 /**
+ * Get stored metadata for a timeline (if available)
+ */
+export async function getTimelineMetadata(
+  timelineId: string,
+  options?: QueryOptions
+): Promise<TimelineMetadata | null> {
+  const client = getClient(options);
+
+  const { data, error } = await client
+    .from('timeline_metadata')
+    .select('*')
+    .eq('timeline_id', timelineId)
+    .maybeSingle();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    if (error.code === 'PGRST205') {
+      console.warn(
+        'timeline_metadata table not found; skipping metadata retrieval. '
+          + 'Run the latest database migrations if you need metadata support.'
+      );
+      return null;
+    }
+
+    throw error;
+  }
+
+  return (data as TimelineMetadata) ?? null;
+}
+
+/**
+ * Payload for storing timeline metadata details
+ */
+export interface TimelineMetadataPayload {
+  seoTitle?: string | null;
+  metaDescription?: string | null;
+  relatedKeywords?: string[] | null;
+  initialUnderstanding?: string | null;
+  researchDigest?: string | null;
+  uniqueSources?: Json | null;
+  primarySources?: Json | null;
+  totalSources?: number | null;
+  structuredContent?: Json | null;
+}
+
+/**
+ * Upsert metadata for a timeline
+ */
+export async function upsertTimelineMetadata(
+  timelineId: string,
+  payload: TimelineMetadataPayload
+): Promise<void> {
+  const record: TimelineMetadataInsert = {
+    timeline_id: timelineId,
+    seo_title: payload.seoTitle ?? null,
+    meta_description: payload.metaDescription ?? null,
+    related_keywords: payload.relatedKeywords ?? null,
+    initial_understanding: payload.initialUnderstanding ?? null,
+    research_digest: payload.researchDigest ?? null,
+    unique_sources: payload.uniqueSources ?? null,
+    primary_sources: payload.primarySources ?? null,
+    total_sources: payload.totalSources ?? null,
+    structured_content: payload.structuredContent ?? null,
+  };
+
+  const { error } = await supabaseAdmin
+    .from('timeline_metadata')
+    .upsert(record, { onConflict: 'timeline_id' });
+
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn(
+        'timeline_metadata table not found; skipping metadata storage. '
+          + 'Run the latest database migrations if you need metadata support.'
+      );
+      return;
+    }
+
+    throw error;
+  }
+}
+
+/**
  * Get a timeline with all related data (events and people)
  */
 export async function getTimelineFull(
@@ -202,11 +290,13 @@ export async function getTimelineFull(
   if (!timelineWithPeople) return null;
 
   const sources = await getTimelineSources(timelineWithEvents.id, options);
+  const metadata = await getTimelineMetadata(timelineWithEvents.id, options);
 
   return {
     ...timelineWithEvents,
     people: timelineWithPeople.people,
     sources,
+    metadata: metadata ?? null,
   };
 }
 

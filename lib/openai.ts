@@ -328,8 +328,8 @@ Key events in this timeline: ${eventsText}
 
 For each person, provide:
 - Name: Full name
-- Birth Year: (if known)
-- Death Year: (if known)
+- Birth Year: Integer year if known (use negative numbers for BCE). If the year is unknown, use null. Never use text like "Unknown", "circa", or "c.".
+- Death Year: Integer year if known (use negative numbers for BCE). If the year is unknown, use null. Never use text like "Unknown", "circa", or "c.".
 - Role: Brief descriptor (e.g., "Emperor", "General", "Religious Leader")
 
 Include the most influential figures who shaped this period.

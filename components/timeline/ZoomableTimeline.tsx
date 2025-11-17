@@ -1,25 +1,36 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import type { Timeline, Event } from '@/lib/database.types';
+import type { EventNarrativeBinding, BoundConnector } from '@/lib/timelines/narrative';
+import type { ThemedTimelineCategory } from './types';
 import EventCard from './EventCard';
 import TimelineFilters, { type FilterState } from './TimelineFilters';
+import NarrativeConnector from './NarrativeConnector';
 
 interface ZoomableTimelineProps {
   timeline: Timeline;
   events: Event[];
+  categories?: ThemedTimelineCategory[];
+  eventNarratives?: Record<string, EventNarrativeBinding>;
+  connectors?: BoundConnector[];
 }
 
-export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineProps) {
+export default function ZoomableTimeline({
+  timeline,
+  events,
+  categories,
+  eventNarratives,
+  connectors,
+}: ZoomableTimelineProps) {
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [
       Math.min(...events.map(e => e.start_year)),
-      Math.max(...events.map(e => e.start_year))
+      Math.max(...events.map(e => e.start_year)),
     ],
-    importance: null,
     eventType: null,
     tags: [],
-    showMajorOnly: false,
+    categories: [],
   });
 
   // Filter events based on current filters
@@ -30,11 +41,6 @@ export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineP
         event.start_year < filters.yearRange[0] ||
         event.start_year > filters.yearRange[1]
       ) {
-        return false;
-      }
-
-      // Importance filter
-      if (filters.importance !== null && event.importance !== filters.importance) {
         return false;
       }
 
@@ -51,9 +57,36 @@ export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineP
         return false;
       }
 
+      if (filters.categories.length > 0) {
+        const categoryId = eventNarratives?.[event.slug]?.category?.id;
+        if (!categoryId || !filters.categories.includes(categoryId)) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [events, filters]);
+  }, [events, filters, eventNarratives]);
+
+  const themeColorMap = useMemo(() => {
+    const map = new Map<string, ThemedTimelineCategory['colorClass']>();
+    categories?.forEach(category => {
+      map.set(category.id, category.colorClass);
+    });
+    return map;
+  }, [categories]);
+
+  const connectorsBySlug = useMemo(() => {
+    const map = new Map<string, BoundConnector[]>();
+    connectors?.forEach(connector => {
+      if (!connector.afterEventSlug) {
+        return;
+      }
+      const existing = map.get(connector.afterEventSlug) || [];
+      map.set(connector.afterEventSlug, [...existing, connector]);
+    });
+    return map;
+  }, [connectors]);
 
   return (
     <div>
@@ -67,14 +100,36 @@ export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineP
       </div>
 
       {/* Filters */}
-      <TimelineFilters events={events} onFilterChange={setFilters} />
+      <TimelineFilters
+        events={events}
+        onFilterChange={setFilters}
+        categories={categories}
+      />
 
       {/* Event List */}
       {filteredEvents.length > 0 ? (
         <div className="space-y-6">
-          {filteredEvents.map((event) => (
-            <EventCard key={event.id} event={event} timeline={timeline} />
-          ))}
+          {filteredEvents.map(event => {
+            const narrative = eventNarratives?.[event.slug];
+            const themeColor = narrative?.category?.id
+              ? themeColorMap.get(narrative.category.id)
+              : undefined;
+            const connectorBlocks = connectorsBySlug.get(event.slug) || [];
+
+            return (
+              <Fragment key={event.id}>
+                <EventCard
+                  event={event}
+                  timeline={timeline}
+                  narrative={narrative}
+                  themeColor={themeColor}
+                />
+                {connectorBlocks.map((connector, index) => (
+                  <NarrativeConnector key={`${event.id}-connector-${index}`} text={connector.text} />
+                ))}
+              </Fragment>
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
@@ -104,12 +159,11 @@ export default function ZoomableTimeline({ timeline, events }: ZoomableTimelineP
               setFilters({
                 yearRange: [
                   Math.min(...events.map(e => e.start_year)),
-                  Math.max(...events.map(e => e.start_year))
+                  Math.max(...events.map(e => e.start_year)),
                 ],
-                importance: null,
                 eventType: null,
                 tags: [],
-                showMajorOnly: false,
+                categories: [],
               });
             }}
             className="text-blue-600 hover:text-blue-700 font-medium"

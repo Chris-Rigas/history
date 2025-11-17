@@ -1,12 +1,24 @@
 import Link from 'next/link';
 import type { Event, Timeline } from '@/lib/database.types';
+import type { EventNarrativeBinding } from '@/lib/timelines/narrative';
+import type { ThemeColorConfig } from './themeColors';
+import { cn } from '@/lib/utils';
 
 interface EventCardProps {
   event: Event;
   timeline: Timeline;
+  narrative?: EventNarrativeBinding;
+  themeColor?: ThemeColorConfig;
 }
 
-export default function EventCard({ event, timeline }: EventCardProps) {
+const RELATIONSHIP_LABELS: Record<string, string> = {
+  led_to: 'Led to',
+  response_to: 'In response to',
+  parallel: 'Meanwhile',
+  foreshadows: 'Foreshadowed',
+};
+
+export default function EventCard({ event, timeline, narrative, themeColor }: EventCardProps) {
   // Get importance badge color
   const getImportanceBadge = () => {
     switch (event.importance) {
@@ -83,10 +95,59 @@ export default function EventCard({ event, timeline }: EventCardProps) {
         </h3>
       </Link>
 
+      {narrative?.category && (
+        <span
+          className={cn(
+            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mb-3',
+            themeColor?.badge || 'bg-gray-100',
+            themeColor?.badgeText || 'text-gray-700',
+          )}
+        >
+          {narrative.category.title}
+        </span>
+      )}
+
       {/* Summary */}
       {event.summary && (
         <p className="text-gray-600 mb-4 line-clamp-3">
           {event.summary}
+        </p>
+      )}
+
+      {narrative?.note?.soWhat && (
+        <div className="bg-parchment-100 border border-parchment-200 rounded-lg p-4 mb-4">
+          <p className="text-xs uppercase tracking-wide text-antiqueBronze-600 font-semibold mb-1">
+            So what?
+          </p>
+          <p className="text-sm text-gray-800">{narrative.note.soWhat}</p>
+        </div>
+      )}
+
+      {narrative?.relationships.length ? (
+        <div className="mb-4">
+          <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">
+            Relationship cues
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {narrative.relationships.map((relationship, index) => (
+              <a
+                key={`${relationship.type}-${relationship.targetSlug || relationship.targetTitle}-${index}`}
+                href={relationship.targetSlug ? `#event-${relationship.targetSlug}` : undefined}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
+              >
+                <span className="font-semibold">
+                  {RELATIONSHIP_LABELS[relationship.type] || 'Linked to'}:
+                </span>
+                <span>{relationship.targetTitle}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {narrative?.note?.humanDetail && (
+        <p className="text-sm text-gray-700 italic mb-4">
+          “{narrative.note.humanDetail}”
         </p>
       )}
 

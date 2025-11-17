@@ -1,10 +1,19 @@
 import type { TimelineFull } from '@/lib/database.types';
+import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
+import type { ThemedTimelineCategory } from './types';
+import { cn } from '@/lib/utils';
 
 interface InterpretationSectionProps {
   timeline: TimelineFull;
+  narrative?: TimelineStructuredContent | null;
+  categories?: ThemedTimelineCategory[];
 }
 
-export default function InterpretationSection({ timeline }: InterpretationSectionProps) {
+export default function InterpretationSection({
+  timeline,
+  narrative,
+  categories,
+}: InterpretationSectionProps) {
   if (!timeline.interpretation_html) {
     return null;
   }
@@ -19,6 +28,44 @@ export default function InterpretationSection({ timeline }: InterpretationSectio
           Understanding the broader historical context and lasting impact of {timeline.title}
         </p>
       </div>
+
+      {narrative?.themeInsights?.length ? (
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
+          {narrative.themeInsights.map(insight => (
+            <div
+              key={insight.title}
+              className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm"
+            >
+              <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
+                {insight.title}
+              </p>
+              <p className="mt-3 text-gray-700">{insight.insight}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {categories && categories.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Thematic weight
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {categories.map(category => (
+              <span
+                key={category.id}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-semibold',
+                  category.colorClass.badge,
+                  category.colorClass.badgeText,
+                )}
+              >
+                {category.title}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="bg-white rounded-lg border border-gray-200 p-8 md:p-10">

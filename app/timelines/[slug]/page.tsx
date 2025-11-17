@@ -12,6 +12,12 @@ import HighlightCards from '@/components/timeline/HighlightCards';
 import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
+import TurningPointsSection from '@/components/timeline/TurningPointsSection';
+import PerspectivesSection from '@/components/timeline/PerspectivesSection';
+import { parseStructuredContent } from '@/lib/timelines/structuredContent';
+import { bindNarrativeData } from '@/lib/timelines/narrative';
+import { getThemeColor } from '@/components/timeline/themeColors';
+import type { ThemedTimelineCategory } from '@/components/timeline/types';
 
 interface TimelinePageProps {
   params: {
@@ -91,6 +97,17 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
   // Get highlight events (importance = 3)
   const highlightEvents = await getTimelineHighlightEvents(timeline.id, 8);
 
+  const structuredContent = parseStructuredContent(
+    timeline.metadata?.structured_content ?? null,
+  );
+  const themedCategories: ThemedTimelineCategory[] = (structuredContent?.themes || []).map(
+    (theme, index) => ({
+      ...theme,
+      colorClass: getThemeColor(index),
+    }),
+  );
+  const narrativeBindings = bindNarrativeData(timeline.events, structuredContent);
+
   // Breadcrumb data
   const breadcrumbItems = [
     { label: 'Timelines', href: '/timelines' },
@@ -115,31 +132,58 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         </div>
 
         {/* Header & Fast Facts */}
-        <TimelineHeader timeline={timeline} />
+        <TimelineHeader
+          timeline={timeline}
+          narrative={structuredContent}
+          categories={themedCategories}
+        />
 
         {/* Overview Summary */}
         <section className="py-8 bg-white">
           <div className="content-container">
-            <OverviewSummary timeline={timeline} />
+            <OverviewSummary
+              timeline={timeline}
+              narrative={structuredContent}
+              categories={themedCategories}
+            />
           </div>
         </section>
 
         {/* Bird's-Eye Timeline Strip */}
         <section className="py-8 bg-parchment-100">
           <div className="content-container">
-            <BirdsEyeStrip timeline={timeline} events={timeline.events} />
+            <BirdsEyeStrip
+              timeline={timeline}
+              events={timeline.events}
+              categories={themedCategories}
+              eventNarratives={narrativeBindings.eventNarratives}
+            />
           </div>
         </section>
 
         {/* Zoomable Vertical Timeline */}
         <section className="py-12 bg-white">
           <div className="content-container">
-            <ZoomableTimeline 
-              timeline={timeline} 
-              events={timeline.events} 
+            <ZoomableTimeline
+              timeline={timeline}
+              events={timeline.events}
+              categories={themedCategories}
+              eventNarratives={narrativeBindings.eventNarratives}
+              connectors={narrativeBindings.connectors}
             />
           </div>
         </section>
+
+        {structuredContent && narrativeBindings.turningPoints.length > 0 && (
+          <section className="py-12 bg-parchment-50">
+            <div className="content-container">
+              <TurningPointsSection
+                turningPoints={narrativeBindings.turningPoints}
+                timeline={timeline}
+              />
+            </div>
+          </section>
+        )}
 
         {/* Highlight Cards Section */}
         {highlightEvents.length > 0 && (
@@ -169,7 +213,19 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {timeline.interpretation_html && (
           <section className="py-12 bg-parchment-50">
             <div className="content-container">
-              <InterpretationSection timeline={timeline} />
+              <InterpretationSection
+                timeline={timeline}
+                narrative={structuredContent}
+                categories={themedCategories}
+              />
+            </div>
+          </section>
+        )}
+
+        {structuredContent && (
+          <section className="py-12 bg-white">
+            <div className="content-container">
+              <PerspectivesSection narrative={structuredContent} />
             </div>
           </section>
         )}

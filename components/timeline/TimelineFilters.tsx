@@ -1,21 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { ThemedTimelineCategory } from './types';
+import { cn } from '@/lib/utils';
 
 interface TimelineFiltersProps {
   events: any[];
   onFilterChange: (filters: FilterState) => void;
+  categories?: ThemedTimelineCategory[];
 }
 
 export interface FilterState {
   yearRange: [number, number];
-  importance: number | null;
   eventType: string | null;
   tags: string[];
-  showMajorOnly: boolean;
+  categories: string[];
 }
 
-export default function TimelineFilters({ events, onFilterChange }: TimelineFiltersProps) {
+export default function TimelineFilters({
+  events,
+  onFilterChange,
+  categories,
+}: TimelineFiltersProps) {
   // Extract unique values from events
   const minYear = Math.min(...events.map(e => e.start_year));
   const maxYear = Math.max(...events.map(e => e.start_year));
@@ -30,10 +36,9 @@ export default function TimelineFilters({ events, onFilterChange }: TimelineFilt
 
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [minYear, maxYear],
-    importance: null,
     eventType: null,
     tags: [],
-    showMajorOnly: false,
+    categories: [],
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -49,28 +54,19 @@ export default function TimelineFilters({ events, onFilterChange }: TimelineFilt
     setFilters({ ...filters, yearRange: newRange });
   };
 
-  const toggleMajorOnly = () => {
-    setFilters({ 
-      ...filters, 
-      showMajorOnly: !filters.showMajorOnly,
-      importance: !filters.showMajorOnly ? 3 : null 
-    });
-  };
-
   const resetFilters = () => {
     setFilters({
       yearRange: [minYear, maxYear],
-      importance: null,
       eventType: null,
       tags: [],
-      showMajorOnly: false,
+      categories: [],
     });
   };
 
-  const hasActiveFilters = 
-    filters.importance !== null ||
+  const hasActiveFilters =
     filters.eventType !== null ||
     filters.tags.length > 0 ||
+    filters.categories.length > 0 ||
     filters.yearRange[0] !== minYear ||
     filters.yearRange[1] !== maxYear;
 
@@ -112,23 +108,41 @@ export default function TimelineFilters({ events, onFilterChange }: TimelineFilt
         </div>
       </div>
 
-      {/* Quick Toggle */}
-      <div className="mb-4">
-        <button
-          onClick={toggleMajorOnly}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            filters.showMajorOnly
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          {filters.showMajorOnly ? '✓ ' : ''}Major Events Only
-        </button>
-      </div>
-
       {/* Expanded Filters */}
       {isExpanded && (
         <div className="space-y-6 pt-4 border-t border-gray-200">
+          {categories && categories.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Focus by theme
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {categories.map(category => {
+                  const isActive = filters.categories.includes(category.id);
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        const nextCategories = isActive
+                          ? filters.categories.filter(id => id !== category.id)
+                          : [...filters.categories, category.id];
+                        setFilters({ ...filters, categories: nextCategories });
+                      }}
+                      className={cn(
+                        'px-3 py-1.5 rounded-full text-sm font-semibold transition-colors',
+                        isActive
+                          ? `${category.colorClass.dot} text-white`
+                          : `${category.colorClass.badge} ${category.colorClass.badgeText}`,
+                      )}
+                    >
+                      {category.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Year Range Slider */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -176,35 +190,6 @@ export default function TimelineFilters({ events, onFilterChange }: TimelineFilt
               </select>
             </div>
           )}
-
-          {/* Importance */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Importance
-            </label>
-            <div className="flex space-x-2">
-              {[
-                { value: null, label: 'All' },
-                { value: 3, label: 'Major' },
-                { value: 2, label: 'Significant' },
-                { value: 1, label: 'Notable' },
-              ].map((option) => (
-                <button
-                  key={option.label}
-                  onClick={() =>
-                    setFilters({ ...filters, importance: option.value })
-                  }
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filters.importance === option.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Tags */}
           {allTags.length > 0 && (

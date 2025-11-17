@@ -1,15 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Timeline, Event } from '@/lib/database.types';
+import type { EventNarrativeBinding } from '@/lib/timelines/narrative';
+import type { ThemedTimelineCategory } from './types';
+import { cn } from '@/lib/utils';
 
 interface BirdsEyeStripProps {
   timeline: Timeline;
   events: Event[];
+  categories?: ThemedTimelineCategory[];
+  eventNarratives?: Record<string, EventNarrativeBinding>;
 }
 
-export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) {
+export default function BirdsEyeStrip({
+  timeline,
+  events,
+  categories,
+  eventNarratives,
+}: BirdsEyeStripProps) {
   const [hoveredEvent, setHoveredEvent] = useState<Event | null>(null);
+  const [showRelationships, setShowRelationships] = useState(false);
+
+  const categoryColorMap = useMemo(() => {
+    const map = new Map<string, ThemedTimelineCategory['colorClass']>();
+    categories?.forEach(category => {
+      map.set(category.id, category.colorClass);
+    });
+    return map;
+  }, [categories]);
 
   // Calculate position percentage for each event
   const getEventPosition = (year: number) => {
@@ -18,18 +37,51 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
     return (yearFromStart / totalYears) * 100;
   };
 
-  // Get dot color based on importance
-  const getDotClass = (importance: number | null) => {
-    switch (importance) {
-      case 3:
-        return 'timeline-dot-3'; // Red - most important
-      case 2:
-        return 'timeline-dot-2'; // Blue - moderate
-      case 1:
-      default:
-        return 'timeline-dot-1'; // Gray - less important
+  const eventPositions = useMemo(() => {
+    const map = new Map<string, number>();
+    events.forEach(event => {
+      map.set(event.slug, getEventPosition(event.start_year));
+    });
+    return map;
+  }, [events, timeline.start_year, timeline.end_year]);
+
+  const relationshipLines = useMemo(() => {
+    if (!eventNarratives) {
+      return [];
     }
-  };
+
+    const lines: Array<{
+      sourceSlug: string;
+      targetSlug: string;
+      type: string;
+      colorClass?: string;
+    }> = [];
+
+    Object.entries(eventNarratives).forEach(([slug, narrative]) => {
+      narrative.relationships.forEach(relationship => {
+        if (!relationship.targetSlug) {
+          return;
+        }
+
+        const color = narrative.category?.id
+          ? categoryColorMap.get(narrative.category.id)?.line
+          : undefined;
+        lines.push({
+          sourceSlug: slug,
+          targetSlug: relationship.targetSlug,
+          type: relationship.type,
+          colorClass: color,
+        });
+      });
+    });
+
+    return lines;
+  }, [eventNarratives, categoryColorMap]);
+
+  const hoveredNarrative = hoveredEvent ? eventNarratives?.[hoveredEvent.slug] : undefined;
+  const hoveredCategoryColors = hoveredNarrative?.category?.id
+    ? categoryColorMap.get(hoveredNarrative.category.id)
+    : undefined;
 
   const handleEventClick = (eventSlug: string) => {
     const element = document.getElementById(`event-${eventSlug}`);
@@ -48,6 +100,36 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
       <div className="relative bg-white rounded-lg shadow-md p-6 overflow-x-auto">
         {/* Main timeline bar */}
         <div className="relative h-24">
+          {showRelationships && relationshipLines.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none">
+              {relationshipLines.map((line, index) => {
+                const source = eventPositions.get(line.sourceSlug);
+                const target = eventPositions.get(line.targetSlug);
+                if (source === undefined || target === undefined) {
+                  return null;
+                }
+
+                const left = Math.min(source, target);
+                const width = Math.abs(target - source);
+                const color = line.colorClass || 'bg-slate-300';
+                const isDashed = line.type === 'response_to' || line.type === 'parallel';
+
+                return (
+                  <div
+                    key={`${line.sourceSlug}-${line.targetSlug}-${index}`}
+                    className={`absolute top-1/2 -translate-y-1/2 h-0.5 ${color} ${
+                      isDashed ? 'opacity-80' : ''
+                    }`}
+                    style={{ left: `${left}%`, width: `${width}%` }}
+                  >
+                    {isDashed && (
+                      <div className="absolute inset-0 border-t border-dashed border-white/60" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {/* Background bar */}
           <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-200 rounded-full transform -translate-y-1/2" />
 
@@ -69,7 +151,11 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
           {/* Event dots */}
           {events.map((event) => {
             const position = getEventPosition(event.start_year);
-            
+            const narrative = eventNarratives?.[event.slug];
+            const colorClass = narrative?.category?.id
+              ? categoryColorMap.get(narrative.category.id)
+              : undefined;
+
             return (
               <button
                 key={event.id}
@@ -80,7 +166,12 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
                 onClick={() => handleEventClick(event.slug)}
                 aria-label={`Jump to ${event.title}`}
               >
-                <div className={`timeline-dot ${getDotClass(event.importance)}`} />
+                <div
+                  className={cn(
+                    'timeline-dot',
+                    colorClass?.dot || 'bg-gray-400',
+                  )}
+                />
               </button>
             );
           })}
@@ -97,9 +188,20 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
                     ` - ${hoveredEvent.end_year}`
                   }
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">
                   {hoveredEvent.title}
                 </h3>
+                {hoveredNarrative?.category && (
+                  <span
+                    className={cn(
+                      'inline-flex text-xs font-semibold px-2 py-0.5 rounded-full mb-2',
+                      hoveredCategoryColors?.badge || 'bg-gray-200',
+                      hoveredCategoryColors?.badgeText || 'text-gray-700',
+                    )}
+                  >
+                    {hoveredNarrative.category.title}
+                  </span>
+                )}
                 {hoveredEvent.summary && (
                   <p className="text-sm text-gray-600 line-clamp-2">
                     {hoveredEvent.summary}
@@ -111,25 +213,31 @@ export default function BirdsEyeStrip({ timeline, events }: BirdsEyeStripProps) 
         )}
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="timeline-dot timeline-dot-3" />
-            <span className="text-sm text-gray-600">Major Event</span>
+        {categories && categories.length > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-200">
+            {categories.map(category => (
+              <div key={category.id} className="flex items-center space-x-2">
+                <span
+                  className={cn('timeline-dot', category.colorClass.dot)}
+                />
+                <span className="text-sm text-gray-600">{category.title}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="timeline-dot timeline-dot-2" />
-            <span className="text-sm text-gray-600">Significant Event</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="timeline-dot timeline-dot-1" />
-            <span className="text-sm text-gray-600">Notable Event</span>
-          </div>
-        </div>
+        )}
       </div>
 
-      <p className="text-sm text-gray-500 mt-4">
-        Hover over dots to preview events • Click to jump to detailed view
-      </p>
+      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-4">
+        <span>Hover over dots to preview events • Click to jump to detailed view</span>
+        {relationshipLines.length > 0 && (
+          <button
+            onClick={() => setShowRelationships(value => !value)}
+            className="text-blue-600 font-semibold"
+          >
+            {showRelationships ? 'Hide' : 'Show'} relationships
+          </button>
+        )}
+      </div>
     </div>
   );
 }

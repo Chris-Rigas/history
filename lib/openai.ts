@@ -5,6 +5,12 @@ import type {
   ResponseOutputText,
 } from 'openai/resources/responses/responses';
 import { safeJsonParse } from './utils';
+import {
+  normalizeStructuredContent,
+  type TimelineCitationRaw,
+  type TimelineStructuredContent,
+  type TimelineStructuredSection,
+} from './timelines/structuredContent';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -20,31 +26,6 @@ interface TimelineSourceLink {
   url: string;
   title?: string;
   source?: string;
-}
-
-export interface TimelineStructuredFact {
-  title: string;
-  detail: string;
-}
-
-export interface TimelineStructuredSection {
-  heading: string;
-  content: string;
-}
-
-interface TimelineCitationRaw {
-  number?: number;
-  source?: string;
-  title?: string;
-  url?: string;
-}
-
-export interface TimelineStructuredContent {
-  summary: string;
-  mainContent: string;
-  keyFacts: TimelineStructuredFact[];
-  contextSections: TimelineStructuredSection[];
-  citations: TimelineCitationRaw[];
 }
 
 export interface TimelineSEOMetadata {
@@ -157,108 +138,6 @@ function dedupeSourceLinks(groups: TimelineSourceLink[][]): TimelineSourceLink[]
   return ordered;
 }
 
-function normalizeStructuredContent(raw: any): TimelineStructuredContent {
-  const summary = typeof raw?.summary === 'string' ? raw.summary.trim() : '';
-  const mainContent = typeof raw?.mainContent === 'string' ? raw.mainContent.trim() : '';
-
-  const keyFacts = Array.isArray(raw?.keyFacts)
-    ? (raw.keyFacts
-        .map((fact: any) => {
-          if (typeof fact === 'string') {
-            const text = fact.trim();
-            if (!text) return null;
-            return { title: text, detail: text } as TimelineStructuredFact;
-          }
-
-          const title = typeof fact?.title === 'string' ? fact.title.trim() : '';
-          const detailCandidate =
-            typeof fact?.detail === 'string'
-              ? fact.detail.trim()
-              : typeof fact?.text === 'string'
-              ? fact.text.trim()
-              : '';
-
-          const detail = detailCandidate || title;
-          const finalTitle = title || detailCandidate;
-
-          if (!finalTitle && !detail) {
-            return null;
-          }
-
-          return {
-            title: finalTitle || '',
-            detail: detail || '',
-          } as TimelineStructuredFact;
-        })
-        .filter(Boolean) as TimelineStructuredFact[])
-    : [];
-
-  const contextSections = Array.isArray(raw?.contextSections)
-    ? (raw.contextSections
-        .map((section: any) => {
-          if (typeof section === 'string') {
-            const text = section.trim();
-            if (!text) return null;
-            return {
-              heading: 'Context',
-              content: text,
-            } as TimelineStructuredSection;
-          }
-
-          const headingCandidate =
-            typeof section?.heading === 'string'
-              ? section.heading.trim()
-              : typeof section?.title === 'string'
-              ? section.title.trim()
-              : 'Context';
-
-          const contentCandidate =
-            typeof section?.content === 'string'
-              ? section.content.trim()
-              : typeof section?.body === 'string'
-              ? section.body.trim()
-              : '';
-
-          if (!contentCandidate) {
-            return null;
-          }
-
-          return {
-            heading: headingCandidate || 'Context',
-            content: contentCandidate,
-          } as TimelineStructuredSection;
-        })
-        .filter(Boolean) as TimelineStructuredSection[])
-    : [];
-
-  const citations = Array.isArray(raw?.citations)
-    ? (raw.citations
-        .map((citation: any) => ({
-          number: typeof citation?.number === 'number' ? citation.number : undefined,
-          source:
-            typeof citation?.source === 'string'
-              ? citation.source.trim()
-              : typeof citation?.title === 'string'
-              ? citation.title.trim()
-              : undefined,
-          title:
-            typeof citation?.title === 'string'
-              ? citation.title.trim()
-              : undefined,
-          url: typeof citation?.url === 'string' ? citation.url.trim() : undefined,
-        }))
-        .filter((citation: TimelineCitationRaw) => Boolean(citation.url && (citation.source || citation.title))) as TimelineCitationRaw[])
-    : [];
-
-  return {
-    summary,
-    mainContent,
-    keyFacts,
-    contextSections,
-    citations,
-  };
-}
-
 function buildInterpretationFromSections(sections: TimelineStructuredSection[]): string {
   if (!sections.length) {
     return '';
@@ -347,9 +226,44 @@ ${context ? `Additional context: ${context}\n\n` : ''}Compose a neutral, informa
   // Phase 3: Main content generation
   const schema = `{
   "summary": "",
-  "mainContent": "",
-  "keyFacts": [],
-  "contextSections": [],
+  "centralQuestion": "",
+  "storyCharacter": "",
+  "overview": "",
+  "keyFacts": [
+    { "title": "", "detail": "" }
+  ],
+  "themes": [
+    { "id": "", "title": "", "description": "" }
+  ],
+  "eventNotes": [
+    {
+      "title": "",
+      "categoryId": "",
+      "summary": "",
+      "soWhat": "",
+      "relationships": [
+        { "type": "led_to", "targetTitle": "", "detail": "" }
+      ],
+      "humanDetail": ""
+    }
+  ],
+  "narrativeConnectors": [
+    { "afterEventTitle": "", "text": "" }
+  ],
+  "turningPoints": [
+    { "title": "", "description": "", "whyItMatters": "" }
+  ],
+  "perspectives": {
+    "evidence": { "available": [], "gaps": [] },
+    "interpretations": { "debates": [], "contested": [] },
+    "context": { "contemporary": "", "hindsight": "" }
+  },
+  "themeInsights": [
+    { "title": "", "insight": "" }
+  ],
+  "contextSections": [
+    { "heading": "", "content": "" }
+  ],
   "citations": []
 }`;
 
@@ -368,11 +282,12 @@ ${schema}
 
 REQUIREMENTS:
 - Output valid JSON only.
-- Include bracketed numeric references [1], [2], ... inside the prose wherever facts appear.
-- Every factual statement must map to a citation number listed in the citations array.
-- Use concise, SEO-aware language without keyword stuffing.
-- Organize mainContent into scannable paragraphs.
-- Provide at least three contextSections with descriptive headings.`;
+- Identify the period's central tension and story character in 1-2 sentences.
+- Create 4-6 thematic categories and reuse their IDs for the related events.
+- Every event note must include a concise summary, a "soWhat" consequence, any available human detail, and relationships labeled with the allowed values (led_to, response_to, parallel, foreshadows).
+- Provide narrative connectors that explain how clusters of events relate and 2-4 turning points explaining their stakes.
+- Perspectives must cover evidence (available + gaps), interpretations (debates + contested points), and context (what contemporaries felt vs. what became clear later).
+- Include bracketed numeric references [1], [2], ... wherever facts need support and list them in the citations array.`;
 
   const contentResponse = await openai.responses.create({
     model: TIMELINE_MODEL,
@@ -393,8 +308,20 @@ REQUIREMENTS:
   const contentText = extractResponseText(contentResponse) || '{}';
   const parsed = safeJsonParse(contentText, {
     summary: '',
-    mainContent: '',
+    centralQuestion: '',
+    storyCharacter: '',
+    overview: '',
     keyFacts: [],
+    themes: [],
+    eventNotes: [],
+    narrativeConnectors: [],
+    turningPoints: [],
+    perspectives: {
+      evidence: { available: [], gaps: [] },
+      interpretations: { debates: [], contested: [] },
+      context: { contemporary: '', hindsight: '' },
+    },
+    themeInsights: [],
     contextSections: [],
     citations: [],
   });

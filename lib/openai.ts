@@ -521,6 +521,66 @@ ${seoSchema}`;
 /**
  * Generate event content using GPT
  */
+function tryParseJson(jsonString: string | null | undefined): any | null {
+  if (!jsonString) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(jsonString);
+  } catch {
+    return null;
+  }
+}
+
+function parseEventContentJson(rawContent: string): any | null {
+  const trimmed = rawContent.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const direct = tryParseJson(trimmed);
+  if (direct) {
+    return direct;
+  }
+
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch) {
+    const parsed = tryParseJson(fencedMatch[1]);
+    if (parsed) {
+      return parsed;
+    }
+  }
+
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const parsed = tryParseJson(trimmed.slice(firstBrace, lastBrace + 1));
+    if (parsed) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
+function normalizeEventTags(tags: unknown): string[] {
+  if (Array.isArray(tags)) {
+    return tags
+      .map(tag => (typeof tag === 'string' ? tag.trim() : String(tag)))
+      .filter(Boolean);
+  }
+
+  if (typeof tags === 'string') {
+    return tags
+      .split(/[,;\n]+/)
+      .map(tag => tag.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 export async function generateEventContent(params: {
   title: string;
   year: number;
@@ -580,28 +640,29 @@ Format as JSON with keys: summary, description, significance, type, importance, 
 
   const content = response.choices[0].message.content || '';
   
-  try {
-    // Try to parse as JSON
-    const parsed = JSON.parse(content);
+  const parsed = parseEventContentJson(content);
+
+  if (parsed) {
+    const importance = Number(parsed.importance);
     return {
-      summary: parsed.summary || '',
-      description: parsed.description || '',
-      significance: parsed.significance || '',
-      tags: parsed.tags || [],
-      type: parsed.type || 'Event',
-      importance: parsed.importance || 2,
-    };
-  } catch {
-    // Fallback: extract manually
-    return {
-      summary: content.slice(0, 200),
-      description: content,
-      significance: '',
-      tags: [],
-      type: 'Event',
-      importance: 2,
+      summary: typeof parsed.summary === 'string' ? parsed.summary.trim() : '',
+      description: typeof parsed.description === 'string' ? parsed.description.trim() : '',
+      significance: typeof parsed.significance === 'string' ? parsed.significance.trim() : '',
+      tags: normalizeEventTags(parsed.tags),
+      type: typeof parsed.type === 'string' && parsed.type.trim() ? parsed.type.trim() : 'Event',
+      importance: Number.isFinite(importance) ? importance : 2,
     };
   }
+
+  // Fallback: extract manually
+  return {
+    summary: content.slice(0, 200),
+    description: content,
+    significance: '',
+    tags: [],
+    type: 'Event',
+    importance: 2,
+  };
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { TimelineFull } from '@/lib/database.types';
 import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
 import type { ThemedTimelineCategory } from './types';
+import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { cn } from '@/lib/utils';
 
 interface KeyStoryElementsProps {
@@ -30,6 +31,8 @@ export default function KeyStoryElements({
   ];
 
   const keyFacts = narrative?.keyFacts?.length ? narrative.keyFacts : defaultFacts;
+  const definingSummary = narrative?.summary ||
+    (timeline.summary ? stripTimelineFormatting(timeline.summary) : '');
 
   if (!narrative && keyFacts.length === 0) {
     return null;
@@ -47,6 +50,11 @@ export default function KeyStoryElements({
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 What defined this period?
               </h3>
+              {definingSummary && (
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  {definingSummary}
+                </p>
+              )}
               {narrative?.storyCharacter && (
                 <div className="mb-6">
                   <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">

@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from 'react';
 import type { Timeline, Event } from '@/lib/database.types';
 import type { EventNarrativeBinding, BoundConnector } from '@/lib/timelines/narrative';
 import type { ThemedTimelineCategory } from './types';
+import type { ThemeColorConfig } from './themeColors';
 import EventCard from './EventCard';
 import TimelineFilters, { type FilterState } from './TimelineFilters';
 import NarrativeConnector from './NarrativeConnector';
@@ -14,6 +15,7 @@ interface ZoomableTimelineProps {
   categories?: ThemedTimelineCategory[];
   eventNarratives?: Record<string, EventNarrativeBinding>;
   connectors?: BoundConnector[];
+  tagColorMap?: Record<string, ThemeColorConfig>;
 }
 
 export default function ZoomableTimeline({
@@ -22,13 +24,13 @@ export default function ZoomableTimeline({
   categories,
   eventNarratives,
   connectors,
+  tagColorMap,
 }: ZoomableTimelineProps) {
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [
       Math.min(...events.map(e => e.start_year)),
       Math.max(...events.map(e => e.start_year)),
     ],
-    eventType: null,
     tags: [],
     categories: [],
   });
@@ -41,11 +43,6 @@ export default function ZoomableTimeline({
         event.start_year < filters.yearRange[0] ||
         event.start_year > filters.yearRange[1]
       ) {
-        return false;
-      }
-
-      // Event type filter
-      if (filters.eventType && event.type !== filters.eventType) {
         return false;
       }
 
@@ -104,6 +101,7 @@ export default function ZoomableTimeline({
         events={events}
         onFilterChange={setFilters}
         categories={categories}
+        tagColorMap={tagColorMap}
       />
 
       {/* Event List */}
@@ -114,6 +112,9 @@ export default function ZoomableTimeline({
             const themeColor = narrative?.category?.id
               ? themeColorMap.get(narrative.category.id)
               : undefined;
+            const primaryTagColor = event.tags[0]
+              ? tagColorMap?.[event.tags[0]]
+              : undefined;
             const connectorBlocks = connectorsBySlug.get(event.slug) || [];
 
             return (
@@ -123,6 +124,7 @@ export default function ZoomableTimeline({
                   timeline={timeline}
                   narrative={narrative}
                   themeColor={themeColor}
+                  tagColor={primaryTagColor}
                 />
                 {connectorBlocks.map((connector, index) => (
                   <NarrativeConnector key={`${event.id}-connector-${index}`} text={connector.text} />
@@ -161,7 +163,6 @@ export default function ZoomableTimeline({
                   Math.min(...events.map(e => e.start_year)),
                   Math.max(...events.map(e => e.start_year)),
                 ],
-                eventType: null,
                 tags: [],
                 categories: [],
               });

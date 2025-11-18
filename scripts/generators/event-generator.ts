@@ -103,7 +103,6 @@ export async function generateEvent(params: {
       start_year: year,
       end_year: null,
       location: null,
-      type: mappedCategory || content.type,
       tags: [mappedCategory || content.type].filter(Boolean),
       importance: content.importance || importance,
       summary: content.summary,
@@ -295,7 +294,6 @@ export async function regenerateEvent(
         description_html: formatAsHtml(content.description),
         significance_html: formatAsHtml(content.significance),
         tags: [mappedCategory || content.type].filter(Boolean),
-        type: mappedCategory || content.type,
         importance: content.importance,
         updated_at: new Date().toISOString(),
       })
@@ -351,7 +349,7 @@ function formatAsHtml(text: string): string {
 export async function getEventStats(timelineId: string): Promise<{
   total: number;
   byImportance: { [key: number]: number };
-  byType: { [key: string]: number };
+  byTag: { [key: string]: number };
 }> {
   const { supabaseClient } = await import('@/lib/supabase');
   
@@ -362,17 +360,18 @@ export async function getEventStats(timelineId: string): Promise<{
 
   const total = events?.length || 0;
   const byImportance: { [key: number]: number } = { 1: 0, 2: 0, 3: 0 };
-  const byType: { [key: string]: number } = {};
+  const byTag: { [key: string]: number } = {};
 
   events?.forEach((te: any) => {
     const event = te.events;
     if (event.importance) {
       byImportance[event.importance]++;
     }
-    if (event.type) {
-      byType[event.type] = (byType[event.type] || 0) + 1;
-    }
+    event.tags.forEach(tag => {
+      if (!tag) return;
+      byTag[tag] = (byTag[tag] || 0) + 1;
+    });
   });
 
-  return { total, byImportance, byType };
+  return { total, byImportance, byTag };
 }

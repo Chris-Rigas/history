@@ -99,7 +99,6 @@ interface QueryOptions {
   client?: QueryClient;
   limit?: number;
   importance?: number;
-  type?: string;
   tags?: string[];
 }
 
@@ -173,12 +172,8 @@ export async function getEventsByTimelineId(
     events = events.filter(e => e.importance === options.importance);
   }
 
-  if (options?.type) {
-    events = events.filter(e => e.type === options.type);
-  }
-
   if (options?.tags && options.tags.length > 0) {
-    events = events.filter(e => 
+    events = events.filter(e =>
       options.tags!.some(tag => e.tags.includes(tag))
     );
   }

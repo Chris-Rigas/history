@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import type { ThemedTimelineCategory } from './types';
+import type { ThemeColorConfig } from './themeColors';
 import { cn } from '@/lib/utils';
 
 interface TimelineFiltersProps {
   events: any[];
   onFilterChange: (filters: FilterState) => void;
   categories?: ThemedTimelineCategory[];
+  tagColorMap?: Record<string, ThemeColorConfig>;
 }
 
 export interface FilterState {
   yearRange: [number, number];
-  eventType: string | null;
   tags: string[];
   categories: string[];
 }
@@ -21,6 +22,7 @@ export default function TimelineFilters({
   events,
   onFilterChange,
   categories,
+  tagColorMap,
 }: TimelineFiltersProps) {
   // Extract unique values from events
   const minYear = Math.min(...events.map(e => e.start_year));
@@ -30,17 +32,12 @@ export default function TimelineFilters({
     (categories || []).map(category => [category.id, category.title] as const),
   );
 
-  const eventTypes = Array.from(
-    new Set(events.map(e => e.type).filter(Boolean)),
-  ).sort();
-  
   const allTags = Array.from(new Set(
     events.flatMap(e => e.tags || [])
   )).sort();
 
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [minYear, maxYear],
-    eventType: null,
     tags: [],
     categories: [],
   });
@@ -61,14 +58,12 @@ export default function TimelineFilters({
   const resetFilters = () => {
     setFilters({
       yearRange: [minYear, maxYear],
-      eventType: null,
       tags: [],
       categories: [],
     });
   };
 
   const hasActiveFilters =
-    filters.eventType !== null ||
     filters.tags.length > 0 ||
     filters.categories.length > 0 ||
     filters.yearRange[0] !== minYear ||
@@ -172,29 +167,6 @@ export default function TimelineFilters({
             </div>
           </div>
 
-          {/* Event Type */}
-          {eventTypes.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Event Type
-              </label>
-              <select
-                value={filters.eventType || ''}
-                onChange={(e) =>
-                  setFilters({ ...filters, eventType: e.target.value || null })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Types</option>
-                {eventTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {categoryLabelMap.get(type) || type}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Tags */}
           {allTags.length > 0 && (
             <div>
@@ -202,25 +174,38 @@ export default function TimelineFilters({
                 Tags
               </label>
               <div className="flex flex-wrap gap-2">
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => {
-                      const newTags = filters.tags.includes(tag)
-                        ? filters.tags.filter((t) => t !== tag)
-                        : [...filters.tags, tag];
-                      setFilters({ ...filters, tags: newTags });
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      filters.tags.includes(tag)
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {filters.tags.includes(tag) ? '✓ ' : ''}
-                    {tag}
-                  </button>
-                ))}
+                {allTags.map((tag) => {
+                  const color = tagColorMap?.[tag];
+                  const isActive = filters.tags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        const newTags = isActive
+                          ? filters.tags.filter((t) => t !== tag)
+                          : [...filters.tags, tag];
+                        setFilters({ ...filters, tags: newTags });
+                      }}
+                      className={cn(
+                        'px-3 py-1.5 rounded-full text-sm font-semibold border transition-all',
+                        isActive
+                          ? [
+                              color?.badge || 'bg-antiqueBronze-600',
+                              color?.badgeText || 'text-white',
+                              color?.border || 'border-transparent',
+                              'shadow-inner',
+                            ]
+                          : [
+                              'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                              'border-gray-200',
+                            ],
+                      )}
+                    >
+                      {isActive ? '✓ ' : ''}
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

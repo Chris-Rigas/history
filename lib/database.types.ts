@@ -61,7 +61,6 @@ export interface Database {
           start_year: number;
           end_year: number | null;
           location: string | null;
-          type: string | null;
           tags: string[];
           importance: number | null;
           summary: string | null;
@@ -77,7 +76,6 @@ export interface Database {
           start_year: number;
           end_year?: number | null;
           location?: string | null;
-          type?: string | null;
           tags?: string[];
           importance?: number | null;
           summary?: string | null;
@@ -93,7 +91,6 @@ export interface Database {
           start_year?: number;
           end_year?: number | null;
           location?: string | null;
-          type?: string | null;
           tags?: string[];
           importance?: number | null;
           summary?: string | null;

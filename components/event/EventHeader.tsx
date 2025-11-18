@@ -7,30 +7,7 @@ interface EventHeaderProps {
 }
 
 export default function EventHeader({ event, timeline }: EventHeaderProps) {
-  // Get importance badge
-  const getImportanceBadge = () => {
-    switch (event.importance) {
-      case 3:
-        return (
-          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-800 border-2 border-red-300">
-            MAJOR EVENT
-          </span>
-        );
-      case 2:
-        return (
-          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
-            SIGNIFICANT EVENT
-          </span>
-        );
-      case 1:
-      default:
-        return (
-          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
-            Notable Event
-          </span>
-        );
-    }
-  };
+  const primaryTag = event.tags[0];
 
   return (
     <header className="bg-gradient-to-br from-gray-800 to-gray-700 text-white py-12">
@@ -59,10 +36,11 @@ export default function EventHeader({ event, timeline }: EventHeaderProps) {
         </Link>
 
         <div className="max-w-4xl">
-          {/* Importance Badge */}
-          <div className="mb-4">
-            {getImportanceBadge()}
-          </div>
+          {primaryTag && (
+            <div className="mb-4 inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-parchment-100 text-antiqueBronze-800 border border-parchment-200">
+              {primaryTag}
+            </div>
+          )}
 
           {/* Title */}
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
@@ -90,14 +68,6 @@ export default function EventHeader({ event, timeline }: EventHeaderProps) {
               </div>
             )}
 
-            {/* Type */}
-            {event.type && (
-              <div>
-                <div className="text-parchment-300 text-sm mb-1">Type</div>
-                <div className="font-bold text-lg">{event.type}</div>
-              </div>
-            )}
-
             {/* Timeline */}
             <div>
               <div className="text-parchment-300 text-sm mb-1">Part of</div>
@@ -116,7 +86,7 @@ export default function EventHeader({ event, timeline }: EventHeaderProps) {
               {event.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 text-parchment-100"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-white/15 text-parchment-50 border border-white/30"
                 >
                   {tag}
                 </span>

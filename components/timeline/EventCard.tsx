@@ -9,35 +9,15 @@ interface EventCardProps {
   timeline: Timeline;
   narrative?: EventNarrativeBinding;
   themeColor?: ThemeColorConfig;
+  tagColor?: ThemeColorConfig;
 }
 
-export default function EventCard({ event, timeline, narrative, themeColor }: EventCardProps) {
+export default function EventCard({ event, timeline, narrative, themeColor, tagColor }: EventCardProps) {
   const eventNarrative = narrative?.note;
   const relationships = narrative?.relationships ?? [];
-  const supplementalTags = narrative?.category
-    ? event.tags.filter(tag => tag !== narrative.category?.id)
-    : event.tags;
-
-  // Get importance badge color
-  const getImportanceBadge = () => {
-    switch (event.importance) {
-      case 3:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            Major Event
-          </span>
-        );
-      case 2:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            Significant
-          </span>
-        );
-      case 1:
-      default:
-        return null;
-    }
-  };
+  const primaryTag = event.tags[0];
+  const supplementalTags = event.tags.filter((tag, index) => index !== 0);
+  const badgeColor = tagColor || themeColor;
 
   return (
     <div
@@ -45,42 +25,51 @@ export default function EventCard({ event, timeline, narrative, themeColor }: Ev
       className="group bg-white rounded-lg border border-gray-200 p-6 hover:border-antiqueBronze-400 hover:shadow-lg transition-all scroll-mt-24"
     >
       {/* Date and Importance */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-3">
+      <div className="flex items-start justify-between mb-3">
+        <div>
           <div className="text-lg font-bold text-antiqueBronze-600">
             {event.start_year}
             {event.end_year && event.end_year !== event.start_year && (
               <span className="text-gray-400"> — {event.end_year}</span>
             )}
           </div>
-          {getImportanceBadge()}
+          {event.location && (
+            <div className="flex items-center text-sm text-gray-500 mt-1">
+              <svg
+                className="w-4 h-4 mr-1"
+                width={16}
+                height={16}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {event.location}
+            </div>
+          )}
         </div>
-
-        {event.location && (
-          <div className="flex items-center text-sm text-gray-500">
-            <svg
-              className="w-4 h-4 mr-1"
-              width={16}
-              height={16}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            {event.location}
-          </div>
+        {primaryTag && (
+          <span
+            className={cn(
+              'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold',
+              badgeColor?.badge || 'bg-antiqueBronze-100',
+              badgeColor?.badgeText || 'text-antiqueBronze-900',
+            )}
+          >
+            {primaryTag}
+          </span>
         )}
       </div>
 
@@ -95,15 +84,9 @@ export default function EventCard({ event, timeline, narrative, themeColor }: Ev
       </Link>
 
       {narrative?.category && (
-        <span
-          className={cn(
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mb-3',
-            themeColor?.badge || 'bg-gray-100',
-            themeColor?.badgeText || 'text-gray-700',
-          )}
-        >
-          {narrative.category.title}
-        </span>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          Theme: {narrative.category.title}
+        </p>
       )}
 
       {/* Summary */}

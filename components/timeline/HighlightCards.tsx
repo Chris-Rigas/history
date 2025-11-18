@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import type { Timeline, Event } from '@/lib/database.types';
+import type { ThemeColorConfig } from './themeColors';
+import { cn } from '@/lib/utils';
 
 interface HighlightCardsProps {
   timeline: Timeline;
   events: Event[];
+  tagColorMap?: Record<string, ThemeColorConfig>;
 }
 
-export default function HighlightCards({ timeline, events }: HighlightCardsProps) {
+export default function HighlightCards({ timeline, events, tagColorMap }: HighlightCardsProps) {
   if (events.length === 0) {
     return null;
   }
@@ -15,11 +18,11 @@ export default function HighlightCards({ timeline, events }: HighlightCardsProps
     <div>
       <div className="mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-          Turning Points
+          Key Highlights
         </h2>
         <p className="text-gray-600 max-w-3xl">
-          These pivotal events fundamentally shaped the course of {timeline.title}, 
-          marking significant shifts in power, culture, or direction.
+          These pivotal moments showcase the most dramatic turns in {timeline.title},
+          revealing the forces that pushed the era forward.
         </p>
       </div>
 
@@ -30,13 +33,22 @@ export default function HighlightCards({ timeline, events }: HighlightCardsProps
             href={`/timelines/${timeline.slug}/events/${event.slug}`}
             className="group block"
           >
-            <div className="bg-white rounded-lg border-2 border-red-200 p-6 h-full hover:border-red-400 hover:shadow-xl transition-all">
+            <div className="bg-white rounded-lg border-2 border-parchment-200 p-6 h-full hover:shadow-xl transition-all">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 mb-3">
-                    MAJOR EVENT
-                  </div>
+                  {event.tags[0] && (
+                    <div
+                      className={cn(
+                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold mb-3 border',
+                        tagColorMap?.[event.tags[0]]?.badge || 'bg-antiqueBronze-100',
+                        tagColorMap?.[event.tags[0]]?.badgeText || 'text-antiqueBronze-900',
+                        tagColorMap?.[event.tags[0]]?.border || 'border-parchment-200',
+                      )}
+                    >
+                      {event.tags[0]}
+                    </div>
+                  )}
                   <div className="text-lg font-bold text-antiqueBronze-600 mb-2">
                     {event.start_year}
                     {event.end_year && event.end_year !== event.start_year && (
@@ -94,7 +106,7 @@ export default function HighlightCards({ timeline, events }: HighlightCardsProps
               )}
 
               {/* Read More Arrow */}
-              <div className="flex items-center text-red-600 font-medium mt-4 group-hover:text-red-700">
+              <div className="flex items-center text-antiqueBronze-600 font-medium mt-4 group-hover:text-antiqueBronze-700">
                 <span className="mr-1">Explore Event</span>
                 <svg
                   className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"

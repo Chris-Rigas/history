@@ -69,7 +69,6 @@ export function generateEventMetadata(event: Event, timeline: Timeline): Metadat
       `${event.start_year}`,
       ...(event.tags || []),
       event.location || '',
-      event.type || '',
     ].filter(Boolean),
     openGraph: {
       title: `${event.title} — ${timeline.title}`,

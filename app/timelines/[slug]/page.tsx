@@ -14,8 +14,8 @@ import HighlightCards from '@/components/timeline/HighlightCards';
 import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
-import TurningPointsSection from '@/components/timeline/TurningPointsSection';
 import PerspectivesSection from '@/components/timeline/PerspectivesSection';
+import DramaticSummary from '@/components/timeline/DramaticSummary';
 import { parseStructuredContent } from '@/lib/timelines/structuredContent';
 import { bindNarrativeData } from '@/lib/timelines/narrative';
 import { getThemeColor } from '@/components/timeline/themeColors';
@@ -109,6 +109,20 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
     }),
   );
   const narrativeBindings = bindNarrativeData(timeline.events, structuredContent);
+  const tagColorMap = timeline.events.length
+    ? timeline.events.reduce<Record<string, ReturnType<typeof getThemeColor>>>((map, event) => {
+        event.tags.forEach(tag => {
+          if (!tag) {
+            return;
+          }
+          if (!map[tag]) {
+            const index = Object.keys(map).length;
+            map[tag] = getThemeColor(index);
+          }
+        });
+        return map;
+      }, {})
+    : {};
 
   // Breadcrumb data
   const breadcrumbItems = [
@@ -159,6 +173,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               events={timeline.events}
               categories={themedCategories}
               eventNarratives={narrativeBindings.eventNarratives}
+              tagColorMap={tagColorMap}
             />
           </div>
         </section>
@@ -172,16 +187,18 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               categories={themedCategories}
               eventNarratives={narrativeBindings.eventNarratives}
               connectors={narrativeBindings.connectors}
+              tagColorMap={tagColorMap}
             />
           </div>
         </section>
 
-        {structuredContent && narrativeBindings.turningPoints.length > 0 && (
-          <section className="py-12 bg-parchment-50">
+        {timeline.events.length > 0 && (
+          <section className="py-12 bg-parchment-100">
             <div className="content-container">
-              <TurningPointsSection
-                turningPoints={narrativeBindings.turningPoints}
+              <DramaticSummary
                 timeline={timeline}
+                events={timeline.events}
+                tagColorMap={tagColorMap}
               />
             </div>
           </section>
@@ -191,9 +208,10 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {highlightEvents.length > 0 && (
           <section className="py-12 bg-parchment-50">
             <div className="content-container">
-              <HighlightCards 
+              <HighlightCards
                 timeline={timeline}
-                events={highlightEvents} 
+                events={highlightEvents}
+                tagColorMap={tagColorMap}
               />
             </div>
           </section>

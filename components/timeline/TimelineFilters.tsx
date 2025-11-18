@@ -26,9 +26,13 @@ export default function TimelineFilters({
   const minYear = Math.min(...events.map(e => e.start_year));
   const maxYear = Math.max(...events.map(e => e.start_year));
   
-  const eventTypes = Array.from(new Set(
-    events.map(e => e.type).filter(Boolean)
-  )).sort();
+  const categoryLabelMap = new Map(
+    (categories || []).map(category => [category.id, category.title] as const),
+  );
+
+  const eventTypes = Array.from(
+    new Set(events.map(e => e.type).filter(Boolean)),
+  ).sort();
   
   const allTags = Array.from(new Set(
     events.flatMap(e => e.tags || [])
@@ -184,7 +188,7 @@ export default function TimelineFilters({
                 <option value="">All Types</option>
                 {eventTypes.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {categoryLabelMap.get(type) || type}
                   </option>
                 ))}
               </select>

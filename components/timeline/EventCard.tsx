@@ -11,14 +11,13 @@ interface EventCardProps {
   themeColor?: ThemeColorConfig;
 }
 
-const RELATIONSHIP_LABELS: Record<string, string> = {
-  led_to: 'Led to',
-  response_to: 'In response to',
-  parallel: 'Meanwhile',
-  foreshadows: 'Foreshadowed',
-};
-
 export default function EventCard({ event, timeline, narrative, themeColor }: EventCardProps) {
+  const eventNarrative = narrative?.note;
+  const relationships = narrative?.relationships ?? [];
+  const supplementalTags = narrative?.category
+    ? event.tags.filter(tag => tag !== narrative.category?.id)
+    : event.tags;
+
   // Get importance badge color
   const getImportanceBadge = () => {
     switch (event.importance) {
@@ -114,48 +113,50 @@ export default function EventCard({ event, timeline, narrative, themeColor }: Ev
         </p>
       )}
 
-      {narrative?.note?.soWhat && (
-        <div className="bg-parchment-100 border border-parchment-200 rounded-lg p-4 mb-4">
-          <p className="text-xs uppercase tracking-wide text-antiqueBronze-600 font-semibold mb-1">
-            So what?
+      {eventNarrative?.soWhat && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <p className="text-sm font-semibold text-antiqueBronze-600 mb-1">
+            Why it matters:
           </p>
-          <p className="text-sm text-gray-800">{narrative.note.soWhat}</p>
+          <p className="text-sm text-gray-700">
+            {eventNarrative.soWhat}
+          </p>
         </div>
       )}
 
-      {narrative?.relationships.length ? (
-        <div className="mb-4">
-          <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">
-            Relationship cues
+      {eventNarrative?.humanDetail && (
+        <div className="mt-3 pt-3 border-t border-gray-200 italic">
+          <p className="text-sm text-gray-600">
+            {eventNarrative.humanDetail}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {narrative.relationships.map((relationship, index) => (
-              <a
-                key={`${relationship.type}-${relationship.targetSlug || relationship.targetTitle}-${index}`}
-                href={relationship.targetSlug ? `#event-${relationship.targetSlug}` : undefined}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
-              >
-                <span className="font-semibold">
-                  {RELATIONSHIP_LABELS[relationship.type] || 'Linked to'}:
-                </span>
-                <span>{relationship.targetTitle}</span>
-              </a>
-            ))}
-          </div>
         </div>
-      ) : null}
+      )}
 
-      {narrative?.note?.humanDetail && (
-        <p className="text-sm text-gray-700 italic mb-4">
-          “{narrative.note.humanDetail}”
-        </p>
+      {relationships.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {relationships.slice(0, 2).map((relationship, idx) => {
+            const targetLabel = relationship.targetTitle || 'Related event';
+            return (
+              <a
+                key={`${relationship.type}-${relationship.targetSlug || relationship.targetTitle}-${idx}`}
+                href={relationship.targetSlug ? `#event-${relationship.targetSlug}` : undefined}
+                className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded"
+              >
+                {relationship.type === 'led_to' && '→ '}
+                {relationship.type === 'response_to' && '← '}
+                {relationship.type === 'parallel' && '|| '}
+                {targetLabel.substring(0, 30)}...
+              </a>
+            );
+          })}
+        </div>
       )}
 
       {/* Tags and Link */}
       <div className="flex items-center justify-between">
-        {event.tags.length > 0 && (
+        {supplementalTags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {event.tags.slice(0, 3).map((tag) => (
+            {supplementalTags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-parchment-100 text-gray-700"
@@ -163,9 +164,9 @@ export default function EventCard({ event, timeline, narrative, themeColor }: Ev
                 {tag}
               </span>
             ))}
-            {event.tags.length > 3 && (
+            {supplementalTags.length > 3 && (
               <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-gray-500">
-                +{event.tags.length - 3} more
+                +{supplementalTags.length - 3} more
               </span>
             )}
           </div>

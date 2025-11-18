@@ -267,7 +267,11 @@ ${context ? `Additional context: ${context}\n\n` : ''}Compose a neutral, informa
   "citations": []
 }`;
 
-  const contentPrompt = `Using the initial understanding and research digest, create a structured JSON object following the schema below.
+  const contentPrompt = `You are a narrative historian in the tradition of Barbara Tuchman and Erik Larson. Using the initial understanding and research digest, create a structured JSON object that tells a COMPELLING STORY while maintaining historical rigor.
+
+Your mission: Transform historical facts into a narrative that pulls readers through time. Every element should reveal character, causation, or consequence. Avoid academic dryness—write as if describing events to someone who wants to understand not just WHAT happened, but WHY it mattered and HOW it felt to live through it.
+
+Using that sensibility, create a structured JSON object following the schema below.
 
 TOPIC: ${topicLabel}
 
@@ -282,12 +286,83 @@ ${schema}
 
 REQUIREMENTS:
 - Output valid JSON only.
-- Identify the period's central tension and story character in 1-2 sentences.
-- Create 4-6 thematic categories and reuse their IDs for the related events.
-- Every event note must include a concise summary, a "soWhat" consequence, any available human detail, and relationships labeled with the allowed values (led_to, response_to, parallel, foreshadows).
-- Provide narrative connectors that explain how clusters of events relate and 2-4 turning points explaining their stakes.
-- Perspectives must cover evidence (available + gaps), interpretations (debates + contested points), and context (what contemporaries felt vs. what became clear later).
-- Include bracketed numeric references [1], [2], ... wherever facts need support and list them in the citations array.`;
+
+CRITICAL - OVERVIEW FIELD (3-4 rich paragraphs, 400-500 words total):
+This is the STORY of the period. Structure it dramatically:
+
+Paragraph 1 - THE SETUP (100-120 words):
+- What was the situation before this period began?
+- What crisis, question, or possibility did people face?
+- Use concrete, vivid details that ground the reader in time and place
+- Make them feel the instability, danger, or opportunity
+- Example opening: "The Year of the Four Emperors shattered any illusion that imperial succession followed orderly rules..."
+
+Paragraph 2 - THE STAKES (100-120 words):
+- What was being tested, negotiated, or fought over?
+- What could have gone wrong? What was at risk?
+- Frame this as dramatic questions the reader wants answered
+- What did contemporaries think was happening?
+- Example: "Could a military upstart establish a stable dynasty? Could Rome's shattered finances be repaired?"
+
+Paragraph 3 - THE STORY (120-150 words):
+- How did it unfold? Who were the key personalities?
+- What unexpected things happened?
+- How did the situation evolve and change?
+- Include specific human details—quotes, personality traits, dramatic moments, decisions
+- Use active, vivid language: not "reforms were implemented" but "Vespasian slashed spending and..."
+- Example: "Vespasian's answer was pragmatic and theatrical. He stabilized finances through fiscal discipline and the wealth of conquered Judaea..."
+
+Paragraph 4 - THE RESOLUTION (80-100 words):
+- How did it end? What changed as a result?
+- What legacy or patterns were established?
+- What became clear only in retrospect?
+- Connect to larger historical patterns
+- Example: "The Flavian dynasty restored stability but couldn't solve succession's central problem..."
+
+Write in a style that is historically RIGOROUS but dramatically COMPELLING. Every sentence should advance the narrative or reveal character. Use specific details, active voice, and vivid verbs. Make the reader want to know what happens next.
+
+- Identify the period's central tension and story character in 1-2 sentences each.
+
+- Create 4-6 thematic categories (NOT generic "Major/Significant/Notable"). Categories must:
+  * Represent the actual FORCES, DYNAMICS, or TENSIONS of this specific period
+  * Be specific enough to reveal what the period is about
+  * Be broad enough that multiple events fit each category
+  * Examples: "Power Consolidation", "Succession Crises", "Public Works & Legitimacy", "Military Expansion", "Court Politics"
+  * BAD examples: "Important Events", "Political Developments", "Major Changes"
+
+- Every event note must include:
+  * summary (2-3 sentences of what happened)
+  * soWhat (1 sentence: what it led to, established, or revealed—NOT "this was important" but WHAT THE CONSEQUENCE WAS)
+  * relationships with specific targets (led_to, response_to, parallel, foreshadows)
+  * humanDetail (a quote, personal observation, or specific detail that makes it tangible—not required for every event, but sprinkle throughout)
+
+- Narrative connectors (every 3-5 events): Brief transitional text explaining how events relate:
+  * "During this period, X was responding to Y's earlier reforms..."
+  * "These victories set the stage for..."
+  * "At the same time, parallel developments in..."
+
+- Turning points (2-4 pivotal moments): These are NOT event summaries. A turning point is a moment when:
+  * The trajectory fundamentally shifted
+  * Things could have gone differently
+  * A pattern or precedent was established
+  * Multiple threads converged
+  
+  For each turning point, explain:
+  * What was DECIDED or became INEVITABLE at this moment?
+  * What possibilities were FORECLOSED?
+  * What could have happened if things went differently?
+  * What PATTERN or PRECEDENT was established for the future?
+  
+  Example of GOOD turning point: "Vespasian's rise to power answered Rome's most dangerous question: succession would be decided by military force, not law. This established three precedents: (1) provincial armies could make emperors, (2) military competence trumped aristocratic birth, (3) emperors must buy loyalty with monuments. Every future succession crisis would replay this pattern."
+  
+  Example of BAD turning point: "Vespasian became emperor in 69 CE, ending the Year of the Four Emperors and founding the Flavian dynasty."
+
+- Perspectives must cover:
+  * evidence (available primary sources + gaps/limitations)
+  * interpretations (what historians debate + what's contested/uncertain)
+  * context (what people living through it noticed vs. what only became clear later)
+
+- Include bracketed numeric references [1], [2] wherever facts need support and list them in citations array with source name and URL.`;
 
   const contentResponse = await openai.responses.create({
     model: TIMELINE_MODEL,
@@ -527,25 +602,67 @@ export async function generateEventContent(params: {
     ? `\nOther events in this timeline: ${existingEvents.map(e => `${e.title} (${e.year})`).join(', ')}`
     : '';
 
-  const prompt = `Generate detailed content for the historical event: "${title}" (${year})
+  const prompt = `You are a narrative historian writing about: "${title}" (${year})
 
 Timeline context: ${timelineContext}${existingEventsText}
 
+Write historically accurate content that is also dramatically compelling. Think Erik Larson—use specific details that make history feel lived.
+
 Provide:
 
-1. SUMMARY (1-2 sentences, 100-150 words): Brief overview of what happened
+1. SUMMARY (2-3 sentences, 100-150 words):
+   - What happened in concrete, specific terms
+   - Include WHO did WHAT and WHERE
+   - Use active voice and vivid verbs
 
-2. DESCRIPTION (3-5 paragraphs, 400-600 words):
-   - Causes: What led to this event
-   - Event: What actually happened
-   - Consequences: Immediate results and impact
+2. DESCRIPTION (3-5 paragraphs, 500-700 words):
+   Write this as a STORY with three movements:
+   
+   **Causes (1-2 paragraphs):** What led to this event?
+   - Set the scene: what was the situation before?
+   - What tensions or forces were building?
+   - Include specific details: what did people think was happening?
+   - Use concrete language: "Tensions had been building since..." not "The situation deteriorated..."
+   
+   **Event (2-3 paragraphs):** What actually happened?
+   - Chronological narrative of the event itself
+   - Include human details: what did participants see, feel, decide?
+   - Use specific observations from primary sources where possible
+   - Make it visual and tangible
+   - If there are quotes from participants, include them
+   
+   **Consequences (1 paragraph):** What resulted immediately?
+   - Direct, immediate results
+   - How did this change the situation?
+   - What became possible or impossible after this?
 
-3. SIGNIFICANCE (2-3 paragraphs, 200-300 words): Why this event matters historically
+3. SIGNIFICANCE (2-3 paragraphs, 250-350 words):
+   Why does this matter to the larger story?
+   - How did this shape what came after?
+   - What patterns or precedents did it establish?
+   - How do historians view this event?
+   - What became clear only in retrospect?
+   - Connect to broader historical forces
 
 4. METADATA:
-   - Type: (e.g., Battle, Treaty, Coronation, Discovery, Revolution, Conquest, etc.)
-   - Importance: 1 (notable), 2 (significant), or 3 (major turning point)
-   - Tags: 3-5 relevant keywords
+   - Type: Use ONLY these broad categories when they fit:
+     * Military (battles, campaigns, conquests)
+     * Political (laws, reforms, power transfers)
+     * Diplomatic (treaties, alliances, negotiations)
+     * Cultural (artistic, religious, intellectual developments)
+     * Crisis (disasters, revolts, famines, plagues)
+     * Ceremonial (coronations, celebrations, inaugurations)
+     * Infrastructure (buildings, roads, public works)
+     If none fit perfectly, choose the closest or use "Historical Event"
+   
+   - Importance:
+     * 1 = Notable (contextual/supportive event)
+     * 2 = Significant (clear impact on period)
+     * 3 = Major turning point (changed trajectory fundamentally)
+   
+   - Tags: 2-3 specific, relevant keywords (people, places, concepts)
+     * Be specific: "Vespasian", "Jerusalem", "Colosseum" not generic terms
+     * These are secondary to Type—keep them minimal
 
 Format as JSON with keys: summary, description, significance, type, importance, tags`;
 

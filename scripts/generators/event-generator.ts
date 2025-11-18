@@ -69,6 +69,33 @@ export async function generateEvent(params: {
       existingEvents,
     });
 
+    // Map event type to thematic category when available
+    const timelineMetadata = (timeline.metadata as any)?.structured_content;
+    let mappedCategory = content.type;
+
+    if (
+      timelineMetadata &&
+      typeof timelineMetadata === 'object' &&
+      'eventNotes' in timelineMetadata
+    ) {
+      const eventNotes = (timelineMetadata as any).eventNotes;
+      if (Array.isArray(eventNotes)) {
+        const normalizedTitle = title.toLowerCase();
+        const matchingNote = eventNotes.find((note: any) => {
+          const noteTitle = typeof note?.title === 'string' ? note.title.toLowerCase() : '';
+          if (!noteTitle) {
+            return false;
+          }
+          const snippet = noteTitle.substring(0, 20);
+          return snippet ? normalizedTitle.includes(snippet) : false;
+        });
+
+        if (matchingNote?.categoryId) {
+          mappedCategory = matchingNote.categoryId;
+        }
+      }
+    }
+
     // Create event record
     const event = await createEvent({
       title,
@@ -76,8 +103,8 @@ export async function generateEvent(params: {
       start_year: year,
       end_year: null,
       location: null,
-      type: content.type,
-      tags: content.tags,
+      type: mappedCategory || content.type,
+      tags: [mappedCategory || content.type].filter(Boolean),
       importance: content.importance || importance,
       summary: content.summary,
       description_html: formatAsHtml(content.description),
@@ -233,6 +260,32 @@ export async function regenerateEvent(
       timelineContext: timeline.summary || timeline.title,
     });
 
+    const timelineMetadata = (timeline.metadata as any)?.structured_content;
+    let mappedCategory = content.type;
+
+    if (
+      timelineMetadata &&
+      typeof timelineMetadata === 'object' &&
+      'eventNotes' in timelineMetadata
+    ) {
+      const eventNotes = (timelineMetadata as any).eventNotes;
+      if (Array.isArray(eventNotes)) {
+        const normalizedTitle = event.title.toLowerCase();
+        const matchingNote = eventNotes.find((note: any) => {
+          const noteTitle = typeof note?.title === 'string' ? note.title.toLowerCase() : '';
+          if (!noteTitle) {
+            return false;
+          }
+          const snippet = noteTitle.substring(0, 20);
+          return snippet ? normalizedTitle.includes(snippet) : false;
+        });
+
+        if (matchingNote?.categoryId) {
+          mappedCategory = matchingNote.categoryId;
+        }
+      }
+    }
+
     // Update event
     const { supabaseAdmin } = await import('@/lib/supabase');
     await supabaseAdmin
@@ -241,8 +294,8 @@ export async function regenerateEvent(
         summary: content.summary,
         description_html: formatAsHtml(content.description),
         significance_html: formatAsHtml(content.significance),
-        tags: content.tags,
-        type: content.type,
+        tags: [mappedCategory || content.type].filter(Boolean),
+        type: mappedCategory || content.type,
         importance: content.importance,
         updated_at: new Date().toISOString(),
       })

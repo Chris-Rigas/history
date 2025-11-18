@@ -5,7 +5,9 @@ import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import SEOSchema, { BreadcrumbSchema } from '@/components/SEO';
 import TimelineHeader from '@/components/timeline/TimelineHeader';
-import OverviewSummary from '@/components/timeline/OverviewSummary';
+import CentralQuestion from '@/components/timeline/CentralQuestion';
+import StoryOverview from '@/components/timeline/StoryOverview';
+import KeyStoryElements from '@/components/timeline/KeyStoryElements';
 import BirdsEyeStrip from '@/components/timeline/BirdsEyeStrip';
 import ZoomableTimeline from '@/components/timeline/ZoomableTimeline';
 import HighlightCards from '@/components/timeline/HighlightCards';
@@ -132,22 +134,22 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         </div>
 
         {/* Header & Fast Facts */}
-        <TimelineHeader
+        <TimelineHeader timeline={timeline} />
+
+        {/* Central Question */}
+        <CentralQuestion narrative={structuredContent} />
+
+        {/* Story Overview */}
+        {structuredContent && (
+          <StoryOverview narrative={structuredContent} />
+        )}
+
+        {/* Key Story Elements */}
+        <KeyStoryElements
           timeline={timeline}
           narrative={structuredContent}
           categories={themedCategories}
         />
-
-        {/* Overview Summary */}
-        <section className="py-8 bg-white">
-          <div className="content-container">
-            <OverviewSummary
-              timeline={timeline}
-              narrative={structuredContent}
-              categories={themedCategories}
-            />
-          </div>
-        </section>
 
         {/* Bird's-Eye Timeline Strip */}
         <section className="py-8 bg-parchment-100">

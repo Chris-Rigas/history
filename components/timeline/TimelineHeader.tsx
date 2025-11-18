@@ -1,20 +1,11 @@
 import type { TimelineFull } from '@/lib/database.types';
-import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
-import type { ThemedTimelineCategory } from './types';
 import { stripTimelineFormatting } from '@/lib/timelines/formatting';
-import { cn } from '@/lib/utils';
 
 interface TimelineHeaderProps {
   timeline: TimelineFull;
-  narrative?: TimelineStructuredContent | null;
-  categories?: ThemedTimelineCategory[];
 }
 
-export default function TimelineHeader({
-  timeline,
-  narrative,
-  categories,
-}: TimelineHeaderProps) {
+export default function TimelineHeader({ timeline }: TimelineHeaderProps) {
   const summaryPlain = timeline.summary ? stripTimelineFormatting(timeline.summary) : '';
   const metaDescription = timeline.metadata?.meta_description?.trim();
   const subheadingSource = metaDescription || summaryPlain;
@@ -110,55 +101,6 @@ export default function TimelineHeader({
             </span>
           </div>
         </div>
-
-        {narrative?.centralQuestion && (
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/20">
-              <p className="text-sm uppercase tracking-widest text-parchment-200 font-semibold">
-                Central question
-              </p>
-              <p className="text-2xl font-semibold text-white mt-3">
-                {narrative.centralQuestion}
-              </p>
-              {narrative.storyCharacter && (
-                <p className="mt-4 text-parchment-100">
-                  Story type:{' '}
-                  <span className="font-semibold">{narrative.storyCharacter}</span>
-                </p>
-              )}
-            </div>
-
-            {categories && categories.length > 0 && (
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <p className="text-sm uppercase tracking-widest text-parchment-200 font-semibold">
-                  Thematic threads
-                </p>
-                <div className="mt-4 space-y-3">
-                  {categories.slice(0, 4).map(category => (
-                    <div key={category.id} className="flex items-start gap-3">
-                      <span
-                        className={cn(
-                          'mt-1 inline-flex h-3 w-3 rounded-full border border-white/40',
-                          category.colorClass.dot,
-                        )}
-                      />
-                      <div>
-                        <p className="text-base font-semibold text-white">
-                          {category.title}
-                        </p>
-                        {category.description && (
-                          <p className="text-sm text-parchment-100">
-                            {category.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </header>
   );

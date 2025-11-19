@@ -233,7 +233,7 @@ ${context ? `Additional context: ${context}\n\n` : ''}Compose a neutral, informa
     { "title": "", "detail": "" }
   ],
   "themes": [
-    { "id": "", "title": "", "description": "" }
+    { "id": "", "title": "", "description": "", "focus": "" }
   ],
   "eventNotes": [
     {
@@ -271,8 +271,6 @@ ${context ? `Additional context: ${context}\n\n` : ''}Compose a neutral, informa
 
 Your mission: Transform historical facts into a narrative that pulls readers through time. Every element should reveal character, causation, or consequence. Avoid academic dryness—write as if describing events to someone who wants to understand not just WHAT happened, but WHY it mattered and HOW it felt to live through it.
 
-Using that sensibility, create a structured JSON object following the schema below.
-
 TOPIC: ${topicLabel}
 
 INITIAL UNDERSTANDING:
@@ -285,84 +283,199 @@ SCHEMA:
 ${schema}
 
 REQUIREMENTS:
-- Output valid JSON only.
+- Output valid JSON only
+- Every element should advance the STORY
+- Think in terms of: setup → rising tension → climax → resolution
 
-CRITICAL - OVERVIEW FIELD (3-4 rich paragraphs, 400-500 words total):
-This is the STORY of the period. Structure it dramatically:
+═══════════════════════════════════════════════════════════
+CRITICAL FIELDS - THE NARRATIVE FOUNDATION
+═══════════════════════════════════════════════════════════
 
-Paragraph 1 - THE SETUP (100-120 words):
-- What was the situation before this period began?
-- What crisis, question, or possibility did people face?
-- Use concrete, vivid details that ground the reader in time and place
-- Make them feel the instability, danger, or opportunity
-- Example opening: "The Year of the Four Emperors shattered any illusion that imperial succession followed orderly rules..."
+1. SUMMARY (2-3 sentences, 100-150 words):
+   The "logline" of this historical period. What's the ONE-SENTENCE story?
+   Example: "Augustus transformed Rome from a blood-soaked republic into history's first superpower—then discovered his greatest challenge wasn't conquest but succession."
 
-Paragraph 2 - THE STAKES (100-120 words):
-- What was being tested, negotiated, or fought over?
-- What could have gone wrong? What was at risk?
-- Frame this as dramatic questions the reader wants answered
-- What did contemporaries think was happening?
-- Example: "Could a military upstart establish a stable dynasty? Could Rome's shattered finances be repaired?"
+2. CENTRAL QUESTION (1 sentence, 15-30 words):
+   The dramatic tension that drives this period. Frame as a question that creates stakes.
+   ❌ BAD: "This period saw the transition from republic to empire"
+   ✅ GOOD: "Could one man hold absolute power while maintaining the fiction of republican government?"
+   ✅ GOOD: "When divine right meets dynastic chaos, who decides the next emperor?"
+   
+   The question should be something contemporaries worried about, with unclear outcome.
 
-Paragraph 3 - THE STORY (120-150 words):
-- How did it unfold? Who were the key personalities?
-- What unexpected things happened?
-- How did the situation evolve and change?
-- Include specific human details—quotes, personality traits, dramatic moments, decisions
-- Use active, vivid language: not "reforms were implemented" but "Vespasian slashed spending and..."
-- Example: "Vespasian's answer was pragmatic and theatrical. He stabilized finances through fiscal discipline and the wealth of conquered Judaea..."
+3. STORY CHARACTER (5-10 words):
+   What TYPE of story is this? Use evocative language.
+   Examples: "A dynasty's rise and tragic fall", "Empire building its own trap", "Succession crisis in slow motion"
 
-Paragraph 4 - THE RESOLUTION (80-100 words):
-- How did it end? What changed as a result?
-- What legacy or patterns were established?
-- What became clear only in retrospect?
-- Connect to larger historical patterns
-- Example: "The Flavian dynasty restored stability but couldn't solve succession's central problem..."
+4. OVERVIEW (3-4 rich paragraphs, 400-500 words total):
+   This is the STORY of the period, structured dramatically:
 
-Write in a style that is historically RIGOROUS but dramatically COMPELLING. Every sentence should advance the narrative or reveal character. Use specific details, active voice, and vivid verbs. Make the reader want to know what happens next.
+   Paragraph 1 - THE SETUP (100-120 words):
+   - What was the world before this period? Paint the scene.
+   - What tensions or forces were building?
+   - Make it feel like something HAD to happen
+   - Example opening: "By 27 BCE, Rome was exhausted. A century of civil wars had..."
 
-- Identify the period's central tension and story character in 1-2 sentences each.
+   Paragraph 2 - RISING ACTION (120-150 words):
+   - How did the main forces/figures try to solve the setup's problems?
+   - What new complications arose?
+   - Show the building momentum
+   - Include specific turning points with dates
+   
+   Paragraph 3 - CLIMAX & TRANSFORMATION (100-120 words):
+   - What was the decisive moment or period?
+   - How did everything change?
+   - Make the reader feel the weight of the shift
+   
+   Paragraph 4 - RESOLUTION & CONSEQUENCES (80-110 words):
+   - How did this period end?
+   - What was fundamentally different after?
+   - Bridge to what came next
+   - Include the legacy/pattern that outlasted the period
 
-- Create 4-6 thematic categories (NOT generic "Major/Significant/Notable"). Categories must:
-  * Represent the actual FORCES, DYNAMICS, or TENSIONS of this specific period
-  * Be specific enough to reveal what the period is about
-  * Be broad enough that multiple events fit each category
-  * Examples: "Power Consolidation", "Succession Crises", "Public Works & Legitimacy", "Military Expansion", "Court Politics"
-  * BAD examples: "Important Events", "Political Developments", "Major Changes"
+═══════════════════════════════════════════════════════════
+5. THEMES ARRAY - THE NARRATIVE CATEGORIZATION
+═══════════════════════════════════════════════════════════
 
-- Every event note must include:
-  * summary (2-3 sentences of what happened)
-  * soWhat (1 sentence: what it led to, established, or revealed—NOT "this was important" but WHAT THE CONSEQUENCE WAS)
-  * relationships with specific targets (led_to, response_to, parallel, foreshadows)
-  * humanDetail (a quote, personal observation, or specific detail that makes it tangible—not required for every event, but sprinkle throughout)
+Create 4-6 thematic categories that reveal the FORCES at play in this period.
 
-- Narrative connectors (every 3-5 events): Brief transitional text explaining how events relate:
-  * "During this period, X was responding to Y's earlier reforms..."
-  * "These victories set the stage for..."
-  * "At the same time, parallel developments in..."
+CRITICAL: These are NOT generic categories like "Major/Significant/Notable"
+CRITICAL: These should reveal the STORY's structure and conflicts
 
-- Turning points (2-4 pivotal moments): These are NOT event summaries. A turning point is a moment when:
-  * The trajectory fundamentally shifted
-  * Things could have gone differently
-  * A pattern or precedent was established
-  * Multiple threads converged
+For each theme:
+- **id**: kebab-case identifier (e.g., "power-consolidation")
+- **title**: Active, evocative name (3-6 words)
+- **description**: What this force/pattern means (2-3 sentences)
+- **focus**: Why this matters to the overall story (1-2 sentences)
+
+Examples for Julio-Claudian dynasty:
+{
+  "id": "power-consolidation",
+  "title": "Building the Imperial Machine",
+  "description": "Augustus and his successors transformed personal authority into institutional power through legal reforms, military loyalty, and public works. Each emperor added another layer to the system.",
+  "focus": "This theme tracks how autocracy disguised itself as restored republic, creating precedents that would define emperorship for centuries."
+}
+
+{
+  "id": "succession-crisis",
+  "title": "The Dynasty's Fatal Flaw",
+  "description": "With no clear rules for imperial succession, each transition became a potential civil war. Adoption, murder, and mob politics determined who ruled Rome.",
+  "focus": "The lack of succession mechanism created constant instability and would ultimately destroy this dynasty."
+}
+
+{
+  "id": "legitimacy-performance",
+  "title": "Performing Power",
+  "description": "Emperors used gladiatorial games, public building projects, and military victories to demonstrate their right to rule. Politics became theater.",
+  "focus": "This reveals how power in Rome required constant public validation—bread and circuses weren't luxuries but necessities."
+}
+
+Think about: What FORCES were in conflict? What PATTERNS emerged? What CONTRADICTIONS existed?
+
+═══════════════════════════════════════════════════════════
+6. EVENT NOTES - NARRATIVE ENRICHMENT FOR EACH EVENT
+═══════════════════════════════════════════════════════════
+
+For each major event in the timeline, provide:
+
+- **title**: Exact event title (must match an actual event)
+- **categoryId**: Which theme does this event belong to? (use theme 'id')
+- **summary**: One-sentence "what happened" (20-40 words)
+- **soWhat**: Why this matters to the larger story—the CONSEQUENCES or SIGNIFICANCE (40-80 words)
+  * NOT just "this was important" 
+  * Explain WHAT CHANGED or what became possible/impossible
+  * Connect to the central question or story arc
+  * Put the "so what" front and center—make causation explicit
   
-  For each turning point, explain:
-  * What was DECIDED or became INEVITABLE at this moment?
-  * What possibilities were FORECLOSED?
-  * What could have happened if things went differently?
-  * What PATTERN or PRECEDENT was established for the future?
+- **relationships**: Array of connections to other events
+  * Type: "led_to", "response_to", "parallel", "foreshadows"
+  * Target event title
+  * Detail: How/why they're connected (1-2 sentences)
+  * Emphasize causation—show how one event made the next inevitable or more likely
   
-  Example of GOOD turning point: "Vespasian's rise to power answered Rome's most dangerous question: succession would be decided by military force, not law. This established three precedents: (1) provincial armies could make emperors, (2) military competence trumped aristocratic birth, (3) emperors must buy loyalty with monuments. Every future succession crisis would replay this pattern."
-  
-  Example of BAD turning point: "Vespasian became emperor in 69 CE, ending the Year of the Four Emperors and founding the Flavian dynasty."
+- **humanDetail**: A specific, tangible detail that makes this feel REAL (1-2 sentences)
+  * What did someone see, feel, say, or do?
+  * A quote, a gesture, a weather detail, a price, a specific location
+  * Example: "Tiberius reportedly said he was 'holding a wolf by the ears'—ruling Rome meant grasping something that could devour you if you let go."
 
-- Perspectives must cover:
-  * evidence (available primary sources + gaps/limitations)
-  * interpretations (what historians debate + what's contested/uncertain)
-  * context (what people living through it noticed vs. what only became clear later)
+Example:
+{
+  "title": "Augustus' Consolidation of Power",
+  "categoryId": "power-consolidation",
+  "summary": "Augustus transformed his position from military strongman to constitutional monarch through the settlements of 27-23 BCE.",
+  "soWhat": "This established the template for all future emperors: concentrate real power while preserving republican appearances. The Senate kept its prestige, Augustus kept control—a compromise that would define Roman governance for 300 years.",
+  "relationships": [
+    {
+      "type": "led_to",
+      "targetTitle": "Introduction of the Praetorian Guard",
+      "detail": "Absolute power required absolute protection—Augustus created a new military unit loyal only to him, not the state."
+    }
+  ],
+  "humanDetail": "When the Senate offered Augustus the title of dictator, he theatrically refused it three times—the same number of times Caesar had refused the crown. Everyone understood the script."
+}
 
-- Include bracketed numeric references [1], [2] wherever facts need support and list them in citations array with source name and URL.`;
+═══════════════════════════════════════════════════════════
+7. NARRATIVE CONNECTORS - THE STORY GLUE
+═══════════════════════════════════════════════════════════
+
+Create 5-10 transitional phrases that show causation between events:
+
+{
+  "afterEventTitle": "[Event name]",
+  "text": "A 1-2 sentence connector showing how this led to what comes next"
+}
+
+Examples:
+- "This power grab set a precedent that would haunt every succession..."
+- "But consolidating power created a new problem: who would inherit it?"
+- "Meanwhile, in the provinces, a different crisis was building..."
+- "This seemingly minor reform would prove decisive when..."
+
+═══════════════════════════════════════════════════════════
+8. TURNING POINTS - THE GAME-CHANGERS
+═══════════════════════════════════════════════════════════
+
+Identify 3-5 events where everything changed. These are moments where:
+- The outcome was genuinely uncertain
+- Multiple futures were possible
+- What happened fundamentally altered what came after
+
+For each:
+- **title**: The event name
+- **description**: What happened and what was at stake (2-3 sentences)
+- **whyItMatters**: The PATTERN or PRECEDENT this established (2-3 sentences)
+
+❌ BAD: "Claudius invaded Britain in 43 CE, expanding the empire."
+
+✅ GOOD: "Claudius' invasion of Britain proved that even 'weak' emperors needed military glory to survive. This established the precedent that every emperor must win a war—real or manufactured—to secure legitimacy. Future emperors would launch increasingly desperate campaigns just to maintain this tradition."
+
+═══════════════════════════════════════════════════════════
+9. KEY FACTS - THE VITAL STATISTICS
+═══════════════════════════════════════════════════════════
+
+4-8 quick facts that establish scope and context:
+- Start/end dates
+- Duration
+- Primary location/region  
+- Key figures count
+- Major outcomes/changes
+- Deaths/casualties if relevant
+- Territory gained/lost
+- Population affected
+
+Make them SPECIFIC and TANGIBLE, not generic.
+
+═══════════════════════════════════════════════════════════
+REMAINING FIELDS (Keep existing instructions)
+═══════════════════════════════════════════════════════════
+
+- turningPoints (already covered above)
+- perspectives (evidence, interpretations, context)
+- themeInsights (analytical takeaways for each theme)
+- contextSections (deeper dives on specific aspects)
+- citations (bracketed numeric references with full URLs)
+
+Include bracketed numeric references [1], [2] wherever facts need support and list them in citations array with source name and URL.`;
 
   const contentResponse = await openai.responses.create({
     model: TIMELINE_MODEL,
@@ -606,65 +719,128 @@ export async function generateEventContent(params: {
 
 Timeline context: ${timelineContext}${existingEventsText}
 
-Write historically accurate content that is also dramatically compelling. Think Erik Larson—use specific details that make history feel lived.
+Write historically accurate content that is also dramatically compelling. Channel Erik Larson: use specific, tactile details that transport readers into the moment. Every sentence should answer "what did this FEEL like to live through?"
 
 Provide:
 
-1. SUMMARY (2-3 sentences, 100-150 words):
-   - What happened in concrete, specific terms
-   - Include WHO did WHAT and WHERE
-   - Use active voice and vivid verbs
+═══════════════════════════════════════════════════════════
+1. SUMMARY (2-3 sentences, 100-150 words)
+═══════════════════════════════════════════════════════════
 
-2. DESCRIPTION (3-5 paragraphs, 500-700 words):
-   Write this as a STORY with three movements:
-   
-   **Causes (1-2 paragraphs):** What led to this event?
-   - Set the scene: what was the situation before?
-   - What tensions or forces were building?
-   - Include specific details: what did people think was happening?
-   - Use concrete language: "Tensions had been building since..." not "The situation deteriorated..."
-   
-   **Event (2-3 paragraphs):** What actually happened?
-   - Chronological narrative of the event itself
-   - Include human details: what did participants see, feel, decide?
-   - Use specific observations from primary sources where possible
-   - Make it visual and tangible
-   - If there are quotes from participants, include them
-   
-   **Consequences (1 paragraph):** What resulted immediately?
-   - Direct, immediate results
-   - How did this change the situation?
-   - What became possible or impossible after this?
+The hook. Make someone care in three sentences.
 
-3. SIGNIFICANCE (2-3 paragraphs, 250-350 words):
-   Why does this matter to the larger story?
-   - How did this shape what came after?
-   - What patterns or precedents did it establish?
-   - How do historians view this event?
-   - What became clear only in retrospect?
-   - Connect to broader historical forces
+- Lead with ACTION: WHO did WHAT and WHERE
+- Use active voice and vivid verbs ("seized power" not "came to power")
+- Include ONE concrete detail that makes it real
+- End with a hint of significance
 
-4. METADATA:
-   - Type: Use ONLY these broad categories when they fit:
-     * Military (battles, campaigns, conquests)
-     * Political (laws, reforms, power transfers)
-     * Diplomatic (treaties, alliances, negotiations)
-     * Cultural (artistic, religious, intellectual developments)
-     * Crisis (disasters, revolts, famines, plagues)
-     * Ceremonial (coronations, celebrations, inaugurations)
-     * Infrastructure (buildings, roads, public works)
-     If none fit perfectly, choose the closest or use "Historical Event"
-   
-   - Importance:
-     * 1 = Notable (contextual/supportive event)
-     * 2 = Significant (clear impact on period)
-     * 3 = Major turning point (changed trajectory fundamentally)
-   
-   - Tags: 2-3 specific, relevant keywords (people, places, concepts)
-     * Be specific: "Vespasian", "Jerusalem", "Colosseum" not generic terms
-     * These are secondary to Type—keep them minimal
+❌ BAD: "Augustus consolidated power in 27 BCE."
+✅ GOOD: "In January 27 BCE, Augustus stood before the Roman Senate and theatrically offered to resign all his powers—knowing they would beg him to stay. They did, granting him unprecedented authority wrapped in republican titles. In one choreographed moment, he transformed from warlord to constitutional monarch."
 
-Format as JSON with keys: summary, description, significance, type, importance, tags`;
+═══════════════════════════════════════════════════════════
+2. DESCRIPTION (4-6 paragraphs, 600-800 words)
+═══════════════════════════════════════════════════════════
+
+Tell this as a STORY with dramatic structure. Use chronological narrative within each section, but organize by causation:
+
+**SECTION A: CAUSES (1-2 paragraphs, 150-250 words)**
+
+Set the scene before this event. Answer:
+- What was the situation before this happened?
+- What pressures or tensions were building?
+- What made this event inevitable (or likely)?
+- What did people at the time think was happening?
+
+Use CONCRETE language:
+- ✅ "By 23 BCE, Augustus had survived three assassination plots"
+- ❌ "There was growing instability"
+
+Include specific dates, numbers, names. Make readers see the powder keg.
+
+**SECTION B: THE EVENT ITSELF (2-3 paragraphs, 300-400 words)**
+
+The chronological narrative of what actually happened.
+
+CRITICAL: Make this VISUAL and SENSORY
+- What time of day was it?
+- What did people see, hear, smell?
+- Who was there? What did they say or do?
+- What were the specific actions taken?
+- Were there pivotal moments or decisions?
+
+Include direct quotes from primary sources where available (mark them clearly as quotes).
+
+Use scene-setting: "In the Senate chamber on the Ides of January..."
+Use specific details: "The vote was 400 to 7..."
+Use human actions: "Augustus paused, then removed his signet ring..."
+
+Make readers feel like they're THERE.
+
+**SECTION C: IMMEDIATE CONSEQUENCES (1-2 paragraphs, 150-200 words)**
+
+What changed in the hours, days, and weeks after?
+
+- What became possible that wasn't before?
+- What became impossible?
+- How did people react?
+- What was the immediate fallout?
+
+NOT long-term significance yet—just the direct, immediate results.
+
+Example: "Within days, Augustus' supporters began commissioning statues of the 'restored republic.' His enemies, reading the room, suddenly discovered long-delayed business in the provinces."
+
+═══════════════════════════════════════════════════════════
+3. SIGNIFICANCE (2-3 paragraphs, 300-400 words)
+═══════════════════════════════════════════════════════════
+
+Answer the "SO WHAT?" — why should anyone care about this event?
+
+**Paragraph 1: IMMEDIATE IMPACT (100-150 words)**
+- How did this reshape the landscape (political, military, cultural, etc.)?
+- What precedent did it set?
+- What pattern did it establish or break?
+
+**Paragraph 2: LONGER-TERM CONSEQUENCES (100-150 words)**
+- What did this make inevitable later?
+- How did this influence subsequent events or decisions?
+- What would have been different without this event?
+
+**Paragraph 3: HISTORICAL PERSPECTIVE (100-150 words)**
+- How do historians view this event today?
+- What became clear only in retrospect?
+- Why is this event still studied/remembered?
+- What broader themes does it illuminate?
+
+Frame as: "This mattered because X led to Y, which established Z pattern that we still see in..."
+
+Avoid generic language like "very important" or "highly significant"—show WHY through specific consequences.
+
+═══════════════════════════════════════════════════════════
+4. TYPE & IMPORTANCE (for categorization)
+═══════════════════════════════════════════════════════════
+
+Based on the content above, assign:
+- **type**: Brief category (e.g., "Political Reform", "Military Conquest", "Succession Crisis")
+- **importance**: 1 (notable detail), 2 (significant event), 3 (major turning point)
+
+Importance 3 should be reserved for events that fundamentally changed what came after or where the outcome was genuinely uncertain.
+
+═══════════════════════════════════════════════════════════
+RETURN FORMAT
+═══════════════════════════════════════════════════════════
+
+Return as JSON:
+{
+  "summary": "...",
+  "description": "...",
+  "significance": "...",
+  "tags": ["category"],
+  "type": "category name",
+  "importance": 2
+}
+
+Remember: You're not writing an encyclopedia entry. You're telling the story of a moment that mattered. Make it sing.`
+;
 
   const response = await openai.chat.completions.create({
     model: CHAT_MODEL,

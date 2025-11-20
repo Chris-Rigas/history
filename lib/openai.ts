@@ -196,11 +196,23 @@ ${context ? `Additional context: ${context}\n\n` : ''}Compose a neutral, informa
   const initialUnderstanding = extractResponseText(primerResponse);
 
   // Phase 2: Research digest
-  const researchPrompt = `Perform comprehensive research on "${topicLabel}".
-- Identify authoritative background on origins, turning points, sociopolitical dynamics, cultural or technological developments, and legacy.
-- Use reputable primary or secondary sources (museums, academic presses, major news organizations).
-- Summarize findings in clear paragraphs or bullet clusters with bracketed citations.
-- Provide full source URLs so they can be referenced later.`;
+  const researchPrompt = `Perform comprehensive research on "${topicLabel}" with strict sourcing.
+
+PRIMARY SOURCES (hunt aggressively):
+- Find direct quotes from relevant primary sources (e.g., Frontinus/Pliny/Vitruvius for Roman infrastructure; chronicles, letters, inscriptions, newspapers, diaries for other eras).
+- For EACH quote: include exact text, who said it, when/why they said it, and a citation number with full URL.
+
+CONCRETE DATA (no vagueness):
+- Capture exact numbers (casualties, costs, dimensions, workforce, duration), names, dates, times, and places.
+- Translate numbers into modern equivalents where helpful.
+
+HUMAN DETAILS:
+- Document reactions, controversies, unexpected problems, physical experience (sounds, colors, smells), and named individuals involved.
+
+OUTPUT FORMAT:
+- For every finding, provide: specific fact or quote + source name + URL + citation number.
+- Summarize in tight paragraphs or bullet clusters with bracketed citations.
+- Prioritize vivid, specific, humanizing details over general overviews.`;
 
   const researchResponse = await openai.responses.create({
     model: TIMELINE_MODEL,
@@ -700,7 +712,13 @@ export async function generateEventContent(params: {
   title: string;
   year: number;
   timelineContext: string;
-  existingEvents?: Array<{ title: string; year: number }>;
+  existingEvents?: Array<{
+    title: string;
+    year: number;
+    summary?: string;
+    description?: string;
+    significance?: string;
+  }>;
 }): Promise<{
   summary: string;
   description: string;
@@ -711,15 +729,32 @@ export async function generateEventContent(params: {
 }> {
   const { title, year, timelineContext, existingEvents } = params;
 
-  const existingEventsText = existingEvents
-    ? `\nOther events in this timeline: ${existingEvents.map(e => `${e.title} (${e.year})`).join(', ')}`
-    : '';
+  const existingEventsText = existingEvents?.length
+    ? `\nNARRATIVE CONTEXT FROM PREVIOUS EVENTS (build continuity and answer their tensions):\n${existingEvents
+        .map(e => {
+          const summary = e.summary?.replace(/\n+/g, ' ') || 'No summary provided yet.';
+          const significance = e.significance?.replace(/\n+/g, ' ') || 'Consequences not yet detailed.';
+          const description = e.description?.replace(/\n+/g, ' ') || '';
+          return `EVENT: ${e.title} (${e.year})\nSUMMARY: ${summary}\nDESCRIPTION: ${description}\nCONSEQUENCES: ${significance}`;
+        })
+        .join('\n\n')}`
+    : '\nNo previous events generated—establish the opening tension for the timeline.';
 
   const prompt = `You are a narrative historian writing about: "${title}" (${year})
 
 Timeline context: ${timelineContext}${existingEventsText}
 
-Write historically accurate content that is also dramatically compelling. Channel Erik Larson: use specific, tactile details that transport readers into the moment. Every sentence should answer "what did this FEEL like to live through?"
+Write historically accurate content that is also dramatically compelling. Channel Erik Larson and Barbara Tuchman: everything must be true, vivid, and sourced. Every sentence should answer "what did this FEEL like to live through?" while grounding dramatic claims in citations.
+
+═══════════════════════════════════════════════════════════
+NON-NEGOTIABLE GROUNDING & CONTINUITY
+═══════════════════════════════════════════════════════════
+- EVERY dramatic statement must be backed by a citation.
+- Minimum 2-3 PRIMARY SOURCE quotes per event (Frontinus, Pliny, Vitruvius, inscriptions, letters, newspapers, etc.). Use format: "As [author] wrote in [work]: '[exact quote]'[citation]".
+- Every claim about numbers/dates/actions must include the specific figure, source, and citation. Translate numbers into modern context when useful.
+- BANNED VAGUE PHRASES: "symbol of", "testament to", "encapsulated", "insatiable thirst", "magnificent" without specifics, "many", "several", "significant/important" without explanation.
+- REQUIRED sensory anchors each event: at least one COLOR, one SOUND, specific PLACES, and exact NUMBERS.
+- If previous events exist, explicitly reference them, answer or complicate questions they raised, and end with a tension that propels the next event (“And THEN what happened?”).
 
 Provide:
 
@@ -755,7 +790,7 @@ Use CONCRETE language:
 - ✅ "By 23 BCE, Augustus had survived three assassination plots"
 - ❌ "There was growing instability"
 
-Include specific dates, numbers, names. Make readers see the powder keg.
+Include specific dates, numbers, names. Make readers see the powder keg. Include at least one primary source quote here showing the perceived problem.
 
 **SECTION B: THE EVENT ITSELF (2-3 paragraphs, 300-400 words)**
 
@@ -768,7 +803,7 @@ CRITICAL: Make this VISUAL and SENSORY
 - What were the specific actions taken?
 - Were there pivotal moments or decisions?
 
-Include direct quotes from primary sources where available (mark them clearly as quotes).
+Include direct quotes from primary sources where available (mark them clearly as quotes). Use the statistical + visceral combo at least once: state a number with a citation, then immediately follow with a sensory, concrete detail with a citation.
 
 Use scene-setting: "In the Senate chamber on the Ides of January..."
 Use specific details: "The vote was 400 to 7..."
@@ -778,42 +813,37 @@ Make readers feel like they're THERE.
 
 **SECTION C: IMMEDIATE CONSEQUENCES (1-2 paragraphs, 150-200 words)**
 
-What changed in the hours, days, and weeks after?
+What changed in the hours, days, and weeks after? Cite specific sources documenting reactions.
 
-- What became possible that wasn't before?
-- What became impossible?
-- How did people react?
-- What was the immediate fallout?
+- POLITICAL BACKLASH: Who opposed this immediately after and what actions did they take?
+- UNEXPECTED PROBLEMS: What broke, failed, or went wrong in the first days/weeks?
+- IMMEDIATE REACTIONS with QUOTES: What did contemporaries actually say?
+- PHYSICAL CHANGES: What was different the next day or week? Include numbers.
 
-NOT long-term significance yet—just the direct, immediate results.
-
-Example: "Within days, Augustus' supporters began commissioning statues of the 'restored republic.' His enemies, reading the room, suddenly discovered long-delayed business in the provinces."
+Ban emotional generalities ("jubilation" or "relief") without a cited quote. Name individuals and give dates. Show at least one concrete change (prices, openings, casualties) with citations.
 
 ═══════════════════════════════════════════════════════════
 3. SIGNIFICANCE (2-3 paragraphs, 300-400 words)
 ═══════════════════════════════════════════════════════════
 
-Answer the "SO WHAT?" — why should anyone care about this event?
+Answer the "SO WHAT?"—with mechanisms, precedents, and sourced consequences. Avoid generic claims.
 
 **Paragraph 1: IMMEDIATE IMPACT (100-150 words)**
-- How did this reshape the landscape (political, military, cultural, etc.)?
-- What precedent did it set?
-- What pattern did it establish or break?
+- State the specific mechanism or pattern established and how it worked.
+- Show exactly who could now do what because of this event.
+- Include at least one cited fact or quote that proves the shift.
 
 **Paragraph 2: LONGER-TERM CONSEQUENCES (100-150 words)**
-- What did this make inevitable later?
-- How did this influence subsequent events or decisions?
-- What would have been different without this event?
+- Name later events that depended on this one and trace the causal chain explicitly.
+- Explain what would be different without this event (counterfactual clarity).
+- Use numbers/names/dates with citations.
 
 **Paragraph 3: HISTORICAL PERSPECTIVE (100-150 words)**
-- How do historians view this event today?
-- What became clear only in retrospect?
-- Why is this event still studied/remembered?
-- What broader themes does it illuminate?
+- Quote at least one modern historian for perspective (with attribution and citation).
+- Note any scholarly debate and why historians still study this.
+- Connect to broader patterns that persist today.
 
-Frame as: "This mattered because X led to Y, which established Z pattern that we still see in..."
-
-Avoid generic language like "very important" or "highly significant"—show WHY through specific consequences.
+BANNED: "symbol of power," "testament to," "encapsulated," or any unsourced emotional claim. Use vivid, specific facts instead.
 
 ═══════════════════════════════════════════════════════════
 4. TYPE & IMPORTANCE (for categorization)

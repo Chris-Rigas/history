@@ -48,11 +48,25 @@ export async function generateEvent(params: {
   year: number;
   importance: number;
   timeline: Timeline;
-  existingEvents?: Array<{ title: string; year: number }>;
+  existingEvents?: Array<{
+    title: string;
+    year: number;
+    summary?: string;
+    description?: string;
+    significance?: string;
+  }>;
 }): Promise<{
   success: boolean;
   eventId?: string;
   error?: string;
+  content?: {
+    summary: string;
+    description: string;
+    significance: string;
+    tags: string[];
+    type: string;
+    importance: number;
+  };
 }> {
   const { title, year, importance, timeline, existingEvents } = params;
 
@@ -118,6 +132,7 @@ export async function generateEvent(params: {
     return {
       success: true,
       eventId: event.id,
+      content,
     };
   } catch (error) {
     const message = summarizeError(error);
@@ -155,6 +170,13 @@ export async function generateTimelineEvents(
   const eventIds: string[] = [];
   const errors: Array<{ event: string; error: string }> = [];
   const delayMs = options?.delayMs || 2000; // Rate limiting
+  const generatedEvents: Array<{
+    title: string;
+    year: number;
+    summary: string;
+    description: string;
+    significance: string;
+  }> = [];
 
   try {
     // First, generate outline
@@ -172,10 +194,8 @@ export async function generateTimelineEvents(
         options.onProgress(i + 1, outline.length, eventOutline.title);
       }
 
-      // Pass existing events for context
-      const existingEvents = outline
-        .slice(0, i)
-        .map(e => ({ title: e.title, year: e.year }));
+      // Pass existing events for context with narrative continuity
+      const existingEvents = generatedEvents.slice();
 
       const result = await generateEvent({
         title: eventOutline.title,
@@ -187,6 +207,15 @@ export async function generateTimelineEvents(
 
       if (result.success && result.eventId) {
         eventIds.push(result.eventId);
+        if (result.content) {
+          generatedEvents.push({
+            title: eventOutline.title,
+            year: eventOutline.year,
+            summary: result.content.summary,
+            description: result.content.description,
+            significance: result.content.significance,
+          });
+        }
       } else {
         errors.push({
           event: eventOutline.title,

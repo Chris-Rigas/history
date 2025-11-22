@@ -228,6 +228,7 @@ export interface Database {
           primary_sources: Json | null;
           total_sources: number | null;
           structured_content: Json | null;
+          storyform_recap: Json | null;
           created_at: string;
           updated_at: string;
         };
@@ -243,6 +244,7 @@ export interface Database {
           primary_sources?: Json | null;
           total_sources?: number | null;
           structured_content?: Json | null;
+          storyform_recap?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -258,6 +260,7 @@ export interface Database {
           primary_sources?: Json | null;
           total_sources?: number | null;
           structured_content?: Json | null;
+          storyform_recap?: Json | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -15,7 +15,7 @@ import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
 import PerspectivesSection from '@/components/timeline/PerspectivesSection';
-import DramaticSummary from '@/components/timeline/DramaticSummary';
+import StoryformRecap from '@/components/timeline/StoryformRecap';
 import { parseStructuredContent } from '@/lib/timelines/structuredContent';
 import { bindNarrativeData } from '@/lib/timelines/narrative';
 import { getThemeColor } from '@/components/timeline/themeColors';
@@ -195,7 +195,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {timeline.events.length > 0 && (
           <section className="py-12 bg-parchment-100">
             <div className="content-container">
-              <DramaticSummary
+              <StoryformRecap
                 timeline={timeline}
                 events={timeline.events}
                 tagColorMap={tagColorMap}

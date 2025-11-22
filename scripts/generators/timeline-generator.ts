@@ -1,7 +1,8 @@
-import { generateTimelineContent } from '@/lib/openai';
+import { generateStoryformRecap, generateTimelineContent } from '@/lib/openai';
 import {
   createTimeline,
   getTimelineBySlug,
+  getTimelineWithEvents,
   linkEventToTimeline,
   linkPersonToTimeline,
   replaceTimelineSources,
@@ -93,7 +94,7 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
       ? (JSON.parse(JSON.stringify(content.research.primarySources)) as Json)
       : null;
 
-    await upsertTimelineMetadata(timeline.id, {
+    let metadataPayload = {
       seoTitle: content.seo.seoTitle || null,
       metaDescription: content.seo.metaDescription || null,
       relatedKeywords:
@@ -106,7 +107,39 @@ export async function generateTimeline(seed: TimelineSeed): Promise<{
       primarySources: primarySourcesJson,
       totalSources: content.research.totalSources || null,
       structuredContent: structuredContentJson,
-    });
+    };
+
+    await upsertTimelineMetadata(timeline.id, metadataPayload);
+
+    // Generate storyform recap once events are available
+    const timelineWithEvents = await getTimelineWithEvents(slug, { client: supabaseAdmin });
+    const events = timelineWithEvents?.events ?? [];
+
+    if (events.length > 0) {
+      console.log(`\n   📝 Generating storyform recap...`);
+
+      const recapResult = await generateStoryformRecap({
+        title: timeline.title,
+        startYear: timeline.start_year,
+        endYear: timeline.end_year,
+        events: events.map(e => ({
+          title: e.title,
+          slug: e.slug,
+          start_year: e.start_year,
+          summary: e.summary,
+          tags: e.tags,
+        })),
+      });
+
+      metadataPayload = {
+        ...metadataPayload,
+        storyformRecap: recapResult as Json,
+      };
+
+      await upsertTimelineMetadata(timeline.id, metadataPayload);
+
+      console.log(`   ✅ Storyform recap generated`);
+    }
 
     console.log(
       existingTimeline

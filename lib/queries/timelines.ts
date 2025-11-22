@@ -237,6 +237,7 @@ export interface TimelineMetadataPayload {
   primarySources?: Json | null;
   totalSources?: number | null;
   structuredContent?: Json | null;
+  storyformRecap?: Json | null;
 }
 
 /**
@@ -257,6 +258,7 @@ export async function upsertTimelineMetadata(
     primary_sources: payload.primarySources ?? null,
     total_sources: payload.totalSources ?? null,
     structured_content: payload.structuredContent ?? null,
+    storyform_recap: payload.storyformRecap ?? null,
   };
 
   const { error } = await supabaseAdmin

@@ -78,11 +78,18 @@ export interface TimelineCitationRaw {
   url?: string;
 }
 
+export interface TimelineOverviewSection {
+  subheading?: string;
+  content: string;
+  citationsUsed?: number[];
+}
+
 export interface TimelineStructuredContent {
   summary: string;
   centralQuestion?: string;
   storyCharacter?: string;
   overview?: string;
+  overviewSections?: TimelineOverviewSection[];
   keyFacts: TimelineStructuredFact[];
   themes: TimelineThemeCategory[];
   eventNotes: TimelineEventNote[];

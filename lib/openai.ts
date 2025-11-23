@@ -195,7 +195,7 @@ Remember: You're not writing an encyclopedia. You're showing readers the dramati
         content: prompt,
       },
     ],
-    max_tokens: 2000,
+    max_completion_tokens: 2000,
     temperature: 0.7,
   });
 
@@ -1061,7 +1061,7 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
         content: prompt,
       },
     ],
-    max_tokens: MAX_TOKENS,
+    max_completion_tokens: MAX_TOKENS,
     temperature: 0.7,
   });
 
@@ -1147,7 +1147,7 @@ Write in an engaging, biographical style.`;
         content: prompt,
       },
     ],
-    max_tokens: MAX_TOKENS,
+    max_completion_tokens: MAX_TOKENS,
     temperature: 0.7,
   });
 
@@ -1208,7 +1208,7 @@ Return as JSON array with format: [{"title": "Event Name", "year": 1234, "import
         content: prompt,
       },
     ],
-    max_tokens: 2000,
+    max_completion_tokens: 2000,
     temperature: 0.7,
   });
 
@@ -1272,7 +1272,7 @@ Return as JSON array with format: [{"name": "Person Name", "birthYear": 1234, "d
         content: prompt,
       },
     ],
-    max_tokens: 2000,
+    max_completion_tokens: 2000,
     temperature: 0.7,
   });
 

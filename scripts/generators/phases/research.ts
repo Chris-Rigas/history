@@ -12,7 +12,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
       { role: 'system', content: 'You are a careful historian. Always return valid JSON.' },
       { role: 'user', content: prompt },
     ],
-    max_tokens: 2000,
+    max_completion_tokens: 2000,
     temperature: 0.4,
   });
 

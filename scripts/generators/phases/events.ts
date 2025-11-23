@@ -16,7 +16,7 @@ async function callJsonCompletion(prompt: string, maxTokens = 4000): Promise<any
       { role: 'system', content: 'Return JSON only. Do not wrap in fences.' },
       { role: 'user', content: prompt },
     ],
-    max_tokens: maxTokens,
+    max_completion_tokens: maxTokens,
     temperature: 0.65,
   });
 

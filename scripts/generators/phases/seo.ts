@@ -12,7 +12,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
       { role: 'system', content: 'Return SEO metadata JSON only.' },
       { role: 'user', content: prompt },
     ],
-    max_tokens: 1500,
+    max_completion_tokens: 1500,
     temperature: 0.4,
   });
 

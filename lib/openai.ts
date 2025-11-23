@@ -1181,52 +1181,74 @@ export async function generateEventOutline(params: {
 }>> {
   const { timelineTitle, startYear, endYear, region, eventCount = 20 } = params;
 
-  const prompt = `Generate a list of ${eventCount} key historical events for: "${timelineTitle}" (${startYear} - ${endYear}${region ? `, ${region}` : ''})
-
-For each event, provide:
-- Title: Clear, descriptive name
-- Year: When it occurred
-- Importance: 1 (notable), 2 (significant), or 3 (major turning point)
-
-Focus on the most significant events that shaped this period. Include a mix of:
-- Political events (battles, treaties, coronations)
-- Cultural milestones
-- Economic changes
-- Social transformations
-
-Return as JSON array with format: [{"title": "Event Name", "year": 1234, "importance": 2}, ...]`;
-
-  const response = await openai.chat.completions.create({
-    model: CHAT_MODEL,
-    messages: [
-      {
-        role: 'system',
-        content: 'You are a historian creating event timelines. Always return valid JSON arrays.',
+  const eventSchema = {
+    type: 'array',
+    items: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['title', 'year', 'importance'],
+      properties: {
+        title: { type: 'string' },
+        year: { type: 'integer' },
+        importance: { type: 'integer', minimum: 1, maximum: 3 },
       },
+    },
+  } as const;
+
+  const prompt = `You are a historian creating event timelines. Focus strictly on historical accuracy and the most consequential developments.
+
+REQUIREMENTS
+- Generate exactly ${eventCount} events for "${timelineTitle}" (${startYear} - ${endYear}${region ? `, ${region}` : ''}).
+- Mix political, cultural, economic, and social events.
+- Importance is 1 (notable), 2 (significant), or 3 (major turning point).
+- Output valid JSON only. Follow the schema exactly and omit any commentary.
+
+SCHEMA (verbatim)
+${JSON.stringify(eventSchema, null, 2)}`;
+
+  const response = await openai.responses.create({
+    model: CHAT_MODEL,
+    reasoning: { effort: 'low' },
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'EventOutline',
+        schema: eventSchema,
+        strict: true,
+      },
+    },
+    input: [
       {
         role: 'user',
-        content: prompt,
+        content: [
+          {
+            type: 'input_text',
+            text: prompt,
+          },
+        ],
       },
     ],
-    max_completion_tokens: 2000,
-    temperature: 1,
   });
 
-  console.log('=== DEBUG: Full API Response ===');
-  console.log(JSON.stringify(response, null, 2));
-  console.log('=== DEBUG: Message Content ===');
-  console.log(response.choices?.[0]?.message?.content);
+  const content = extractResponseText(response);
+  const parsed = safeJsonParse<any[]>(content, []);
 
-  const content = response.choices[0].message.content || '';
-  try {
-    // Extract JSON array from response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-  } catch (error) {
-    console.error('Error parsing event outline:', error);
-    console.error('Raw response content (truncated to 500 chars):', content.slice(0, 500));
+  const normalized = parsed
+    .filter(
+      item =>
+        item &&
+        typeof item.title === 'string' &&
+        Number.isInteger(item.year) &&
+        Number.isInteger(item.importance)
+    )
+    .map(item => ({
+      title: item.title.trim(),
+      year: item.year,
+      importance: Math.min(3, Math.max(1, item.importance)),
+    }));
+
+  if (normalized.length > 0) {
+    return normalized;
   }
 
   console.error('Event outline generation returned no parsable results. Raw content (truncated to 500 chars):', content.slice(0, 500));
@@ -1252,46 +1274,73 @@ export async function generatePeopleOutline(params: {
 
   const eventsText = events.slice(0, 10).map(e => `${e.title} (${e.year})`).join(', ');
 
-  const prompt = `Generate a list of ${personCount} key historical figures for: "${timelineTitle}" (${startYear} - ${endYear})
-
-Key events in this timeline: ${eventsText}
-
-For each person, provide:
-- Name: Full name
-- Birth Year: Integer year if known (use negative numbers for BCE). If the year is unknown, use null. Never use text like "Unknown", "circa", or "c.".
-- Death Year: Integer year if known (use negative numbers for BCE). If the year is unknown, use null. Never use text like "Unknown", "circa", or "c.".
-- Role: Brief descriptor (e.g., "Emperor", "General", "Religious Leader")
-
-Include the most influential figures who shaped this period.
-
-Return as JSON array with format: [{"name": "Person Name", "birthYear": 1234, "deathYear": 1290, "role": "Emperor"}, ...]`;
-
-  const response = await openai.chat.completions.create({
-    model: CHAT_MODEL,
-    messages: [
-      {
-        role: 'system',
-        content: 'You are a historian identifying key historical figures. Always return valid JSON arrays.',
+  const peopleSchema = {
+    type: 'array',
+    items: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['name', 'role'],
+      properties: {
+        name: { type: 'string' },
+        birthYear: { type: ['integer', 'null'] },
+        deathYear: { type: ['integer', 'null'] },
+        role: { type: 'string' },
       },
+    },
+  } as const;
+
+  const prompt = `You are a historian identifying key figures. Focus on individuals central to "${timelineTitle}" (${startYear} - ${endYear}).
+
+KEY EVENTS FOR CONTEXT
+${eventsText || 'No events provided'}
+
+REQUIREMENTS
+- Generate exactly ${personCount} people.
+- Use integer years (negative for BCE) or null when unknown. Never use text like "c.", "circa", or "unknown".
+- Each person needs a concise role label (e.g., "Emperor", "General").
+- Output valid JSON only. Follow the schema exactly and omit any commentary.
+
+SCHEMA (verbatim)
+${JSON.stringify(peopleSchema, null, 2)}`;
+
+  const response = await openai.responses.create({
+    model: CHAT_MODEL,
+    reasoning: { effort: 'low' },
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'PeopleOutline',
+        schema: peopleSchema,
+        strict: true,
+      },
+    },
+    input: [
       {
         role: 'user',
-        content: prompt,
+        content: [
+          {
+            type: 'input_text',
+            text: prompt,
+          },
+        ],
       },
     ],
-    max_completion_tokens: 2000,
-    temperature: 1,
   });
 
-  const content = response.choices[0].message.content || '';
-  try {
-    // Extract JSON array from response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-  } catch (error) {
-    console.error('Error parsing people outline:', error);
-    console.error('Raw response content (truncated to 500 chars):', content.slice(0, 500));
+  const content = extractResponseText(response);
+  const parsed = safeJsonParse<any[]>(content, []);
+
+  const normalized = parsed
+    .filter(item => item && typeof item.name === 'string' && typeof item.role === 'string')
+    .map(item => ({
+      name: item.name.trim(),
+      birthYear: Number.isInteger(item.birthYear) ? item.birthYear : null,
+      deathYear: Number.isInteger(item.deathYear) ? item.deathYear : null,
+      role: item.role.trim(),
+    }));
+
+  if (normalized.length > 0) {
+    return normalized;
   }
 
   console.error('People outline generation returned no parsable results. Raw content (truncated to 500 chars):', content.slice(0, 500));

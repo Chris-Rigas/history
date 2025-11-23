@@ -196,7 +196,7 @@ Remember: You're not writing an encyclopedia. You're showing readers the dramati
       },
     ],
     max_completion_tokens: 2000,
-    temperature: 0.7,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1062,7 +1062,7 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
       },
     ],
     max_completion_tokens: MAX_TOKENS,
-    temperature: 0.7,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1148,7 +1148,7 @@ Write in an engaging, biographical style.`;
       },
     ],
     max_completion_tokens: MAX_TOKENS,
-    temperature: 0.7,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1209,7 +1209,7 @@ Return as JSON array with format: [{"title": "Event Name", "year": 1234, "import
       },
     ],
     max_completion_tokens: 2000,
-    temperature: 0.7,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1273,7 +1273,7 @@ Return as JSON array with format: [{"name": "Person Name", "birthYear": 1234, "d
       },
     ],
     max_completion_tokens: 2000,
-    temperature: 0.7,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';

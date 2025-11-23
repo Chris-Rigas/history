@@ -17,7 +17,7 @@ async function callJsonCompletion(prompt: string, maxTokens = 4000): Promise<any
       { role: 'user', content: prompt },
     ],
     max_completion_tokens: maxTokens,
-    temperature: 0.65,
+    temperature: 1,
   });
 
   const content = response.choices[0].message?.content || '{}';

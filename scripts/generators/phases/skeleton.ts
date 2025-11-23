@@ -13,7 +13,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
       { role: 'user', content: prompt },
     ],
     max_completion_tokens: 3000,
-    temperature: 0.5,
+    temperature: 1,
   });
 
   const content = response.choices[0].message?.content || '{}';

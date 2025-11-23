@@ -18,9 +18,9 @@ const openai = new OpenAI({
 });
 
 // Model configuration
-const CHAT_MODEL = 'gpt-4-turbo-preview';
+const CHAT_MODEL = 'gpt-5';
 const TIMELINE_MODEL = 'gpt-5';
-const MAX_TOKENS = 4000;
+const MAX_TOKENS = 8000;
 
 interface TimelineSourceLink {
   url: string;
@@ -195,8 +195,8 @@ Remember: You're not writing an encyclopedia. You're showing readers the dramati
         content: prompt,
       },
     ],
-    max_tokens: 2000,
-    temperature: 0.7,
+    max_completion_tokens: 2000,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1061,8 +1061,8 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
         content: prompt,
       },
     ],
-    max_tokens: MAX_TOKENS,
-    temperature: 0.7,
+    max_completion_tokens: MAX_TOKENS,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1147,8 +1147,8 @@ Write in an engaging, biographical style.`;
         content: prompt,
       },
     ],
-    max_tokens: MAX_TOKENS,
-    temperature: 0.7,
+    max_completion_tokens: MAX_TOKENS,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1208,8 +1208,8 @@ Return as JSON array with format: [{"title": "Event Name", "year": 1234, "import
         content: prompt,
       },
     ],
-    max_tokens: 2000,
-    temperature: 0.7,
+    max_completion_tokens: 2000,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
@@ -1272,8 +1272,8 @@ Return as JSON array with format: [{"name": "Person Name", "birthYear": 1234, "d
         content: prompt,
       },
     ],
-    max_tokens: 2000,
-    temperature: 0.7,
+    max_completion_tokens: 2000,
+    temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';

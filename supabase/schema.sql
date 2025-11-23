@@ -48,6 +48,9 @@
     unique_sources jsonb,
     primary_sources jsonb,
     total_sources integer,
+    research_corpus jsonb,
+    skeleton jsonb,
+    generation_version integer DEFAULT 1,
     structured_content jsonb,
     storyform_recap jsonb,
     created_at timestamp with time zone,
@@ -64,6 +67,7 @@
     number integer,
     source text,
     url text,
+    quote text,
     created_at timestamp with time zone,
     updated_at timestamp with time zone
 );                                                                                                                                                                                                                              |

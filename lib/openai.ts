@@ -1212,6 +1212,11 @@ Return as JSON array with format: [{"title": "Event Name", "year": 1234, "import
     temperature: 1,
   });
 
+  console.log('=== DEBUG: Full API Response ===');
+  console.log(JSON.stringify(response, null, 2));
+  console.log('=== DEBUG: Message Content ===');
+  console.log(response.choices?.[0]?.message?.content);
+
   const content = response.choices[0].message.content || '';
   try {
     // Extract JSON array from response

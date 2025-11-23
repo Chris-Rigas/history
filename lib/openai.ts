@@ -18,9 +18,9 @@ const openai = new OpenAI({
 });
 
 // Model configuration
-const CHAT_MODEL = 'gpt-4-turbo-preview';
+const CHAT_MODEL = 'gpt-5';
 const TIMELINE_MODEL = 'gpt-5';
-const MAX_TOKENS = 4000;
+const MAX_TOKENS = 8000;
 
 interface TimelineSourceLink {
   url: string;

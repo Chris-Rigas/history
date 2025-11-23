@@ -7,21 +7,33 @@ interface PersonHeaderProps {
 }
 
 export default function PersonHeader({ person, timeline }: PersonHeaderProps) {
-  // Format life dates
+  const formatYear = (year?: number | null) => {
+    if (year === null || year === undefined) return null;
+    return year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
+  };
+
   const formatLifeDates = () => {
-    const birth = person.birth_year ? `${person.birth_year}` : '?';
-    const death = person.death_year ? `${person.death_year}` : '?';
-    
-    if (birth === '?' && death === '?') {
-      return null;
+    const birth = formatYear(person.birth_year);
+    const death = formatYear(person.death_year);
+
+    if (!birth && !death) {
+      return 'Dates unknown';
     }
-    
-    return `${birth} — ${death}`;
+
+    if (birth && death) {
+      return `${birth} – ${death}`;
+    }
+
+    if (birth) {
+      return `Born ${birth}`;
+    }
+
+    return `Died ${death}`;
   };
 
   // Calculate age at death if both dates available
   const getLifespan = () => {
-    if (person.birth_year && person.death_year) {
+    if (person.birth_year !== null && person.birth_year !== undefined && person.death_year !== null && person.death_year !== undefined) {
       return person.death_year - person.birth_year;
     }
     return null;

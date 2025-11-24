@@ -1209,14 +1209,6 @@ ${JSON.stringify(eventSchema, null, 2)}`;
   const response = await openai.responses.create({
     model: CHAT_MODEL,
     reasoning: { effort: 'low' },
-    response_format: {
-      type: 'json_schema',
-      json_schema: {
-        name: 'EventOutline',
-        schema: eventSchema,
-        strict: true,
-      },
-    },
     input: [
       {
         role: 'user',
@@ -1306,14 +1298,6 @@ ${JSON.stringify(peopleSchema, null, 2)}`;
   const response = await openai.responses.create({
     model: CHAT_MODEL,
     reasoning: { effort: 'low' },
-    response_format: {
-      type: 'json_schema',
-      json_schema: {
-        name: 'PeopleOutline',
-        schema: peopleSchema,
-        strict: true,
-      },
-    },
     input: [
       {
         role: 'user',

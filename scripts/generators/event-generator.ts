@@ -119,9 +119,9 @@ export async function generateEvent(params: {
       location: null,
       tags: [mappedCategory || content.type].filter(Boolean),
       importance: content.importance || importance,
-      summary: content.summary,
-      description_html: formatAsHtml(content.description),
-      significance_html: formatAsHtml(content.significance),
+      summary: content.summary || 'Summary not yet available',
+      description_html: formatAsHtml(content.description || ''),
+      significance_html: formatAsHtml(content.significance || ''),
     });
 
     // Link to timeline

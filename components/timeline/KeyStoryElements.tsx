@@ -3,6 +3,7 @@ import type { TimelineStructuredContent } from '@/lib/timelines/structuredConten
 import type { ThemedTimelineCategory } from './types';
 import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { cn } from '@/lib/utils';
+import { renderTextWithCitations } from '@/lib/timelines/citationRenderer';
 
 interface KeyStoryElementsProps {
   timeline: TimelineFull;
@@ -119,7 +120,7 @@ export default function KeyStoryElements({
                     {fact.title}
                   </p>
                   <p className="text-lg font-medium text-gray-900 mt-1">
-                    {fact.detail}
+                    {renderTextWithCitations(fact.detail, narrative?.citations)}
                   </p>
                 </div>
               ))}

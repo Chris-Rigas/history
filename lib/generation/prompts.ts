@@ -304,7 +304,76 @@ ${JSON.stringify(context.mainNarrative, null, 2)}
 EXPANDED EVENTS:
 ${JSON.stringify(context.expandedEvents.map(e => ({ title: e.title, slug: e.slug, year: e.year })), null, 2)}
 
-... (enrichment instructions per brief) ...`;
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT SCOPE (RETURN JSON ONLY)
+═══════════════════════════════════════════════════════════════════════════════
+
+Return a single JSON object with these arrays:
+- people (expanded bios, keep historical accuracy)
+- turningPoints (explain before/after)
+- perspectives (expanded lenses with citations)
+- themeInsights (deep analysis per theme)
+- keyFacts (concise factoids, each may include citations)
+
+Use citation numbers that match the research corpus. Include the citation numbers used in each element so they can be rendered.
+
+═══════════════════════════════════════════════════════════════════════════════
+THEME INSIGHTS (one per theme) - EXPANDED AND ANALYTICAL
+═══════════════════════════════════════════════════════════════════════════════
+
+For each theme in the main narrative, provide a DEEPER ANALYTICAL INSIGHT (not just a summary):
+
+{
+  "themeId": "naval-adaptation",
+  "insight": "2-3 sentences explaining the MECHANISM of this theme. Include specific examples with citations. What pattern does this exemplify? What made it work or fail?",
+  "analysis": "3-4 sentences going DEEPER. What does the evidence actually show? Are there scholarly debates? What would a historian emphasize? Include citations.",
+  "modernRelevance": "1-2 sentences (optional) connecting this pattern to contemporary parallels or why it matters today",
+  "supportingEvents": ["event-slug-1", "event-slug-2"],
+  "citations": [1, 3, 7]
+}
+
+REQUIREMENTS:
+• Each theme insight should be 150-250 words total (insight + analysis)
+• Include at least 2-3 citations
+• Reference specific events and data points
+• Explain MECHANISMS not just descriptions
+• Note scholarly debates where relevant
+
+Example:
+{
+  "themeId": "naval-adaptation",
+  "insight": "Rome's transformation from a land power with no navy to Mediterranean naval dominance within 25 years (264-241 BCE) illustrates the Republic's capacity for institutional innovation under existential threat. The corvus boarding bridge [1] didn't just neutralize Carthage's naval expertise—it fundamentally redefined naval warfare by turning sea battles into the infantry combat where Rome excelled [3].",
+  "analysis": "What's remarkable isn't the technical innovation alone but the speed and scale of implementation. Rome built approximately 330 quinqueremes between 261 and 241 BCE [7], trained crews with minimal maritime tradition, and accepted catastrophic losses (nearly 700 ships lost to storms [3]) without abandoning the strategy. This suggests a political and economic system capable of absorbing massive costs for long-term strategic goals—a pattern that would define Rome's approach to Hannibal's invasion a generation later.",
+  "modernRelevance": "The pattern of rapid technological adoption during wartime—learning enemy innovations, adapting them to existing strengths, and accepting high initial costs—has parallels in 20th century conflicts from radar development to nuclear programs.",
+  "supportingEvents": ["romes-first-naval-victory-at-mylae", "battle-of-ecnomus", "battle-of-aegates-islands"],
+  "citations": [1, 3, 7]
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+PERSPECTIVES (2-4 viewpoints) - EXPANDED
+═══════════════════════════════════════════════════════════════════════════════
+
+Provide different interpretive lenses on this period. Each perspective should be 100-150 words:
+
+{
+  "viewpoint": "Roman Sources vs. Modern Archaeology",
+  "summary": "2-3 sentences introducing this interpretive lens",
+  "keyArguments": [
+    "Specific argument point 1 with evidence [1]",
+    "Specific argument point 2 with evidence [3]",
+    "Specific argument point 3 with evidence [7]"
+  ],
+  "tensions": "1-2 sentences on debates or contradictions in this viewpoint",
+  "citations": [1, 3, 7]
+}
+
+REQUIRED PERSPECTIVES:
+1. Source Critical: How do our sources shape/limit what we know?
+2. Modern Historiography: How have interpretations changed over time?
+3. (Optional) Comparative: How does this compare to similar periods/places?
+4. (Optional) Counterfactual: What if key moments had gone differently?
+
+Each perspective should cite specific evidence and acknowledge scholarly debates.`;
 }
 
 export function buildPhase6SEOPrompt(context: GenerationContext) {

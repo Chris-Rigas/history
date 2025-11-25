@@ -15,6 +15,7 @@ import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
 import PerspectivesSection from '@/components/timeline/PerspectivesSection';
+import CitationsSection from '@/components/timeline/CitationsSection';
 import StoryformRecap from '@/components/timeline/StoryformRecap';
 import { parseStructuredContent } from '@/lib/timelines/structuredContent';
 import { bindNarrativeData } from '@/lib/timelines/narrative';
@@ -250,10 +251,15 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
           </section>
         )}
 
+        {/* Sources and Citations Section */}
+        {timeline.sources && timeline.sources.length > 0 && (
+          <CitationsSection timeline={timeline} sources={timeline.sources} />
+        )}
+
         {/* Gemini Q&A Panel */}
         <section className="py-12 bg-white border-t border-gray-200">
           <div className="content-container">
-            <GeminiQA 
+            <GeminiQA
               timeline={timeline}
               events={timeline.events}
               people={timeline.people}

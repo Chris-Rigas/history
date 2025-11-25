@@ -25,18 +25,32 @@ YOUR MISSION
 
 Conduct thorough research to build a factual foundation that will support all content generation. Use web search to find authoritative sources.
 
-RESEARCH PRIORITIES:
-1. PRIMARY SOURCES first (ancient historians, contemporary documents, archaeological evidence)
-2. SCHOLARLY SOURCES second (peer-reviewed papers, university press books)
-3. AUTHORITATIVE REFERENCES third (Britannica, major encyclopedias)
+CRITICAL: You must gather BOTH primary/original sources AND modern web-accessible sources. This serves dual purposes:
+1. Historical authenticity (original texts, contemporary accounts, primary documents)
+2. SEO and accessibility (modern scholarly articles, authoritative websites with URLs)
 
-WHAT TO GATHER:
-• Key dates and their sources
-• Important figures and their documented roles
-• Pivotal events with specific details (numbers, places, outcomes)
-• Direct quotes from primary sources
-• Scholarly interpretations and debates
-• Concrete data (army sizes, casualties, distances, durations)
+═══════════════════════════════════════════════════════════════════════════════
+SOURCE REQUIREMENTS (15-25 TOTAL CITATIONS)
+═══════════════════════════════════════════════════════════════════════════════
+
+**TARGET MIX:**
+- 40-50% PRIMARY/ORIGINAL SOURCES (contemporary documents, original texts)
+- 30-40% MODERN SCHOLARLY WEB SOURCES (with URLs)
+- 20-30% AUTHORITATIVE REFERENCE SOURCES (with URLs)
+
+**PRIMARY/ORIGINAL SOURCES (6-10 citations):**
+Contemporary accounts, original documents, primary texts relevant to the period. These may include historical chronicles, letters, treaties, inscriptions, archaeological findings, or other first-hand evidence.
+
+Format: "Author/Source Name, Title/Description" (URL optional)
+Note: Many primary sources won't have direct URLs — this is expected and acceptable
+
+**MODERN SCHOLARLY WEB SOURCES (5-8 citations) — MUST HAVE URLS:**
+Credible modern scholarly resources available on the web. Use your judgment to find authoritative sources appropriate to the topic.
+
+Prioritize: University websites, museum collections, digital libraries, peer-reviewed journals online, respected historical/scholarly organizations, government archives
+
+**AUTHORITATIVE REFERENCES (4-7 citations) — MUST HAVE URLS:**
+Major encyclopedias, reference works, and educational resources with strong editorial standards.
 
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT FORMAT (JSON)
@@ -50,8 +64,8 @@ Return a JSON object with this structure:
   "citations": [
     {
       "number": 1,
-      "source": "Full source citation (e.g., 'Polybius, Histories, Book 3')",
-      "url": "URL if available",
+      "source": "Full source citation",
+      "url": "https://... (REQUIRED for modern/reference sources, optional for primary)",
       "type": "primary|secondary|modern",
       "reliability": "high|medium|low"
     }
@@ -66,25 +80,24 @@ Return a JSON object with this structure:
   ],
   
   "keyDataPoints": [
-    "Specific fact with citation, e.g., 'Roman losses at Cannae: ~50,000-70,000 [3]'",
+    "Specific fact with citation, e.g., 'Three Roman legions destroyed [3]'",
     "Another specific fact with citation"
   ],
   
   "primarySourcesFound": [
-    "List of primary sources discovered (Polybius, Livy, inscriptions, etc.)"
+    "List of primary sources discovered"
   ]
 }
 
 ═══════════════════════════════════════════════════════════════════════════════
-RESEARCH STANDARDS
+QUALITY STANDARDS
 ═══════════════════════════════════════════════════════════════════════════════
 
-• Aim for 15-25 citations from diverse sources
-• Prioritize sources that provide SPECIFIC DETAILS (dates, numbers, names)
-• For ancient history: Polybius > Livy > later sources (note reliability differences)
-• Include at least 5-8 direct quotes that could be used in content
-• Note any scholarly debates or uncertainties
-• Verify key facts across multiple sources when possible
+✓ At least 60% of citations MUST have working URLs
+✓ Balance primary sources with modern scholarly analysis
+✓ Include at least 5-8 direct quotes from primary/original sources
+✓ Verify key facts across multiple sources when possible
+✓ Prioritize authoritative domains over commercial sites
 
 Your research corpus will be used by all subsequent content generation phases, so thoroughness and accuracy are critical.`;
 }

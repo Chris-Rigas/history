@@ -234,7 +234,7 @@ Remember: You're not writing an encyclopedia. You're showing readers the dramati
   }
 }
 
-function extractResponseText(response: OpenAIResponse): string {
+export function extractResponseText(response: OpenAIResponse): string {
   if ((response as any).output_text) {
     return String((response as any).output_text).trim();
   }

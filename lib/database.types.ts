@@ -192,7 +192,7 @@ export interface Database {
           timeline_id: string;
           number: number;
           source: string;
-          url: string;
+          url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -201,7 +201,7 @@ export interface Database {
           timeline_id: string;
           number: number;
           source: string;
-          url: string;
+          url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -210,7 +210,7 @@ export interface Database {
           timeline_id?: string;
           number?: number;
           source?: string;
-          url?: string;
+          url?: string | null;
           created_at?: string;
           updated_at?: string;
         };

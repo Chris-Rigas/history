@@ -27,12 +27,63 @@ async function callJsonCompletion(prompt: string, maxTokens = 4000): Promise<any
 
 export async function executePhase4Events(
   context: GenerationContext,
-  eventsChunk: any[]
+  eventsChunk: any[],
+  isRetry: boolean = false,
 ): Promise<ExpandedEvent[]> {
   const prompt = buildPhase4EventsPrompt(context, eventsChunk);
+  console.log(`\n=== Generating batch of ${eventsChunk.length} events ===`);
+  console.log('Event titles:', eventsChunk.map(e => e.title).join(', '));
+
   const parsed = await callJsonCompletion(prompt);
 
-  return Array.isArray(parsed.expandedEvents) ? parsed.expandedEvents : [];
+  if (!parsed.expandedEvents || !Array.isArray(parsed.expandedEvents)) {
+    console.error('❌ No expandedEvents array in response');
+    console.error('Raw parsed response:', JSON.stringify(parsed, null, 2));
+    return [];
+  }
+
+  const events = parsed.expandedEvents;
+
+  events.forEach((event: any) => {
+    const missingFields: string[] = [];
+    if (!event.summary) missingFields.push('summary');
+    if (!event.description) missingFields.push('description');
+    if (!event.significance) missingFields.push('significance');
+
+    if (missingFields.length > 0) {
+      console.warn(
+        `⚠️  Event "${event.title}" missing fields: ${missingFields.join(', ')}`,
+      );
+    } else {
+      console.log(`✓ Event "${event.title}" generated successfully`);
+    }
+  });
+
+  const failedEvents = events.filter(
+    (event: any) => !event.summary || !event.description,
+  );
+
+  if (!isRetry && failedEvents.length > 0) {
+    console.log(`\n🔄 Retrying ${failedEvents.length} failed events...`);
+
+    for (const failedEvent of failedEvents) {
+      console.log(`   Retrying: ${failedEvent.title}`);
+      const retryResult = await executePhase4Events(context, [failedEvent], true);
+      if (retryResult.length > 0 && retryResult[0].summary) {
+        const index = events.findIndex(
+          (event: any) => event.title === failedEvent.title,
+        );
+        if (index !== -1) {
+          events[index] = retryResult[0];
+        }
+        console.log('   ✓ Retry successful');
+      } else {
+        console.log('   ✗ Retry failed');
+      }
+    }
+  }
+
+  return events;
 }
 
 export async function executePhase4StoryformRecap(context: GenerationContext): Promise<StoryformRecap> {

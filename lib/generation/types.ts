@@ -143,12 +143,17 @@ export interface Perspective {
   viewpoint: string;
   summary: string;
   keyArguments: string[];
+  tensions?: string;
+  citations?: number[];
 }
 
 export interface ThemeInsight {
   themeId: string;
   insight: string;
   supportingEvents: string[];
+  analysis?: string;
+  modernRelevance?: string;
+  citations?: number[];
 }
 
 export interface KeyFact {

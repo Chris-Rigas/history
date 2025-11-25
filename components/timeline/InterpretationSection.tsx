@@ -2,6 +2,7 @@ import type { TimelineFull } from '@/lib/database.types';
 import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
 import type { ThemedTimelineCategory } from './types';
 import { cn } from '@/lib/utils';
+import { renderTextWithCitations } from '@/lib/timelines/citationRenderer';
 
 interface InterpretationSectionProps {
   timeline: TimelineFull;
@@ -39,7 +40,26 @@ export default function InterpretationSection({
               <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
                 {insight.title}
               </p>
-              <p className="mt-3 text-gray-700">{insight.insight}</p>
+              <div className="prose prose-gray max-w-none mt-3">
+                <p className="text-gray-700">
+                  {renderTextWithCitations(insight.insight, narrative.citations)}
+                </p>
+
+                {insight.analysis && (
+                  <p className="text-gray-700">
+                    {renderTextWithCitations(insight.analysis, narrative.citations)}
+                  </p>
+                )}
+
+                {insight.modernRelevance && (
+                  <p className="text-gray-600 italic text-sm">
+                    {renderTextWithCitations(
+                      insight.modernRelevance,
+                      narrative.citations,
+                    )}
+                  </p>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -79,28 +99,6 @@ export default function InterpretationSection({
       <div className="flex items-center justify-center my-8">
         <div className="h-1 w-24 bg-gradient-to-r from-transparent via-antiqueBronze-400 to-transparent rounded-full" />
       </div>
-
-      {timeline.sources.length > 0 && (
-        <div className="mt-10">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Sources &amp; Further Reading
-          </h3>
-          <ol className="list-decimal list-inside space-y-3 text-gray-700">
-            {timeline.sources.map((source) => (
-              <li key={`${source.number}-${source.url}`} className="leading-relaxed">
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  {source.source}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
     </div>
   );
 }

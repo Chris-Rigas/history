@@ -69,6 +69,10 @@ export interface TimelinePerspectives {
 export interface TimelineThemeInsight {
   title: string;
   insight: string;
+  analysis?: string;
+  modernRelevance?: string;
+  supportingEvents?: string[];
+  citations?: number[];
 }
 
 export interface TimelineCitationRaw {
@@ -364,6 +368,22 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
     .map((insight: any) => {
       const title = cleanText(insight?.title ?? insight?.theme ?? '');
       const detail = cleanText(insight?.insight ?? insight?.summary ?? '');
+      const analysis = cleanText(insight?.analysis ?? '');
+      const modernRelevance = cleanText(
+        insight?.modernRelevance ?? insight?.relevance ?? '',
+      );
+      const supportingEvents = toStringArray(
+        insight?.supportingEvents ?? insight?.relatedEvents,
+      );
+      const citationsList = Array.isArray(insight?.citations)
+        ? insight.citations
+            .map((value: any) => {
+              if (typeof value === 'number') return value;
+              const parsed = parseInt(String(value), 10);
+              return Number.isNaN(parsed) ? null : parsed;
+            })
+            .filter((value): value is number => value !== null)
+        : [];
       if (!title || !detail) {
         return null;
       }
@@ -371,6 +391,10 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
       return {
         title,
         insight: detail,
+        analysis: analysis || undefined,
+        modernRelevance: modernRelevance || undefined,
+        supportingEvents,
+        citations: citationsList,
       } satisfies TimelineThemeInsight;
     })
     .filter(Boolean) as TimelineThemeInsight[];

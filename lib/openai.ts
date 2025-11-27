@@ -1066,11 +1066,28 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
   });
 
   const content = response.choices[0].message.content || '';
-  
+
   const parsed = parseEventContentJson(content);
 
   if (parsed) {
     const importance = Number(parsed.importance);
+
+    if (!parsed.summary || !String(parsed.summary).trim()) {
+      console.warn(
+        `⚠️  Event content missing summary after parse for "${title}" (${year}). Parsed keys: ${
+          typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).join(', ') : 'unknown'
+        }`
+      );
+    }
+
+    if (!parsed.description || !String(parsed.description).trim()) {
+      console.warn(
+        `⚠️  Event content missing description after parse for "${title}" (${year}). Parsed keys: ${
+          typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).join(', ') : 'unknown'
+        }`
+      );
+    }
+
     return {
       summary: typeof parsed.summary === 'string' ? parsed.summary.trim() : '',
       description: typeof parsed.description === 'string' ? parsed.description.trim() : '',
@@ -1080,6 +1097,12 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
       importance: Number.isFinite(importance) ? importance : 2,
     };
   }
+
+  console.warn(
+    `⚠️  Unable to parse event content JSON for "${title}" (${year}); using fallback content. Raw snippet: ${content
+      .slice(0, 300)
+      .replace(/\s+/g, ' ')}`
+  );
 
   // Fallback: extract manually
   return {

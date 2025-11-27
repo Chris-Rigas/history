@@ -331,36 +331,103 @@ Return a single JSON object with these arrays:
 Use citation numbers that match the research corpus. Include the citation numbers used in each element so they can be rendered.
 
 ═══════════════════════════════════════════════════════════════════════════════
-THEME INSIGHTS (one per theme) - EXPANDED AND ANALYTICAL
+THEME INSIGHTS (3-4 themes ONLY) - SUBSTANTIVE AND SPECIFIC
 ═══════════════════════════════════════════════════════════════════════════════
 
-For each theme in the main narrative, provide a DEEPER ANALYTICAL INSIGHT (not just a summary):
+Generate exactly 3-4 theme insights that capture the most important patterns or dynamics 
+of this period. Quality over quantity—each theme should be substantive and well-developed.
+
+STRUCTURE FOR EACH THEME:
 
 {
-  "themeId": "naval-adaptation",
-  "insight": "2-3 sentences explaining the MECHANISM of this theme. Include specific examples with citations. What pattern does this exemplify? What made it work or fail?",
-  "analysis": "3-4 sentences going DEEPER. What does the evidence actually show? Are there scholarly debates? What would a historian emphasize? Include citations.",
-  "modernRelevance": "1-2 sentences (optional) connecting this pattern to contemporary parallels or why it matters today",
+  "themeId": "descriptive-kebab-case-id",
+  "title": "Clear, Specific Title (Not Generic)",
+  "insight": "Opening paragraph explaining the pattern/dynamic (100-150 words)",
+  "analysis": "Deeper analytical paragraph with specific evidence (150-250 words)",
   "supportingEvents": ["event-slug-1", "event-slug-2"],
   "citations": [1, 3, 7]
 }
 
-REQUIREMENTS:
-• Each theme insight should be 150-250 words total (insight + analysis)
-• Include at least 2-3 citations
-• Reference specific events and data points
-• Explain MECHANISMS not just descriptions
-• Note scholarly debates where relevant
+═══════════════════════════════════════════════════════════════════════════════
+MANDATORY REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
 
-Example:
+QUANTITY:
+• Generate EXACTLY 3-4 themes (not 5, not 6)
+• Total word count per theme: 250-400 words (insight + analysis combined)
+• Each theme must stand alone as a substantial analytical piece
+
+SPECIFICITY (each theme must include at least 2 of these 3):
+• NAMES: Specific people, places, or institutions (e.g., "Decius", "Abritus", "Rhine frontier")
+• DATES: Specific years, spans, or timeframes (e.g., "251 CE", "235-284", "within 15 years")
+• NUMBERS: Quantities, percentages, or measurements (e.g., "26 emperors", "50 denarii", "doubled from previous century")
+
+SUBSTANCE:
+• Avoid vague titles like "Crisis and Response" or "Change and Continuity"
+• Instead use specific framing: "When Emperors Became Battlefield Commanders" or "The Collapse of Silver Currency"
+• Make patterns concrete: don't just say "military pressure increased"—explain HOW and show the SCALE
+• Connect evidence to argument: "This shows..." "The result was..." "The evidence suggests..."
+
+ANALYTICAL DEPTH:
+• Explain mechanisms and causes, not just descriptions
+• Show what changed and why it mattered
+• Connect to other events in the timeline
+• Patterns are fine—just make sure they're substantiated with specific details
+
+═══════════════════════════════════════════════════════════════════════════════
+WHAT TO AVOID
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ Generic patterns without specifics:
+   "External pressures reshaped Roman priorities"
+   
+✅ Specific patterns with evidence:
+   "Persian victories at Edessa (260) and Carrhae forced Rome to maintain 30,000+ troops 
+   on the eastern frontier—triple the garrison of the previous century"
+
+❌ Vague temporal markers:
+   "Over time, the situation worsened"
+   
+✅ Precise timeframes:
+   "Between 249 and 251, three emperors died in rapid succession"
+
+❌ Abstract causation:
+   "Military challenges created instability"
+   
+✅ Concrete mechanisms:
+   "When Decius fell at Abritus in 251—the first emperor killed by foreign enemies—
+   it shattered the assumption that emperors died in Roman political struggles, 
+   not barbarian battlefields"
+
+═══════════════════════════════════════════════════════════════════════════════
+EXAMPLE (Crisis of the Third Century)
+═══════════════════════════════════════════════════════════════════════════════
+
 {
-  "themeId": "naval-adaptation",
-  "insight": "Rome's transformation from a land power with no navy to Mediterranean naval dominance within 25 years (264-241 BCE) illustrates the Republic's capacity for institutional innovation under existential threat. The corvus boarding bridge [1] didn't just neutralize Carthage's naval expertise—it fundamentally redefined naval warfare by turning sea battles into the infantry combat where Rome excelled [3].",
-  "analysis": "What's remarkable isn't the technical innovation alone but the speed and scale of implementation. Rome built approximately 330 quinqueremes between 261 and 241 BCE [7], trained crews with minimal maritime tradition, and accepted catastrophic losses (nearly 700 ships lost to storms [3]) without abandoning the strategy. This suggests a political and economic system capable of absorbing massive costs for long-term strategic goals—a pattern that would define Rome's approach to Hannibal's invasion a generation later.",
-  "modernRelevance": "The pattern of rapid technological adoption during wartime—learning enemy innovations, adapting them to existing strengths, and accepting high initial costs—has parallels in 20th century conflicts from radar development to nuclear programs.",
-  "supportingEvents": ["romes-first-naval-victory-at-mylae", "battle-of-ecnomus", "battle-of-aegates-islands"],
-  "citations": [1, 3, 7]
+  "themeId": "emperor-as-soldier",
+  "title": "From Political Authority to Military Survival",
+  "insight": "The Crisis fundamentally transformed what it meant to be emperor. Before 235, emperors might campaign but ruled primarily from Rome, managing the Senate and urban politics. After Maximinus Thrax (235-238)—a career soldier who never visited Rome during his reign—every emperor had to be a battlefield commander first. The question wasn't whether an emperor would lead armies, but where he would die: in civil war or defending the frontiers. Between 235 and 284, at least 18 of the 26 emperors died violently, and several—like Decius (251) and Valerian (260)—died fighting foreign enemies rather than Roman rivals.",
+  "analysis": "This shift had cascading consequences for Roman governance. Emperors spent years on campaign along the Rhine and Danube, making the Senate increasingly irrelevant to real decision-making. The praetorian prefect evolved from a ceremonial bodyguard commander to a de facto deputy emperor managing logistics and provincial administration. Meanwhile, frontier armies gained unprecedented power—they could make and unmake emperors based on battlefield performance alone. Philip the Arab (244-249) exemplified this: his authority rested entirely on military success, and when he struggled against Gothic invasions, his troops proclaimed Decius emperor at the first major defeat. The pattern repeated throughout the period: emperors rose and fell based on their ability to win battles, not their political acumen or legitimacy. This created a feedback loop where only military men could become emperor, but being emperor meant constant warfare until death. By the time Diocletian stabilized the empire (284), the civilian emperor of Augustus' model was extinct—replaced by a permanent military autocracy.",
+  "supportingEvents": ["maximinus-thrax-proclaimed", "battle-of-abritus", "valerian-captured", "aurelian-reforms"],
+  "citations": [12, 15, 23, 31]
 }
+
+═══════════════════════════════════════════════════════════════════════════════
+SELECTION CRITERIA
+═══════════════════════════════════════════════════════════════════════════════
+
+Choose themes that:
+1. Capture genuinely important dynamics (not minor trends)
+2. Have clear supporting evidence across multiple events
+3. Help explain WHY this period unfolded as it did
+4. Complement each other (don't repeat the same point 4 times)
+5. Balance different aspects: political, military, economic, social, cultural
+
+If you're choosing between 5 possible themes, pick the 3-4 that:
+- Have the most concrete evidence
+- Best explain the period's trajectory
+- Are most clearly supported by the events in the timeline
+- Offer the most analytical insight (not just description)
 
 ═══════════════════════════════════════════════════════════════════════════════
 PERSPECTIVES (2-4 viewpoints) - EXPANDED

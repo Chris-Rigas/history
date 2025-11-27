@@ -195,15 +195,23 @@ Remember: You're not writing an encyclopedia. You're showing readers the dramati
         content: prompt,
       },
     ],
-    max_completion_tokens: 2000,
+    max_completion_tokens: 6000,
     temperature: 1,
   });
 
   const content = response.choices[0].message.content || '';
 
+  // Log the raw content for debugging and tracing
+  console.log('   📄 Raw GPT response length:', content.length);
+  console.log('   📄 First 200 chars:', content.slice(0, 200));
+
   try {
     const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/i) || [null, content];
     const jsonText = jsonMatch[1] || content;
+
+    // Log the extracted JSON segment before parsing
+    console.log('   📄 Extracted JSON length:', jsonText.trim().length);
+
     const parsed = JSON.parse(jsonText.trim());
 
     if (!parsed.paragraphs || !Array.isArray(parsed.paragraphs)) {

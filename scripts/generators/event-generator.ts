@@ -110,6 +110,14 @@ export async function generateEvent(params: {
       }
     }
 
+    const summary = content.summary?.trim() || '';
+
+    if (!summary) {
+      console.warn(
+        `⚠️  Generated event content missing summary for "${title}" (${year}). Falling back to placeholder.`
+      );
+    }
+
     // Create event record
     const event = await createEvent({
       title,
@@ -119,7 +127,7 @@ export async function generateEvent(params: {
       location: null,
       tags: [mappedCategory || content.type].filter(Boolean),
       importance: content.importance || importance,
-      summary: content.summary || 'Summary not yet available',
+      summary: summary || 'Summary not yet available',
       description_html: formatAsHtml(content.description || ''),
       significance_html: formatAsHtml(content.significance || ''),
     });

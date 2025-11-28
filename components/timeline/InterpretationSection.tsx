@@ -1,6 +1,5 @@
 import type { TimelineFull } from '@/lib/database.types';
 import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
-import type { ThemeInsight as EnrichedThemeInsight } from '@/lib/generation/types';
 import type { ThemedTimelineCategory } from './types';
 import { cn } from '@/lib/utils';
 import { renderTextWithCitations } from '@/lib/timelines/citationRenderer';
@@ -20,11 +19,6 @@ export default function InterpretationSection({
     return null;
   }
 
-  const themeInsights = (
-    narrative?.enrichment?.themeInsights ?? narrative?.themeInsights ?? []
-  ) as Array<EnrichedThemeInsight | NonNullable<TimelineStructuredContent['themeInsights']>[number]>;
-  const hasEnrichment = !!narrative?.enrichment?.themeInsights;
-
   return (
     <div className="max-w-5xl">
       <div className="mb-8">
@@ -36,46 +30,40 @@ export default function InterpretationSection({
         </p>
       </div>
 
-      {themeInsights.length > 0 && (
+      {narrative?.themeInsights?.length ? (
         <div className="grid gap-6 md:grid-cols-2 mb-8">
-          {themeInsights.map((insight, index) => {
-            const displayTitle = hasEnrichment
-              ? (insight as EnrichedThemeInsight).themeId || insight.title
-              : insight.title;
-
-            return (
-              <div
-                key={displayTitle || index}
-                className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm"
-              >
-                <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
-                  {displayTitle}
+          {narrative.themeInsights.map(insight => (
+            <div
+              key={insight.title}
+              className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm"
+            >
+              <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
+                {insight.title}
+              </p>
+              <div className="prose prose-gray max-w-none mt-3">
+                <p className="text-gray-700">
+                  {renderTextWithCitations(insight.insight, narrative.citations)}
                 </p>
-                <div className="prose prose-gray max-w-none mt-3">
+
+                {insight.analysis && (
                   <p className="text-gray-700">
-                    {renderTextWithCitations(insight.insight, narrative.citations)}
+                    {renderTextWithCitations(insight.analysis, narrative.citations)}
                   </p>
+                )}
 
-                  {insight.analysis && (
-                    <p className="text-gray-700 mt-2">
-                      {renderTextWithCitations(insight.analysis, narrative.citations)}
-                    </p>
-                  )}
-
-                  {insight.modernRelevance && (
-                    <p className="text-gray-600 italic text-sm mt-2">
-                      {renderTextWithCitations(
-                        insight.modernRelevance,
-                        narrative.citations,
-                      )}
-                    </p>
-                  )}
-                </div>
+                {insight.modernRelevance && (
+                  <p className="text-gray-600 italic text-sm">
+                    {renderTextWithCitations(
+                      insight.modernRelevance,
+                      narrative.citations,
+                    )}
+                  </p>
+                )}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-      )}
+      ) : null}
 
       {categories && categories.length > 0 && (
         <div className="mb-8">

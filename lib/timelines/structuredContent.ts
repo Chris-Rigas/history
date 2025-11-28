@@ -1,5 +1,4 @@
 import type { Json } from '@/lib/database.types';
-import type { Enrichment } from '@/lib/generation/types';
 import { slugify } from '../utils';
 
 export type TimelineEventRelationshipType =
@@ -104,9 +103,6 @@ export interface TimelineStructuredContent {
   themeInsights: TimelineThemeInsight[];
   contextSections: TimelineStructuredSection[];
   citations: TimelineCitationRaw[];
-
-  // Phase 5 enrichment data
-  enrichment?: Enrichment;
 }
 
 const RELATIONSHIP_KEYWORDS: Record<string, TimelineEventRelationshipType> = {
@@ -215,21 +211,6 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
   const centralQuestion = cleanText(raw?.centralQuestion ?? raw?.central_tension);
   const storyCharacter = cleanText(raw?.storyCharacter ?? raw?.storyType);
   const overview = cleanText(raw?.overview ?? raw?.mainContent);
-  const overviewSections = Array.isArray(raw?.overviewSections)
-    ? (raw.overviewSections
-        .map((section: any) => {
-          const content = cleanText(section?.content ?? section?.text ?? '');
-          if (!content) return null;
-          return {
-            subheading: cleanText(section?.subheading ?? section?.title ?? ''),
-            content,
-            citationsUsed: Array.isArray(section?.citationsUsed)
-              ? section.citationsUsed
-              : undefined,
-          } satisfies TimelineOverviewSection;
-        })
-        .filter(Boolean) as TimelineOverviewSection[])
-    : [];
 
   const usedIds = new Set<string>();
   const rawThemes = Array.isArray(raw?.themes) ? raw.themes : [];
@@ -447,29 +428,11 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
         .filter((citation: TimelineCitationRaw) => Boolean(citation.url && (citation.source || citation.title))) as TimelineCitationRaw[])
     : [];
 
-  let enrichment: Enrichment | undefined;
-  if (raw?.enrichment && typeof raw.enrichment === 'object') {
-    enrichment = {
-      people: Array.isArray(raw.enrichment.people) ? raw.enrichment.people : [],
-      turningPoints: Array.isArray(raw.enrichment.turningPoints)
-        ? raw.enrichment.turningPoints
-        : [],
-      perspectives: Array.isArray(raw.enrichment.perspectives)
-        ? raw.enrichment.perspectives
-        : [],
-      themeInsights: Array.isArray(raw.enrichment.themeInsights)
-        ? raw.enrichment.themeInsights
-        : [],
-      keyFacts: Array.isArray(raw.enrichment.keyFacts) ? raw.enrichment.keyFacts : [],
-    };
-  }
-
   return {
     summary,
     centralQuestion,
     storyCharacter,
     overview,
-    overviewSections,
     keyFacts,
     themes,
     eventNotes,
@@ -479,7 +442,6 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
     themeInsights,
     contextSections,
     citations,
-    enrichment,
   } satisfies TimelineStructuredContent;
 }
 

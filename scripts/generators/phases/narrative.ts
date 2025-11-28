@@ -32,5 +32,17 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
     summary: parsed.summary || '',
     themes: Array.isArray(parsed.themes) ? parsed.themes : [],
     storyCharacter: parsed.storyCharacter || '',
+    keyFacts: Array.isArray(parsed.keyFacts) ? parsed.keyFacts : [],
+    eventNotes: Array.isArray(parsed.eventNotes) ? parsed.eventNotes : [],
+    connectors: Array.isArray(parsed.narrativeConnectors) ? parsed.narrativeConnectors : [],
+    turningPoints: Array.isArray(parsed.turningPoints) ? parsed.turningPoints : [],
+    perspectives: parsed.perspectives || {
+      evidence: { available: [], gaps: [] },
+      interpretations: { debates: [], contested: [] },
+      context: { contemporary: '', hindsight: '' },
+    },
+    themeInsights: Array.isArray(parsed.themeInsights) ? parsed.themeInsights : [],
+    contextSections: Array.isArray(parsed.contextSections) ? parsed.contextSections : [],
+    citations: Array.isArray(parsed.citations) ? parsed.citations : [],
   };
 }

@@ -94,6 +94,16 @@ export interface MainNarrative {
   summary: string;
   themes: ExpandedTheme[];
   storyCharacter: string;
+
+  // Phase 3 narrative details
+  keyFacts: any[];
+  eventNotes: any[];
+  connectors: any[];
+  turningPoints: any[];
+  perspectives: any;
+  themeInsights: any[];
+  contextSections: any[];
+  citations: any[];
 }
 
 export interface ExpandedEvent {

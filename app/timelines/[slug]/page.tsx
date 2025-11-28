@@ -15,7 +15,6 @@ import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
 import PerspectivesSection from '@/components/timeline/PerspectivesSection';
-import PerspectivesEnrichmentSection from '@/components/timeline/PerspectivesEnrichmentSection';
 import CitationsSection from '@/components/timeline/CitationsSection';
 import StoryformRecap from '@/components/timeline/StoryformRecap';
 import { parseStructuredContent } from '@/lib/timelines/structuredContent';
@@ -247,14 +246,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {structuredContent && (
           <section className="py-12 bg-white">
             <div className="content-container">
-              {structuredContent.enrichment?.perspectives?.length ? (
-                <PerspectivesEnrichmentSection
-                  perspectives={structuredContent.enrichment.perspectives}
-                  citations={structuredContent.citations}
-                />
-              ) : (
-                <PerspectivesSection narrative={structuredContent} />
-              )}
+              <PerspectivesSection narrative={structuredContent} />
             </div>
           </section>
         )}

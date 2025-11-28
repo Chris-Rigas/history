@@ -13,14 +13,16 @@
 import './load-env';
 
 import { getTimelineSeed, TIMELINE_SEEDS } from './ingest';
-import { generateTimeline } from './generators/timeline-generator';
-import { generateTimelineEvents } from './generators/event-generator';
+import { generateTimelineComplete } from './generators/unified-pipeline';
 import { generateTimelinePeople } from './generators/person-generator';
+import { createEvent } from '@/lib/queries/events';
 import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
 import { serializeError, summarizeError } from './utils/error';
 import { supabaseAdmin } from '@/lib/supabase';
 import { slugify } from '@/lib/utils';
+import type { GenerationContext, TimelineSeed as UnifiedSeed } from '@/lib/generation/types';
+import { createTimeline, linkEventToTimeline } from '@/lib/queries/timelines';
 
 interface GenerationOptions {
   timeline?: string;
@@ -87,64 +89,77 @@ async function generateCompleteTimeline(
   }
 
   try {
-    let timelineId: string | undefined;
     const slug = slugify(seed.title);
+    let timeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
 
-    // Step 1: Generate timeline (unless events/people only)
-    if (!options.eventsOnly && !options.peopleOnly) {
-      console.log(`\n${'─'.repeat(80)}`);
-      console.log('STEP 1: Generating Timeline');
-      console.log(`${'─'.repeat(80)}`);
-      
-      const timelineResult = await generateTimeline(seed);
-      if (!timelineResult.success) {
-        throw new Error(timelineResult.error);
-      }
-      timelineId = timelineResult.timelineId;
-    } else {
-      // Find existing timeline
-      const timeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
-      if (!timeline) {
-        throw new Error('Timeline not found. Run without --events-only or --people-only first.');
-      }
-      timelineId = timeline.id;
-    }
-
-    if (!timelineId) {
-      throw new Error('Failed to get timeline ID');
-    }
-
-    // Get timeline data
-    const timeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
     if (!timeline) {
-      throw new Error('Timeline not found after creation');
+      timeline = await createTimeline({
+        title: seed.title,
+        slug,
+        start_year: seed.startYear,
+        end_year: seed.endYear,
+        region: seed.region || null,
+        summary: '',
+        interpretation_html: '',
+        map_image_url: null,
+      });
     }
 
-    // Step 2: Generate events (unless people-only)
+    let context: GenerationContext | undefined;
     let events: any[] = [];
+
+    // Step 1: Generate timeline and events using unified pipeline (unless people-only)
     if (!options.peopleOnly) {
       console.log(`\n${'─'.repeat(80)}`);
-      console.log('STEP 2: Generating Events');
+      console.log('STEP 1: Generating Timeline with Unified Pipeline');
       console.log(`${'─'.repeat(80)}`);
 
-      const eventCount = options.eventCount || seed.eventCount || 20;
-      const eventsResult = await generateTimelineEvents(timeline, eventCount, {
-        delayMs: 2000,
-        onProgress: (current, total, event) => {
-          console.log(`\n   [${current}/${total}] ${event}`);
-        },
-      });
+      const unifiedSeed: UnifiedSeed = {
+        title: seed.title,
+        startYear: seed.startYear,
+        endYear: seed.endYear,
+        region: seed.region,
+        context: seed.summary,
+      };
 
-      if (!eventsResult.success) {
-        console.error(`⚠️  Events generation completed with errors`);
+      console.log('🤖 Running unified generation pipeline...');
+      context = await generateTimelineComplete(unifiedSeed);
+
+      await saveUnifiedPipelineResults(timeline.id, context);
+
+      // Save expanded events from unified pipeline
+      if (context.expandedEvents && context.expandedEvents.length > 0) {
+        const eventIds: string[] = [];
+
+        console.log(`\n📅 Saving ${context.expandedEvents.length} events...`);
+
+        for (const expandedEvent of context.expandedEvents) {
+          const event = await createEvent({
+            title: expandedEvent.title,
+            slug: expandedEvent.slug || slugify(expandedEvent.title),
+            start_year: expandedEvent.year,
+            end_year: (expandedEvent as any).endYear || null,
+            location: null,
+            tags: expandedEvent.tags || [],
+            importance: expandedEvent.importance || 2,
+            summary: expandedEvent.summary,
+            description_html: formatAsHtml(expandedEvent.description),
+            significance_html: formatAsHtml(expandedEvent.significance),
+          });
+
+          await linkEventToTimeline(timeline.id, event.id);
+          eventIds.push(event.id);
+        }
+
+        console.log(`✅ Saved ${eventIds.length} events`);
       }
 
-      // Get generated events
-      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
-    } else {
-      // Load existing events
-      events = await getEventsByTimelineId(timelineId, { client: supabaseAdmin });
+      // Refresh timeline data after updates
+      timeline = (await getTimelineBySlug(slug, { client: supabaseAdmin })) ?? timeline;
     }
+
+    // Load events for subsequent steps
+    events = await getEventsByTimelineId(timeline.id, { client: supabaseAdmin });
 
     // Step 3: Generate people (unless events-only)
     if (!options.eventsOnly) {
@@ -169,7 +184,7 @@ async function generateCompleteTimeline(
     console.log(`\n${'='.repeat(80)}`);
     console.log(`✅ GENERATION COMPLETE: ${timelineTitle}`);
     console.log(`${'='.repeat(80)}\n`);
-    console.log(`Timeline ID: ${timelineId}`);
+    console.log(`Timeline ID: ${timeline?.id}`);
     console.log(`URL: /timelines/${slug}`);
     console.log();
 
@@ -185,6 +200,68 @@ async function generateCompleteTimeline(
     console.log();
     process.exit(1);
   }
+}
+
+/**
+ * Save unified pipeline results to database
+ */
+async function saveUnifiedPipelineResults(
+  timelineId: string,
+  context: GenerationContext
+): Promise<void> {
+  const { supabaseAdmin } = await import('@/lib/supabase');
+  const { replaceTimelineSources, upsertTimelineMetadata } = await import('@/lib/queries/timelines');
+
+  // Save research corpus citations as timeline sources
+  if (context.researchCorpus?.citations) {
+    await replaceTimelineSources(
+      timelineId,
+      context.researchCorpus.citations.map((citation, index) => ({
+        number: index + 1,
+        source: citation.source || '',
+        url: citation.url || '',
+      }))
+    );
+  }
+
+  // Save all phase outputs to metadata
+  await upsertTimelineMetadata(timelineId, {
+    research_corpus: context.researchCorpus as any,
+    skeleton: context.skeleton as any,
+    structured_content: {
+      overview: context.mainNarrative?.overview || [],
+      themes: context.mainNarrative?.themes || [],
+      eventNotes: [], // Will be populated by events
+    } as any,
+    storyform_recap: context.storyformRecap as any,
+    seo_title: context.seo?.seoTitle || null,
+    meta_description: context.seo?.metaDescription || null,
+    related_keywords: context.seo?.keywords || null,
+  });
+
+  // Update timeline record with main narrative content
+  await supabaseAdmin
+    .from('timelines')
+    .update({
+      summary: context.mainNarrative?.summary || null,
+      interpretation_html: formatOverviewAsHtml(context.mainNarrative?.overview || []),
+    })
+    .eq('id', timelineId);
+}
+
+/**
+ * Format overview paragraphs as HTML
+ */
+function formatOverviewAsHtml(paragraphs: string[]): string {
+  return paragraphs.map(p => `<p>${p}</p>`).join('\n');
+}
+
+function formatAsHtml(text: string): string {
+  if (!text) return '';
+
+  // Split into paragraphs and wrap in <p> tags
+  const paragraphs = text.split(/\n\n+/);
+  return paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
 }
 
 /**

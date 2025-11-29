@@ -7,7 +7,10 @@ import { safeJsonParse } from '@/lib/utils';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function executePhase1Research(context: GenerationContext): Promise<ResearchCorpus> {
+  console.log('\n=== PHASE 1: RESEARCH DEBUG ===');
   const prompt = buildPhase1ResearchPrompt(context.seed);
+  console.log(`Prompt length: ${prompt.length} characters`);
+
   const response = await openai.responses.create({
     model: 'gpt-5',
     reasoning: { effort: 'low' },
@@ -26,8 +29,16 @@ export async function executePhase1Research(context: GenerationContext): Promise
   });
 
   const content = extractResponseText(response);
+  console.log(`Response length: ${content.length} characters`);
+  console.log(`First 200 chars: ${content.substring(0, 200)}`);
+
   const cleaned = content.replace(/```json|```/g, '').trim();
+  console.log(`Cleaned length: ${cleaned.length} characters`);
+
   const parsed = safeJsonParse(cleaned, {});
+  console.log(`Parsed keys:`, Object.keys(parsed));
+  console.log(`Citations count:`, Array.isArray(parsed.citations) ? parsed.citations.length : 0);
+  console.log('=== END PHASE 1 DEBUG ===\n');
 
   return {
     digest: parsed.digest || '',

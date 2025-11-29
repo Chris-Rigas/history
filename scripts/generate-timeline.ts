@@ -231,7 +231,18 @@ async function saveUnifiedPipelineResults(
     structured_content: {
       overview: context.mainNarrative?.overview || [],
       themes: context.mainNarrative?.themes || [],
-      eventNotes: [], // Will be populated by events
+      centralQuestion: context.mainNarrative?.centralQuestion || '',
+      storyCharacter: context.mainNarrative?.storyCharacter || '',
+      pageTitle: context.mainNarrative?.pageTitle || '',
+    } as any,
+    enrichment: {
+      people: context.enrichment?.people || [],
+      turningPoints: context.enrichment?.turningPoints || [],
+      perspectives: context.enrichment?.perspectives || [],
+      themeInsights: context.enrichment?.themeInsights || [],
+      keyFacts: context.enrichment?.keyFacts || [],
+      interpretationSections: context.enrichment?.interpretationSections || [],
+      keyHighlights: context.enrichment?.keyHighlights || [],
     } as any,
     storyform_recap: context.storyformRecap as any,
     seo_title: context.seo?.seoTitle || null,

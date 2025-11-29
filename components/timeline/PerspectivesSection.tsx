@@ -1,15 +1,59 @@
-import type { TimelineStructuredContent } from '@/lib/timelines/structuredContent';
-
-interface PerspectivesSectionProps {
-  narrative: TimelineStructuredContent;
+interface Perspective {
+  category: string;
+  title: string;
+  content: string;
+  citations: number[];
 }
 
-export default function PerspectivesSection({ narrative }: PerspectivesSectionProps) {
-  const { perspectives } = narrative;
+interface PerspectivesSectionProps {
+  perspectives: Perspective[];
+  citations?: Array<{ number: number; source: string; url: string }>;
+}
 
-  if (!perspectives) {
+const CATEGORY_COLORS: Record<string, string> = {
+  INTERPRETATIONS: 'bg-blue-50 border-blue-200',
+  DEBATES: 'bg-purple-50 border-purple-200',
+  CONFLICT: 'bg-red-50 border-red-200',
+  HISTORIOGRAPHY: 'bg-green-50 border-green-200',
+  'WITH HINDSIGHT': 'bg-amber-50 border-amber-200',
+  'SOURCES AND BIAS': 'bg-gray-50 border-gray-200',
+};
+
+export default function PerspectivesSection({ perspectives, citations }: PerspectivesSectionProps) {
+  if (!perspectives || perspectives.length === 0) {
     return null;
   }
+
+  const renderWithCitations = (text: string) => {
+    if (!text || !citations) return text;
+
+    const parts = text.split(/(\[\d+\])/g);
+
+    return parts.map((part, index) => {
+      const match = part.match(/\[(\d+)\]/);
+
+      if (match) {
+        const number = parseInt(match[1], 10);
+        const citation = citations.find(c => c.number === number);
+
+        return (
+          <sup key={`${part}-${index}`}>
+            <a
+              href={citation?.url || `#citation-${number}`}
+              className="text-blue-600 hover:text-blue-800 hover:underline text-xs"
+              title={citation?.source}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              [{number}]
+            </a>
+          </sup>
+        );
+      }
+
+      return <span key={`${part}-${index}`}>{part}</span>;
+    });
+  };
 
   return (
     <div className="bg-parchment-100 border border-parchment-200 rounded-3xl p-8">
@@ -20,75 +64,27 @@ export default function PerspectivesSection({ narrative }: PerspectivesSectionPr
         How we know what we know—and what people at the time noticed
       </p>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
-            Evidence
-          </p>
-          <ul className="mt-3 space-y-2 text-sm text-gray-700">
-            {perspectives.evidence.available.map((item, index) => (
-              <li key={`available-${index}`}>{item}</li>
-            ))}
-          </ul>
-          {perspectives.evidence.gaps.length > 0 && (
-            <div className="mt-4 text-sm text-gray-600">
-              <p className="font-semibold">Gaps &amp; silences</p>
-              <ul className="list-disc list-inside">
-                {perspectives.evidence.gaps.map((gap, index) => (
-                  <li key={`gap-${index}`}>{gap}</li>
-                ))}
-              </ul>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {perspectives.map((perspective, index) => {
+          const colorClass = CATEGORY_COLORS[perspective.category] || 'bg-gray-50 border-gray-200';
+
+          return (
+            <div
+              key={index}
+              className={`${colorClass} border-2 rounded-2xl p-6`}
+            >
+              <p className="text-xs uppercase tracking-wider font-bold text-gray-600 mb-2">
+                {perspective.category}
+              </p>
+              <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
+                {perspective.title}
+              </h3>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                {renderWithCitations(perspective.content)}
+              </p>
             </div>
-          )}
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
-            Interpretations
-          </p>
-          <div className="mt-3 text-sm text-gray-700 space-y-3">
-            {perspectives.interpretations.debates.length > 0 && (
-              <div>
-                <p className="font-semibold">Debates</p>
-                <ul className="list-disc list-inside">
-                  {perspectives.interpretations.debates.map((debate, index) => (
-                    <li key={`debate-${index}`}>{debate}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {perspectives.interpretations.contested.length > 0 && (
-              <div>
-                <p className="font-semibold">Contested points</p>
-                <ul className="list-disc list-inside">
-                  {perspectives.interpretations.contested.map((item, index) => (
-                    <li key={`contested-${index}`}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <p className="text-sm uppercase tracking-wide text-antiqueBronze-600 font-semibold">
-            Context
-          </p>
-          <div className="mt-3 text-sm text-gray-700 space-y-4">
-            {perspectives.context.contemporary && (
-              <div>
-                <p className="font-semibold">On the ground</p>
-                <p>{perspectives.context.contemporary}</p>
-              </div>
-            )}
-            {perspectives.context.hindsight && (
-              <div>
-                <p className="font-semibold">With hindsight</p>
-                <p>{perspectives.context.hindsight}</p>
-              </div>
-            )}
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );

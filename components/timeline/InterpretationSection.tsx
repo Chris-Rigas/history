@@ -3,17 +3,22 @@ import type { TimelineStructuredContent } from '@/lib/timelines/structuredConten
 import type { ThemedTimelineCategory } from './types';
 import { cn } from '@/lib/utils';
 import { renderTextWithCitations } from '@/lib/timelines/citationRenderer';
+import InterpretationSections from './InterpretationSections';
 
 interface InterpretationSectionProps {
   timeline: TimelineFull;
   narrative?: TimelineStructuredContent | null;
   categories?: ThemedTimelineCategory[];
+  enrichment?: any;
+  citations?: Array<{ number: number; source: string; url: string }>;
 }
 
 export default function InterpretationSection({
   timeline,
   narrative,
   categories,
+  enrichment,
+  citations,
 }: InterpretationSectionProps) {
   if (!timeline.interpretation_html) {
     return null;
@@ -87,13 +92,23 @@ export default function InterpretationSection({
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="bg-white rounded-lg border border-gray-200 p-8 md:p-10">
-        <div
-          className="prose-historical"
-          dangerouslySetInnerHTML={{ __html: timeline.interpretation_html }}
+      {/* NEW: Interpretation Sections */}
+      {enrichment?.interpretationSections && enrichment.interpretationSections.length > 0 && (
+        <InterpretationSections
+          sections={enrichment.interpretationSections}
+          citations={citations}
         />
-      </div>
+      )}
+
+      {/* Existing: interpretation_html fallback */}
+      {!enrichment?.interpretationSections && timeline.interpretation_html && (
+        <div className="bg-white rounded-lg border border-gray-200 p-8 md:p-10">
+          <div
+            className="prose-historical"
+            dangerouslySetInnerHTML={{ __html: timeline.interpretation_html }}
+          />
+        </div>
+      )}
 
       {/* Visual Divider */}
       <div className="flex items-center justify-center my-8">

@@ -139,12 +139,30 @@ export interface TurningPoint {
   };
 }
 
-export interface Perspective {
-  viewpoint: string;
+export interface InterpretationSection {
+  id: string;
+  title: string;
+  subtitle?: string;
+  content: string;
+  citations: number[];
+}
+
+export interface KeyHighlight {
+  eventSlug: string;
+  year: number;
+  title: string;
   summary: string;
-  keyArguments: string[];
-  tensions?: string;
-  citations?: number[];
+  whyItMatters: string;
+  immediateImpact: string;
+  tags: string[];
+  citations: number[];
+}
+
+export interface Perspective {
+  category: 'INTERPRETATIONS' | 'DEBATES' | 'CONFLICT' | 'HISTORIOGRAPHY' | 'WITH HINDSIGHT' | 'SOURCES AND BIAS';
+  title: string;
+  content: string;
+  citations: number[];
 }
 
 export interface ThemeInsight {
@@ -168,6 +186,8 @@ export interface Enrichment {
   perspectives: Perspective[];
   themeInsights: ThemeInsight[];
   keyFacts: KeyFact[];
+  interpretationSections: InterpretationSection[];
+  keyHighlights: KeyHighlight[];
 }
 
 export interface SEOMetadata {

@@ -180,6 +180,34 @@ async function generateCompleteTimeline(
       }
     }
 
+    console.log('\n=== VERIFYING DATABASE ===');
+
+    const verifyTimeline = await getTimelineBySlug(slug, { client: supabaseAdmin });
+    console.log('Timeline summary length:', verifyTimeline?.summary?.length || 0);
+    console.log('Timeline interpretation_html length:', verifyTimeline?.interpretation_html?.length || 0);
+
+    const { data: metadata } = await supabaseAdmin
+      .from('timeline_metadata')
+      .select('*')
+      .eq('timeline_id', timeline.id)
+      .single();
+
+    console.log('Metadata exists:', !!metadata);
+    if (metadata) {
+      console.log('Research corpus exists:', !!metadata.research_corpus);
+      console.log('Skeleton exists:', !!metadata.skeleton);
+      console.log('Structured content exists:', !!metadata.structured_content);
+      console.log('SEO title:', metadata.seo_title);
+    }
+
+    const { data: sources } = await supabaseAdmin
+      .from('timeline_sources')
+      .select('*')
+      .eq('timeline_id', timeline.id);
+
+    console.log('Sources count:', sources?.length || 0);
+    console.log('=== END VERIFICATION ===\n');
+
     // Summary
     console.log(`\n${'='.repeat(80)}`);
     console.log(`✅ GENERATION COMPLETE: ${timelineTitle}`);
@@ -209,11 +237,15 @@ async function saveUnifiedPipelineResults(
   timelineId: string,
   context: GenerationContext
 ): Promise<void> {
+  console.log('\n=== SAVING TO DATABASE ===');
+  console.log(`Timeline ID: ${timelineId}`);
+
   const { supabaseAdmin } = await import('@/lib/supabase');
   const { replaceTimelineSources, upsertTimelineMetadata } = await import('@/lib/queries/timelines');
 
   // Save research corpus citations as timeline sources
   if (context.researchCorpus?.citations) {
+    console.log(`Saving ${context.researchCorpus.citations.length} citations...`);
     await replaceTimelineSources(
       timelineId,
       context.researchCorpus.citations.map((citation, index) => ({
@@ -222,10 +254,11 @@ async function saveUnifiedPipelineResults(
         url: citation.url || '',
       }))
     );
+    console.log('✅ Citations saved');
   }
 
   // Save all phase outputs to metadata
-  await upsertTimelineMetadata(timelineId, {
+  const metadataPayload = {
     research_corpus: context.researchCorpus as any,
     skeleton: context.skeleton as any,
     structured_content: {
@@ -237,16 +270,38 @@ async function saveUnifiedPipelineResults(
     seo_title: context.seo?.seoTitle || null,
     meta_description: context.seo?.metaDescription || null,
     related_keywords: context.seo?.keywords || null,
-  });
+  };
+
+  console.log('Metadata payload keys:', Object.keys(metadataPayload));
+  console.log('Overview paragraphs:', metadataPayload.structured_content.overview.length);
+  console.log('Themes:', metadataPayload.structured_content.themes.length);
+
+  await upsertTimelineMetadata(timelineId, metadataPayload);
+  console.log('✅ Metadata saved');
 
   // Update timeline record with main narrative content
-  await supabaseAdmin
+  const summary = context.mainNarrative?.summary || null;
+  const overview = formatOverviewAsHtml(context.mainNarrative?.overview || []);
+
+  console.log('Summary length:', summary?.length || 0);
+  console.log('Overview HTML length:', overview.length);
+  console.log('Overview HTML preview:', overview.substring(0, 200));
+
+  const { error } = await supabaseAdmin
     .from('timelines')
     .update({
-      summary: context.mainNarrative?.summary || null,
-      interpretation_html: formatOverviewAsHtml(context.mainNarrative?.overview || []),
+      summary: summary,
+      interpretation_html: overview,
     })
     .eq('id', timelineId);
+
+  if (error) {
+    console.error('❌ Error updating timeline:', error);
+  } else {
+    console.log('✅ Timeline updated');
+  }
+
+  console.log('=== END DATABASE SAVE ===\n');
 }
 
 /**

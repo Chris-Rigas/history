@@ -9,7 +9,10 @@ import { safeJsonParse } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function callJsonCompletion(prompt: string, maxTokens = 8000): Promise<any> {
+async function callJsonCompletion(prompt: string, maxTokens = 10000): Promise<any> {
+  console.log(`\n=== PHASE 4: EVENTS API CALL ===`);
+  console.log(`Prompt length: ${prompt.length} characters`);
+
   const response = await openai.chat.completions.create({
     model: 'gpt-5',
     messages: [
@@ -21,8 +24,22 @@ async function callJsonCompletion(prompt: string, maxTokens = 8000): Promise<any
   });
 
   const content = response.choices[0].message?.content || '{}';
+  console.log(`Response length: ${content.length} characters`);
+  console.log(`Finish reason: ${response.choices[0].finish_reason}`);
+  console.log(`First 200 chars: ${content.substring(0, 200)}`);
+
+  if (response.choices[0].finish_reason === 'length') {
+    console.error('⚠️  WARNING: Response truncated due to max_tokens!');
+  }
+
   const cleaned = content.replace(/```json|```/g, '').trim();
-  return safeJsonParse(cleaned, {});
+  const parsed = safeJsonParse(cleaned, {});
+  console.log('Parsed keys:', Object.keys(parsed));
+  console.log('Expanded events count:', Array.isArray((parsed as any).expandedEvents) ? parsed.expandedEvents.length : 0);
+  console.log('Paragraphs count:', Array.isArray((parsed as any).paragraphs) ? parsed.paragraphs.length : 0);
+  console.log('=== END PHASE 4 DEBUG ===\n');
+
+  return parsed;
 }
 
 export async function executePhase4Events(
@@ -88,7 +105,7 @@ export async function executePhase4Events(
 
 export async function executePhase4StoryformRecap(context: GenerationContext): Promise<StoryformRecap> {
   const prompt = buildPhase4RecapPrompt(context);
-  const parsed = await callJsonCompletion(prompt, 2000);
+  const parsed = await callJsonCompletion(prompt, 4000);
 
   return {
     paragraphs: Array.isArray(parsed.paragraphs) ? parsed.paragraphs : [],

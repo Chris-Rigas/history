@@ -135,7 +135,9 @@ export function formatDuration(startYear: number, endYear: number): string {
 export function safeJsonParse<T>(json: string, fallback: T): T {
   try {
     return JSON.parse(json);
-  } catch {
+  } catch (error) {
+    console.error('❌ JSON Parse Error:', error);
+    console.error('Raw text that failed to parse:', json.substring(0, 500));
     return fallback;
   }
 }

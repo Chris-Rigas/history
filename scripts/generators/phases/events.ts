@@ -9,7 +9,7 @@ import { safeJsonParse } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function callJsonCompletion(prompt: string, maxTokens = 8000): Promise<any> {
+async function callJsonCompletion(prompt: string, maxTokens = 30000): Promise<any> {
   const response = await openai.chat.completions.create({
     model: 'gpt-5',
     messages: [

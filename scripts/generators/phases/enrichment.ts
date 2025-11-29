@@ -31,5 +31,7 @@ export async function executePhase5Enrichment(context: GenerationContext): Promi
     perspectives: Array.isArray(parsed.perspectives) ? parsed.perspectives : [],
     themeInsights: Array.isArray(parsed.themeInsights) ? parsed.themeInsights : [],
     keyFacts: Array.isArray(parsed.keyFacts) ? parsed.keyFacts : [],
+    interpretationSections: Array.isArray(parsed.interpretationSections) ? parsed.interpretationSections : [],
+    keyHighlights: Array.isArray(parsed.keyHighlights) ? parsed.keyHighlights : [],
   };
 }

@@ -818,160 +818,268 @@ export function buildPhase5EnrichmentPrompt(context: GenerationContext) {
   }
 
   return `You are generating enrichment content for: "${describeSeed(context.seed)}"
-
 ═══════════════════════════════════════════════════════════════════════════════
 FULL CONTEXT
 ═══════════════════════════════════════════════════════════════════════════════
-
 RESEARCH CORPUS:
 ${stringifyCorpus(context.researchCorpus)}
-
 SKELETON (people to expand):
 ${JSON.stringify(context.skeleton, null, 2)}
-
 MAIN NARRATIVE:
 ${JSON.stringify(context.mainNarrative, null, 2)}
-
 EXPANDED EVENTS:
-${JSON.stringify(context.expandedEvents.map(e => ({ title: e.title, slug: e.slug, year: e.year })), null, 2)}
-
+${JSON.stringify(context.expandedEvents.map(e => ({ title: e.title, slug: e.slug, year: e.year, summary: e.summary })), null, 2)}
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT SCOPE (RETURN JSON ONLY)
 ═══════════════════════════════════════════════════════════════════════════════
-
 Return a single JSON object with these arrays:
-- people (expanded bios, keep historical accuracy)
-- turningPoints (explain before/after)
-- perspectives (expanded lenses with citations)
-- themeInsights (deep analysis per theme)
-- keyFacts (concise factoids, each may include citations)
-
+{
+"people": [...],
+"turningPoints": [...],
+"perspectives": [...],
+"themeInsights": [...],
+"keyFacts": [...],
+"interpretationSections": [...],  // NEW
+"keyHighlights": [...]              // NEW
+}
 Use citation numbers that match the research corpus. Include the citation numbers used in each element so they can be rendered.
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 1: PEOPLE (expand from skeleton)
+═══════════════════════════════════════════════════════════════════════════════
+For each person in the skeleton, generate:
+{
+"name": "Full Name",
+"slug": "kebab-case-slug",
+"birthYear": -100,
+"deathYear": -44,
+"role": "Brief role description (10-15 words)",
+"bioShort": "2-3 sentence summary with citations",
+"bioLong": "3-4 paragraphs with citations",
+"relatedEventSlugs": ["event-slug-1", "event-slug-2"]
+}
+Keep bioShort to 80-120 words. Keep bioLong to 300-400 words.
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 2: TURNING POINTS (3-5 pivotal moments)
+═══════════════════════════════════════════════════════════════════════════════
+Identify the 3-5 most pivotal moments that fundamentally changed the trajectory of events.
+{
+"title": "Event Title (from expanded events)",
+"year": -100,
+"description": "What happened (2-3 sentences)",
+"whyItMatters": "Why this was a turning point (2-3 sentences)",
+"beforeAfter": "What changed: before vs after (2-3 sentences)",
+"citations": [1, 3, 7]
+}
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 3: PERSPECTIVES (4-6 analytical lenses)
+═══════════════════════════════════════════════════════════════════════════════
+Provide different analytical perspectives on this period. Generate 4-6 perspectives.
+{
+"category": "INTERPRETATIONS" | "DEBATES" | "CONFLICT" | "HISTORIOGRAPHY" | "WITH HINDSIGHT" | "SOURCES AND BIAS",
+"title": "Short title (4-8 words)",
+"content": "2-4 sentences explaining this perspective with citations",
+"citations": [1, 3]
+}
+CATEGORY DEFINITIONS:
+
+INTERPRETATIONS: Scholarly interpretations of events/motivations
+DEBATES: Ongoing historical debates or contested questions
+CONFLICT: On-the-ground realities vs. narratives
+HISTORIOGRAPHY: How ancient sources portrayed events
+WITH HINDSIGHT: What we can see in retrospect that wasn't clear then
+SOURCES AND BIAS: Source limitations or biases
 
 ═══════════════════════════════════════════════════════════════════════════════
-THEME INSIGHTS (3-4 themes ONLY) - SUBSTANTIVE AND SPECIFIC
+SECTION 4: THEME INSIGHTS (3-4 themes ONLY) - SUBSTANTIVE AND SPECIFIC
 ═══════════════════════════════════════════════════════════════════════════════
-
-Generate exactly 3-4 theme insights that capture the most important patterns or dynamics 
+Generate exactly 3-4 theme insights that capture the most important patterns or dynamics
 of this period. Quality over quantity—each theme should be substantive and well-developed.
-
-STRUCTURE FOR EACH THEME:
-
 {
-  "themeId": "descriptive-kebab-case-id",
-  "title": "Clear, Specific Title (Not Generic)",
-  "insight": "Opening paragraph explaining the pattern/dynamic (100-150 words)",
-  "analysis": "Deeper analytical paragraph with specific evidence (150-250 words)",
-  "supportingEvents": ["event-slug-1", "event-slug-2"],
-  "citations": [1, 3, 7]
+"id": "kebab-case-id",
+"title": "Theme Title (4-8 words, specific not generic)",
+"insight": "Main insight (2-3 sentences)",
+"analysis": "Deeper analysis (2-3 sentences, optional)",
+"modernRelevance": "Why this matters today (1-2 sentences, optional)",
+"citations": [1, 3, 7]
 }
-
+AVOID GENERIC THEMES:
+❌ "Military Challenges"
+❌ "Political Instability"
+❌ "Economic Problems"
+GOOD THEMES:
+✅ "The Frontier as Contact Zone" - specific mechanism
+✅ "Logistics and Finance" - concrete pattern
+✅ "Climate and Steppe Shockwaves" - environmental factor
 ═══════════════════════════════════════════════════════════════════════════════
-MANDATORY REQUIREMENTS
+SECTION 5: KEY FACTS (8-12 factoids)
 ═══════════════════════════════════════════════════════════════════════════════
-
-QUANTITY:
-• Generate EXACTLY 3-4 themes (not 5, not 6)
-• Total word count per theme: 250-400 words (insight + analysis combined)
-• Each theme must stand alone as a substantial analytical piece
-
-SPECIFICITY (each theme must include at least 2 of these 3):
-• NAMES: Specific people, places, or institutions (e.g., "Decius", "Abritus", "Rhine frontier")
-• DATES: Specific years, spans, or timeframes (e.g., "251 CE", "235-284", "within 15 years")
-• NUMBERS: Quantities, percentages, or measurements (e.g., "26 emperors", "50 denarii", "doubled from previous century")
-
-SUBSTANCE:
-• Avoid vague titles like "Crisis and Response" or "Change and Continuity"
-• Instead use specific framing: "When Emperors Became Battlefield Commanders" or "The Collapse of Silver Currency"
-• Make patterns concrete: don't just say "military pressure increased"—explain HOW and show the SCALE
-• Connect evidence to argument: "This shows..." "The result was..." "The evidence suggests..."
-
-ANALYTICAL DEPTH:
-• Explain mechanisms and causes, not just descriptions
-• Show what changed and why it mattered
-• Connect to other events in the timeline
-• Patterns are fine—just make sure they're substantiated with specific details
-
-═══════════════════════════════════════════════════════════════════════════════
-WHAT TO AVOID
-═══════════════════════════════════════════════════════════════════════════════
-
-❌ Generic patterns without specifics:
-   "External pressures reshaped Roman priorities"
-   
-✅ Specific patterns with evidence:
-   "Persian victories at Edessa (260) and Carrhae forced Rome to maintain 30,000+ troops 
-   on the eastern frontier—triple the garrison of the previous century"
-
-❌ Vague temporal markers:
-   "Over time, the situation worsened"
-   
-✅ Precise timeframes:
-   "Between 249 and 251, three emperors died in rapid succession"
-
-❌ Abstract causation:
-   "Military challenges created instability"
-   
-✅ Concrete mechanisms:
-   "When Decius fell at Abritus in 251—the first emperor killed by foreign enemies—
-   it shattered the assumption that emperors died in Roman political struggles, 
-   not barbarian battlefields"
-
-═══════════════════════════════════════════════════════════════════════════════
-EXAMPLE (Crisis of the Third Century)
-═══════════════════════════════════════════════════════════════════════════════
-
+Generate concise, memorable facts that surprise or illuminate.
 {
-  "themeId": "emperor-as-soldier",
-  "title": "From Political Authority to Military Survival",
-  "insight": "The Crisis fundamentally transformed what it meant to be emperor. Before 235, emperors might campaign but ruled primarily from Rome, managing the Senate and urban politics. After Maximinus Thrax (235-238)—a career soldier who never visited Rome during his reign—every emperor had to be a battlefield commander first. The question wasn't whether an emperor would lead armies, but where he would die: in civil war or defending the frontiers. Between 235 and 284, at least 18 of the 26 emperors died violently, and several—like Decius (251) and Valerian (260)—died fighting foreign enemies rather than Roman rivals.",
-  "analysis": "This shift had cascading consequences for Roman governance. Emperors spent years on campaign along the Rhine and Danube, making the Senate increasingly irrelevant to real decision-making. The praetorian prefect evolved from a ceremonial bodyguard commander to a de facto deputy emperor managing logistics and provincial administration. Meanwhile, frontier armies gained unprecedented power—they could make and unmake emperors based on battlefield performance alone. Philip the Arab (244-249) exemplified this: his authority rested entirely on military success, and when he struggled against Gothic invasions, his troops proclaimed Decius emperor at the first major defeat. The pattern repeated throughout the period: emperors rose and fell based on their ability to win battles, not their political acumen or legitimacy. This created a feedback loop where only military men could become emperor, but being emperor meant constant warfare until death. By the time Diocletian stabilized the empire (284), the civilian emperor of Augustus' model was extinct—replaced by a permanent military autocracy.",
-  "supportingEvents": ["maximinus-thrax-proclaimed", "battle-of-abritus", "valerian-captured", "aurelian-reforms"],
-  "citations": [12, 15, 23, 31]
+"title": "Fact title (5-10 words)",
+"detail": "Explanation (1-2 sentences)",
+"citations": [1]
 }
+Examples:
+
+"Velleius says 300,000 Italian youths died in the fighting [2]"
+"Rome built 100 warships in 60 days [5]"
 
 ═══════════════════════════════════════════════════════════════════════════════
-SELECTION CRITERIA
+SECTION 6: INTERPRETATION SECTIONS (4-6 themed analytical sections) NEW
 ═══════════════════════════════════════════════════════════════════════════════
+Generate 4-6 thematic analytical sections that explore different dimensions of this period.
+Each section should have:
 
-Choose themes that:
-1. Capture genuinely important dynamics (not minor trends)
-2. Have clear supporting evidence across multiple events
-3. Help explain WHY this period unfolded as it did
-4. Complement each other (don't repeat the same point 4 times)
-5. Balance different aspects: political, military, economic, social, cultural
+A memorable title (3-6 words, ALL CAPS in display)
+2-3 paragraphs of analysis (200-300 words total)
+Multiple citations throughout
 
-If you're choosing between 5 possible themes, pick the 3-4 that:
-- Have the most concrete evidence
-- Best explain the period's trajectory
-- Are most clearly supported by the events in the timeline
-- Offer the most analytical insight (not just description)
-
-═══════════════════════════════════════════════════════════════════════════════
-PERSPECTIVES (2-4 viewpoints) - EXPANDED
-═══════════════════════════════════════════════════════════════════════════════
-
-Provide different interpretive lenses on this period. Each perspective should be 100-150 words:
-
+These sections appear in the "Interpretation & Significance" area and provide deep analysis.
 {
-  "viewpoint": "Roman Sources vs. Modern Archaeology",
-  "summary": "2-3 sentences introducing this interpretive lens",
-  "keyArguments": [
-    "Specific argument point 1 with evidence [1]",
-    "Specific argument point 2 with evidence [3]",
-    "Specific argument point 3 with evidence [7]"
-  ],
-  "tensions": "1-2 sentences on debates or contradictions in this viewpoint",
-  "citations": [1, 3, 7]
+"id": "kebab-case-id",
+"title": "MEMORABLE SECTION TITLE",
+"subtitle": "Optional explanatory subtitle (8-12 words)",
+"content": "2-3 paragraphs of analytical prose with citations. Each paragraph should be 60-100 words. Use specific examples and explain mechanisms of change.",
+"citations": [1, 3, 5, 7, 9]
 }
+SECTION THEMES (choose 4-6 that fit this timeline):
+Examples for military/expansion timelines:
 
-REQUIRED PERSPECTIVES:
-1. Source Critical: How do our sources shape/limit what we know?
-2. Modern Historiography: How have interpretations changed over time?
-3. (Optional) Comparative: How does this compare to similar periods/places?
-4. (Optional) Counterfactual: What if key moments had gone differently?
+"A MEMORABLE, NOT A WALL" - How something was intended vs. what it became
+"REFORM UNDER FISCAL FIRE" - Economic pressures driving change
+"BECOMING ROMAN, BECOMING 'GERMANIC'" - Identity transformations
+"WAR AS DIPLOMACY BY OTHER MEANS" - Military strategy as policy
+"WEATHER AND RIVERS IN THE EAST" - Environmental/geographical factors
+"LOGISTICS AND FINANCE" - Material constraints
+"THE FRONTIER AS CONTACT ZONE" - Cultural exchange mechanisms
 
-Each perspective should cite specific evidence and acknowledge scholarly debates.`;
+Examples for political/constitutional timelines:
+
+"REPUBLIC TO AUTOCRACY" - Constitutional transformations
+"THE FICTION OF SHARED POWER" - How systems maintained legitimacy
+"MILITARY MAKES THE MAN" - Path to power changing
+"CITIZENS INTO SUBJECTS" - Status transformations
+"CRISIS BREEDS INNOVATION" - How pressure drove new solutions
+
+Examples for social/reform timelines:
+
+"EQUALITY OR INDEPENDENCE" - Competing visions of justice
+"VIOLENCE AS LANGUAGE" - When talk failed
+"INTEGRATION'S HIDDEN COST" - Unintended consequences
+"WHO COUNTS AS 'US'" - Citizenship boundaries
+
+REQUIREMENTS:
+
+Each section must be 200-300 words (2-3 paragraphs)
+Include at least 3-5 citations per section
+Focus on MECHANISMS and PATTERNS, not just description
+Connect to broader historical significance
+Use specific examples from the research corpus
+
+EXAMPLE SECTION:
+{
+"id": "reform-under-fiscal-fire",
+"title": "REFORM UNDER FISCAL FIRE",
+"subtitle": "Praetorian casualty lists and tribal-tax incentives meet the inevitable",
+"content": "Praetorian casualty lists and inscribed victories read like invoices: Every legion spent had to be offset with spoils and tribute. Recruiting tribes from the Rhine crossings justified a swelling payroll [1], yet Caesar's dry-land census could barely track the newcomers, let alone tax them fairly [3]. When Tiberius froze new recruitments in 9 CE, he wasn't guided by morality—cash reserves had been gutted by the Teutoburg disaster, and the Rhine legions were bled dry [5]. The so-called 'Augustan settlement' survived not because Augustus was a genius administrator, but because he ruthlessly centralized the annona and tribute streams [7].\n\nThis fiscal squeeze drove unexpected innovation. Germanicus' 16 CE campaigns weren't pure revenge—they were debt-collection expeditions, hunting Varus' lost Eagles to reclaim legitimacy and ransoms [9]. Tacitus' account makes it clear that battlefield glory served the balance sheet: recovered standards meant propaganda wins, and propaganda wins meant senators would vote another appropriation [11]. Rome had weaponized its own insolvency.\n\nBy mid-century the pattern was entrenched: conquest campaigns became fiscal necessities. Claudius' British invasion in 43 CE wasn't just about expanding the empire—it was about seizing British gold and tin to pay for German garrisons [13]. The frontier had become an accounting problem dressed in a toga.",
+"citations": [1, 3, 5, 7, 9, 11, 13]
+}
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 7: KEY HIGHLIGHTS (6-8 featured events) NEW
+═══════════════════════════════════════════════════════════════════════════════
+Select 6-8 of the most important events from the expanded events to highlight prominently.
+These will be displayed in a featured grid with special formatting.
+For each highlight:
+{
+"eventSlug": "battle-of-noreia",
+"year": -113,
+"title": "Battle of Noreia: Cimbri defeat Roman forces in Norcum",
+"summary": "2-3 sentence summary of what happened",
+"whyItMatters": "Why this event was crucial (2-3 sentences, 60-80 words). Explain the significance and impact.",
+"immediateImpact": "What changed immediately after (1-2 sentences, 40-60 words). Concrete results.",
+"tags": ["Military Defeat"],
+"citations": [1, 3]
+}
+SELECTION CRITERIA:
+Choose events that:
+
+Changed the trajectory of the period
+Had outsized immediate impact
+Reveal key themes or patterns
+Are dramatically compelling
+Span the timeline chronologically
+
+whyItMatters vs immediateImpact:
+
+whyItMatters: Broader significance, long-term importance, why we care
+immediateImpact: Concrete immediate results, what changed in the next days/weeks/months
+
+EXAMPLE:
+{
+"eventSlug": "battle-of-arausio",
+"year": -105,
+"title": "Battle of Arausio: Roman catastrophe against Cimbri and Teutones",
+"summary": "In 105 BCE, Gaius Marius met the rival Roman army led by Quintus Servilius Caepio near the Rhône. Internal disputes led Caepio to attack without coordinating with Marius, and both armies were shattered by the migrating Cimbri and Teutones [1]. Casualty estimates run as high as 80,000 Romans dead—more than Cannae [3].",
+"whyItMatters": "This catastrophe exposed the deep dysfunction in Rome's military command structure and made reform unavoidable. The dual-command disaster proved that senatorial pride could kill legions, opening the door for Marius' revolutionary restructuring of recruitment and tactics [5]. It also terrified Rome—these weren't organized armies but tribal migrations, and Rome had no answer [7].",
+"immediateImpact": "Marius was elected consul for 104 BCE with emergency powers to reform the army. He opened recruitment to landless citizens for the first time, creating professional soldiers loyal to their general rather than the state [9]. The Cimbri gained a year's breathing room and continued south [11].",
+"tags": ["Military Defeat"],
+"citations": [1, 3, 5, 7, 9, 11]
+}
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT FORMAT EXAMPLE
+═══════════════════════════════════════════════════════════════════════════════
+{
+"people": [...],
+"turningPoints": [...],
+"perspectives": [
+{
+"category": "INTERPRETATIONS",
+"title": "Caesar's Gallic War: civil-bridge sanctification",
+"content": "Scholars debate whether Caesar's Germanic campaigns were strategic defense or political theater for Roman audiences. Tacitus treats the Rhine as a natural boundary, but Velleius paints cross-river raids as essential buffer-building [1]. Recent analysis suggests both: Caesar needed military credentials for the consulship, but the German threat was real enough to justify the expense [3].",
+"citations": [1, 3]
+},
+{
+"category": "DEBATES",
+"title": "Seasonal vs. permanent frontier?",
+"content": "Did Rome intend a permanent Rhine-Danube frontier, or were forts merely winter camps for mobile field armies? Literary sources are ambiguous—Tacitus' Germania assumes a fixed line [5], but Dio describes continuous raiding and shifting boundaries [7]. Archaeological evidence shows permanent stone construction only after Varus' defeat [9].",
+"citations": [5, 7, 9]
+}
+],
+"themeInsights": [...],
+"keyFacts": [...],
+"interpretationSections": [
+{
+"id": "reform-under-fiscal-fire",
+"title": "REFORM UNDER FISCAL FIRE",
+"subtitle": "Praetorian casualty lists and tribal-tax incentives meet the inevitable",
+"content": "...",
+"citations": [1, 3, 5, 7, 9, 11, 13]
+}
+],
+"keyHighlights": [
+{
+"eventSlug": "battle-of-arausio",
+"year": -105,
+"title": "Battle of Arausio: Roman catastrophe against Cimbri and Teutones",
+"summary": "...",
+"whyItMatters": "...",
+"immediateImpact": "...",
+"tags": ["Military Defeat"],
+"citations": [1, 3, 5, 7, 9, 11]
+}
+]
+}
+═══════════════════════════════════════════════════════════════════════════════
+QUALITY STANDARDS
+═══════════════════════════════════════════════════════════════════════════════
+✓ All content grounded in research corpus
+✓ Multiple citations throughout (don't be sparse with citations)
+✓ Interpretation sections are analytical, not descriptive
+✓ Key highlights chosen strategically (not just chronologically)
+✓ Perspectives show genuine different angles, not repetition
+✓ Theme insights are specific mechanisms, not generic categories
+✓ Writing is vivid and engaging, not academic and dry
+`;
 }
 
 export function buildPhase6SEOPrompt(context: GenerationContext) {

@@ -11,6 +11,7 @@ import KeyStoryElements from '@/components/timeline/KeyStoryElements';
 import BirdsEyeStrip from '@/components/timeline/BirdsEyeStrip';
 import ZoomableTimeline from '@/components/timeline/ZoomableTimeline';
 import HighlightCards from '@/components/timeline/HighlightCards';
+import HighlightCardsEnriched from '@/components/timeline/HighlightCardsEnriched';
 import KeyPeopleGrid from '@/components/timeline/KeyPeopleGrid';
 import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
@@ -103,6 +104,8 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
   const structuredContent = parseStructuredContent(
     timeline.metadata?.structured_content ?? null,
   );
+  const enrichment = timeline.metadata?.enrichment || null;
+  const citations = timeline.sources || [];
   const themedCategories: ThemedTimelineCategory[] = (structuredContent?.themes || []).map(
     (theme, index) => ({
       ...theme,
@@ -205,8 +208,19 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
           </section>
         )}
 
-        {/* Highlight Cards Section */}
-        {highlightEvents.length > 0 && (
+        {/* Highlight Cards Section - Use enrichment if available */}
+        {enrichment?.keyHighlights && enrichment.keyHighlights.length > 0 ? (
+          <section className="py-12 bg-parchment-50">
+            <div className="content-container">
+              <HighlightCardsEnriched
+                keyHighlights={enrichment.keyHighlights}
+                timeline={timeline}
+                tagColorMap={tagColorMap}
+                citations={citations}
+              />
+            </div>
+          </section>
+        ) : highlightEvents.length > 0 ? (
           <section className="py-12 bg-parchment-50">
             <div className="content-container">
               <HighlightCards
@@ -216,7 +230,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               />
             </div>
           </section>
-        )}
+        ) : null}
 
         {/* Key People Section */}
         {timeline.people.length > 0 && (
@@ -238,6 +252,8 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
                 timeline={timeline}
                 narrative={structuredContent}
                 categories={themedCategories}
+                enrichment={enrichment}
+                citations={citations}
               />
             </div>
           </section>
@@ -246,7 +262,10 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {structuredContent && (
           <section className="py-12 bg-white">
             <div className="content-container">
-              <PerspectivesSection narrative={structuredContent} />
+              <PerspectivesSection
+                perspectives={enrichment?.perspectives || []}
+                citations={citations}
+              />
             </div>
           </section>
         )}

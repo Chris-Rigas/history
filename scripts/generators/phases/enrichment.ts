@@ -12,7 +12,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
       { role: 'system', content: 'Return enrichment JSON only.' },
       { role: 'user', content: prompt },
     ],
-    max_completion_tokens: 6000,
+    max_completion_tokens: 30000,
     temperature: 1,
   });
 

@@ -238,6 +238,9 @@ export interface TimelineMetadataPayload {
   totalSources?: number | null;
   structuredContent?: Json | null;
   storyformRecap?: Json | null;
+  research_corpus?: Json | null;
+  skeleton?: Json | null;
+  enrichment?: Json | null;
 }
 
 /**
@@ -259,6 +262,9 @@ export async function upsertTimelineMetadata(
     total_sources: payload.totalSources ?? null,
     structured_content: payload.structuredContent ?? null,
     storyform_recap: payload.storyformRecap ?? null,
+    research_corpus: payload.research_corpus ?? null,
+    skeleton: payload.skeleton ?? null,
+    enrichment: payload.enrichment ?? null,
   };
 
   const { error } = await supabaseAdmin

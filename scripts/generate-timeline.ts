@@ -209,6 +209,7 @@ async function saveUnifiedPipelineResults(
   timelineId: string,
   context: GenerationContext
 ): Promise<void> {
+  console.log('\n=== SAVING TO DATABASE ===');
   const { supabaseAdmin } = await import('@/lib/supabase');
   const { replaceTimelineSources, upsertTimelineMetadata } = await import('@/lib/queries/timelines');
 
@@ -224,6 +225,21 @@ async function saveUnifiedPipelineResults(
     );
   }
 
+  const enrichmentData = {
+    people: context.enrichment?.people || [],
+    turningPoints: context.enrichment?.turningPoints || [],
+    perspectives: context.enrichment?.perspectives || [],
+    themeInsights: context.enrichment?.themeInsights || [],
+    keyFacts: context.enrichment?.keyFacts || [],
+    interpretationSections: context.enrichment?.interpretationSections || [],
+    keyHighlights: context.enrichment?.keyHighlights || [],
+  };
+
+  console.log('Enrichment counts:');
+  console.log(`  - interpretationSections: ${enrichmentData.interpretationSections.length}`);
+  console.log(`  - keyHighlights: ${enrichmentData.keyHighlights.length}`);
+  console.log(`  - perspectives: ${enrichmentData.perspectives.length}`);
+
   // Save all phase outputs to metadata
   await upsertTimelineMetadata(timelineId, {
     research_corpus: context.researchCorpus as any,
@@ -235,20 +251,15 @@ async function saveUnifiedPipelineResults(
       storyCharacter: context.mainNarrative?.storyCharacter || '',
       pageTitle: context.mainNarrative?.pageTitle || '',
     } as any,
-    enrichment: {
-      people: context.enrichment?.people || [],
-      turningPoints: context.enrichment?.turningPoints || [],
-      perspectives: context.enrichment?.perspectives || [],
-      themeInsights: context.enrichment?.themeInsights || [],
-      keyFacts: context.enrichment?.keyFacts || [],
-      interpretationSections: context.enrichment?.interpretationSections || [],
-      keyHighlights: context.enrichment?.keyHighlights || [],
-    } as any,
+    enrichment: enrichmentData as any,
     storyform_recap: context.storyformRecap as any,
     seo_title: context.seo?.seoTitle || null,
     meta_description: context.seo?.metaDescription || null,
     related_keywords: context.seo?.keywords || null,
   });
+
+  console.log('✅ Metadata saved to database');
+  console.log('=== END DATABASE SAVE ===\n');
 
   // Update timeline record with main narrative content
   await supabaseAdmin

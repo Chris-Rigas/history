@@ -46,13 +46,32 @@ export default function StoryOverview({ narrative }: StoryOverviewProps) {
     });
   };
 
-  const sections: TimelineOverviewSection[] = narrative.overviewSections?.length
-    ? narrative.overviewSections
-    : (narrative.overview || '')
-        .split('\n\n')
-        .map(paragraph => paragraph.trim())
-        .filter(Boolean)
-        .map(content => ({ content }));
+  // Handle both array-of-strings and array-of-objects
+  let sections: TimelineOverviewSection[] = [];
+
+  if (narrative.overviewSections?.length) {
+    // Already structured sections
+    sections = narrative.overviewSections;
+  } else if (Array.isArray(narrative.overview)) {
+    // NEW: Handle array of strings
+    sections = narrative.overview
+      .filter(Boolean)
+      .map(content => ({
+        content: typeof content === 'string' ? content : (content as any).content || '',
+      }))
+      .filter(s => s.content);
+  } else if (typeof narrative.overview === 'string') {
+    // OLD: Handle legacy string format
+    sections = narrative.overview
+      .split('\n\n')
+      .map(paragraph => paragraph.trim())
+      .filter(Boolean)
+      .map(content => ({ content }));
+  }
+
+  if (sections.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-12 bg-white">

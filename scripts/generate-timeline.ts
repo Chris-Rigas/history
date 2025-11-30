@@ -242,9 +242,9 @@ async function saveUnifiedPipelineResults(
 
   // Save all phase outputs to metadata
   await upsertTimelineMetadata(timelineId, {
-    research_corpus: context.researchCorpus as any,
+    researchCorpus: context.researchCorpus as any,
     skeleton: context.skeleton as any,
-    structured_content: {
+    structuredContent: {
       overview: context.mainNarrative?.overview || [],
       themes: context.mainNarrative?.themes || [],
       centralQuestion: context.mainNarrative?.centralQuestion || '',
@@ -252,10 +252,10 @@ async function saveUnifiedPipelineResults(
       pageTitle: context.mainNarrative?.pageTitle || '',
     } as any,
     enrichment: enrichmentData as any,
-    storyform_recap: context.storyformRecap as any,
-    seo_title: context.seo?.seoTitle || null,
-    meta_description: context.seo?.metaDescription || null,
-    related_keywords: context.seo?.keywords || null,
+    storyformRecap: context.storyformRecap as any,
+    seoTitle: context.seo?.seoTitle || null,
+    metaDescription: context.seo?.metaDescription || null,
+    relatedKeywords: context.seo?.keywords || null,
   });
 
   console.log('✅ Metadata saved to database');

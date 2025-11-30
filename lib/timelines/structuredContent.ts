@@ -92,7 +92,7 @@ export interface TimelineStructuredContent {
   summary: string;
   centralQuestion?: string;
   storyCharacter?: string;
-  overview?: string;
+  overview?: string | string[];
   overviewSections?: TimelineOverviewSection[];
   keyFacts: TimelineStructuredFact[];
   themes: TimelineThemeCategory[];
@@ -210,7 +210,14 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
   const summary = cleanText(raw?.summary);
   const centralQuestion = cleanText(raw?.centralQuestion ?? raw?.central_tension);
   const storyCharacter = cleanText(raw?.storyCharacter ?? raw?.storyType);
-  const overview = cleanText(raw?.overview ?? raw?.mainContent);
+  const overview = Array.isArray(raw?.overview)
+    ? (raw.overview
+        .filter((item: unknown) => typeof item === 'string')
+        .map((item: string) => item.trim())
+        .filter(Boolean) as string[])
+    : typeof raw?.overview === 'string'
+    ? raw.overview.trim()
+    : cleanText(raw?.mainContent);
 
   const usedIds = new Set<string>();
   const rawThemes = Array.isArray(raw?.themes) ? raw.themes : [];

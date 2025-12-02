@@ -534,19 +534,60 @@ Use specific details, active voice, concrete claims.
 5. STORY BEATS (6-8 beats, 800-1200 words total)
 See detailed specifications above.
 
-6. THEMES (3-5 themes)
-Specific patterns or mechanisms—NOT generic categories.
+6. THEMES (4-6 themes)
+═══════════════════════════════════════════════════════════════════════════════
 
-❌ BAD: "Military Challenges" (vague)
-✅ GOOD: "Citizen-Soldiers vs. Mercenaries: Rome's Manpower Advantage"
+Create thematic categories that reveal the FORCES and MECHANISMS at play in this period.
+These will be expanded into full "Thematic Threads" in later phases.
 
-❌ BAD: "Political Changes" (generic)
-✅ GOOD: "The Senate's Dilemma: Controlling Victorious Generals"
+**FORMAT:**
+{
+  "id": "kebab-case-id",
+  "title": "Theme Title (4-8 words)",
+  "description": "What this theme means and why it matters (40-60 words)"
+}
 
-Each theme must:
-- Connect to specific events in the skeleton
-- Explain a PATTERN or MECHANISM, not just describe what happened
-- Be substantive enough to support later analysis
+**THEME REQUIREMENTS:**
+
+Each theme should identify a specific MECHANISM or PATTERN, not a generic category.
+
+❌ BANNED (too generic):
+- "Military Developments"
+- "Political Changes"
+- "Economic Factors"
+- "Social Transformations"
+
+✅ GOOD (specific mechanisms):
+- "Sea Control as Gateway to Asia" — identifies the specific strategic mechanism
+- "Hegemony Through Allied Proxies" — names Rome's method of control
+- "Treaty as Security Architecture" — explains what the treaty actually accomplished
+- "Boundary Engineering with the Taurus Line" — specific geographic/political tool
+
+**DESCRIPTION STRUCTURE:**
+
+Each description should answer:
+1. What pattern or mechanism does this theme capture?
+2. How did it work in practice?
+3. Why did it matter for outcomes?
+
+**EXAMPLE:**
+
+{
+  "id": "treaty-as-security-architecture",
+  "title": "Treaty as Security Architecture",
+  "description": "Apamea wasn't just punishment—it was a system designed to neutralize Seleucid power permanently. The 12,000-talent indemnity drained the treasury; the fleet cap eliminated naval threat; the elephant ban ended their tactical advantage. Each clause targeted a specific capability."
+}
+
+**VARIETY REQUIREMENT:**
+
+Generate 4-6 themes covering different aspects:
+- Military/strategic patterns
+- Political/diplomatic mechanisms
+- Structural/systemic dynamics
+- Geographic/logistical factors (if relevant)
+- Economic patterns (if relevant)
+
+Avoid having multiple themes that cover the same ground from slightly different angles.
 
 ═══════════════════════════════════════════════════════════════════════════════
 QUALITY CHECKLIST
@@ -1076,39 +1117,139 @@ WITH HINDSIGHT: What we can see in retrospect that wasn't clear then
 SOURCES AND BIAS: Source limitations or biases
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 4: THEME INSIGHTS (3-4 themes ONLY) - SUBSTANTIVE AND SPECIFIC
+SECTION 4: THEME INSIGHTS (4-6 thematic threads)
 ═══════════════════════════════════════════════════════════════════════════════
-Generate exactly 3-4 theme insights that capture the most important patterns or dynamics
-of this period. Quality over quantity—each theme should be substantive and well-developed.
-{
-"id": "kebab-case-id",
-"title": "Theme Title (4-8 words, specific not generic)",
-"insight": "Main insight (2-3 sentences)",
-"analysis": "Deeper analysis (2-3 sentences, optional)",
-"modernRelevance": "Why this matters today (1-2 sentences, optional)",
-"citations": [1, 3, 7]
-}
-AVOID GENERIC THEMES:
-❌ "Military Challenges"
-❌ "Political Instability"
-❌ "Economic Problems"
-GOOD THEMES:
-✅ "The Frontier as Contact Zone" - specific mechanism
-✅ "Logistics and Finance" - concrete pattern
-✅ "Climate and Steppe Shockwaves" - environmental factor
-═══════════════════════════════════════════════════════════════════════════════
-SECTION 5: KEY FACTS (8-12 factoids)
-═══════════════════════════════════════════════════════════════════════════════
-Generate concise, memorable facts that surprise or illuminate.
-{
-"title": "Fact title (5-10 words)",
-"detail": "Explanation (1-2 sentences)",
-"citations": [1]
-}
-Examples:
 
-"Velleius says 300,000 Italian youths died in the fighting [2]"
-"Rome built 100 warships in 60 days [5]"
+Generate thematic threads that reveal the deeper patterns and mechanisms of this period.
+These appear as "Thematic Threads" in the Key Story Elements section.
+
+**FORMAT:**
+{
+  "id": "kebab-case-id",
+  "title": "Theme Title (4-8 words, specific not generic)",
+  "insight": "Main explanation (3-5 sentences, 60-100 words)",
+  "citations": [1, 3, 7]
+}
+
+**STRUCTURE FOR EACH INSIGHT:**
+
+Sentence 1: THE HOOK — Start with the most interesting or surprising aspect.
+Sentences 2-3: THE MECHANISM — Explain HOW this pattern worked in practice.
+Sentence 4-5: THE SO-WHAT — Why this mattered for outcomes.
+
+**EXAMPLE (good structure):**
+
+{
+  "id": "sea-control-gateway-asia",
+  "title": "Sea Control as Gateway to Asia",
+  "insight": "The Aegean decided the war before the armies ever met. Rhodian victory at the Eurymedon (August 190) and the combined Roman-Rhodian win at Myonnesus (September 190) didn't just open the Hellespont—they cut Antiochus off from reinforcement and resupply. Without sea lanes, his larger army became a liability: 70,000 men to feed with no secure logistics. Rome's willingness to defer to allied naval expertise proved decisive [5][21][22].",
+  "citations": [5, 21, 22]
+}
+
+**WHY THIS WORKS:**
+- Hook: "decided the war before the armies ever met" (surprising claim)
+- Mechanism: explains exactly how sea control translated to strategic advantage
+- So-what: connects to the outcome (larger army became liability)
+- Specific: names battles, dates, troop numbers
+
+**AVOID:**
+
+❌ GENERIC THEMES:
+- "Military Challenges"
+- "Political Factors" 
+- "Economic Considerations"
+- "Diplomatic Relations"
+
+❌ VAGUE INSIGHTS:
+- "Sea power was important in this conflict."
+- "The treaty had significant consequences."
+- "This showed the importance of alliances."
+
+✅ SPECIFIC MECHANISMS:
+- "Sea Control as Gateway to Asia" — names the specific mechanism
+- "Treaty as Security Architecture" — explains what the treaty actually did
+- "Hegemony Through Allied Proxies" — describes Rome's specific method
+
+**WRITING REQUIREMENTS:**
+- Start with a hook that makes readers want to keep reading
+- Use exact numbers, not vague quantities
+- Name specific battles, treaties, people, places
+- Explain causation: WHY did X lead to Y?
+- Include 2-4 citations per insight
+- 60-100 words per insight (longer than before, but focused)
+
+**REQUIRED VARIETY:**
+Generate 4-6 themes that cover different aspects:
+- At least one MILITARY/STRATEGIC mechanism
+- At least one POLITICAL/DIPLOMATIC mechanism  
+- At least one STRUCTURAL/SYSTEMIC pattern
+- Optionally: economic, cultural, or geographic factors
+
+Each theme should illuminate a different facet—avoid repetition.
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 5: KEY FACTS (8-12 factoids across varied categories)
+═══════════════════════════════════════════════════════════════════════════════
+
+Generate concise, memorable facts that surprise or illuminate. Each fact should make 
+the reader think "wait, really?" — they should learn something unexpected.
+
+**FORMAT:**
+{
+  "title": "Short label (3-6 words)",
+  "detail": "The fact itself (1-2 sentences, 15-40 words)",
+  "citations": [1]
+}
+
+**REQUIRED CATEGORIES (include at least one from each):**
+
+SCALE & NUMBERS:
+- Casualties, costs, distances, durations, army sizes
+- Always use exact figures, never "many" or "several"
+- Translate to modern equivalents when helpful
+
+Examples:
+✅ { "title": "The Indemnity", "detail": "Antiochus paid 12,000 talents over 12 years—roughly $3.6 billion in modern terms, bankrupting the Seleucid treasury [4]." }
+✅ { "title": "Fleet Restrictions", "detail": "The treaty capped Seleucid warships at just 10 decked vessels—down from over 100 before the war [10]." }
+
+HUMAN MOMENTS:
+- Quotes, gestures, decisions, reactions
+- Named individuals doing specific things
+- The weird, ironic, or unexpected
+
+Examples:
+✅ { "title": "Hannibal's Flight", "detail": "The treaty demanded Rome's old enemy Hannibal be surrendered. He fled to Crete, then Bithynia, staying one step ahead of Roman envoys until his suicide in 183 [7]." }
+✅ { "title": "Scipio's Brother", "detail": "The Roman commander was technically Lucius Scipio—but everyone knew his famous brother Africanus was really running the campaign [3]." }
+
+SURPRISING OUTCOMES:
+- What people at the time didn't expect
+- Counterintuitive results
+- Things that seem strange from our perspective
+
+Examples:
+✅ { "title": "Winners Who Lost", "detail": "Rhodes, rewarded with vast territory at Apamea, would be economically devastated within 20 years when Rome made Delos a free port [16]." }
+✅ { "title": "Elephants Banned", "detail": "The treaty banned Antiochus from using war elephants west of the Taurus—ending a 150-year tradition of Hellenistic elephant warfare in the Mediterranean [4]." }
+
+CONCRETE DETAILS:
+- Specific places, specific dates, specific objects
+- Physical realities that ground the narrative
+
+Examples:
+✅ { "title": "The Taurus Line", "detail": "Rome's new frontier followed the Taurus Mountains—a 350-mile barrier that Antiochus could no longer cross with troops [9]." }
+✅ { "title": "The Crossing", "detail": "Scipio's army crossed the Hellespont in late 190—the first Roman force ever to set foot in Asia [5]." }
+
+**QUALITY REQUIREMENTS:**
+- Minimum 8 facts, maximum 12
+- Each fact MUST have at least one citation
+- Every number must be specific (not "thousands" but "12,000")
+- At least 2 facts should translate ancient terms to modern equivalents
+- At least 2 facts should name specific individuals
+- NO generic facts like "Duration: 4 years" (the component adds these automatically)
+
+**BANNED:**
+- Facts that merely restate dates, duration, or region (these are auto-generated)
+- Vague quantities ("many soldiers," "large army," "significant cost")
+- Facts without citations
+- Generic observations ("This was an important war")
 
 ═══════════════════════════════════════════════════════════════════════════════
 SECTION 6: INTERPRETATION SECTIONS (4-6 themed analytical sections) NEW

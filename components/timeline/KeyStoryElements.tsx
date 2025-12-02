@@ -16,6 +16,10 @@ export default function KeyStoryElements({
   narrative,
   categories,
 }: KeyStoryElementsProps) {
+  console.log(`[KeyStoryElements] narrative?.keyFacts:`, narrative?.keyFacts);
+  console.log(`[KeyStoryElements] keyFacts length:`, narrative?.keyFacts?.length || 0);
+  console.log(`[KeyStoryElements] using defaults:`, !narrative?.keyFacts?.length);
+
   const defaultFacts = [
     { title: 'Start', detail: `${timeline.start_year}` },
     { title: 'End', detail: `${timeline.end_year}` },
@@ -114,16 +118,40 @@ export default function KeyStoryElements({
               Quick Facts
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
-              {keyFacts.map(fact => (
-                <div key={`${fact.title}-${fact.detail}`} className="p-4 rounded-xl bg-parchment-100 border border-parchment-200">
-                  <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
-                    {fact.title}
-                  </p>
-                  <p className="text-lg font-medium text-gray-900 mt-1">
-                    {renderTextWithCitations(fact.detail, narrative?.citations)}
-                  </p>
-                </div>
-              ))}
+              {keyFacts.map(fact => {
+                const factCitations = Array.isArray(fact.citations) ? fact.citations : [];
+
+                const citationSuperscripts = factCitations.map(number => {
+                  const citation = narrative?.citations?.find(entry => entry.number === number);
+
+                  return (
+                    <sup key={`fact-citation-${number}`}>
+                      <a
+                        href={`#citation-${number}`}
+                        className="text-blue-600 hover:underline"
+                        title={citation?.source || citation?.title || `Source [${number}]`}
+                      >
+                        [{number}]
+                      </a>
+                    </sup>
+                  );
+                });
+
+                return (
+                  <div
+                    key={`${fact.title}-${fact.detail}`}
+                    className="p-4 rounded-xl bg-parchment-100 border border-parchment-200"
+                  >
+                    <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
+                      {fact.title}
+                    </p>
+                    <p className="text-lg font-medium text-gray-900 mt-1">
+                      {renderTextWithCitations(fact.detail, narrative?.citations)}
+                      {citationSuperscripts}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

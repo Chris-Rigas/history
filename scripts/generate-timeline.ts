@@ -246,10 +246,12 @@ async function saveUnifiedPipelineResults(
     skeleton: context.skeleton as any,
     structuredContent: {
       overview: context.mainNarrative?.overview || [],
+      storyBeats: context.mainNarrative?.storyBeats || [],
       themes: context.mainNarrative?.themes || [],
       centralQuestion: context.mainNarrative?.centralQuestion || '',
       storyCharacter: context.mainNarrative?.storyCharacter || '',
       pageTitle: context.mainNarrative?.pageTitle || '',
+      summary: context.mainNarrative?.summary || '',
     } as any,
     enrichment: enrichmentData as any,
     storyformRecap: context.storyformRecap as any,
@@ -266,16 +268,21 @@ async function saveUnifiedPipelineResults(
     .from('timelines')
     .update({
       summary: context.mainNarrative?.summary || null,
-      interpretation_html: formatOverviewAsHtml(context.mainNarrative?.overview || []),
+      interpretation_html: formatStoryBeatsAsHtml(context.mainNarrative?.storyBeats || []),
     })
     .eq('id', timelineId);
 }
 
 /**
- * Format overview paragraphs as HTML
+ * Format story beats as HTML paragraphs
  */
-function formatOverviewAsHtml(paragraphs: string[]): string {
-  return paragraphs.map(p => `<p>${p}</p>`).join('\n');
+function formatStoryBeatsAsHtml(
+  beats: Array<{ paragraphs?: string[] }> = []
+): string {
+  return beats
+    .flatMap(beat => beat?.paragraphs || [])
+    .map(p => `<p>${p}</p>`)
+    .join('\n');
 }
 
 function formatAsHtml(text: string): string {

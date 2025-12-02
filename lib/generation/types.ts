@@ -79,6 +79,18 @@ export interface OverviewSection {
   citationsUsed: number[];
 }
 
+export interface EventLink {
+  textToLink: string;
+  eventSlug: string;
+}
+
+export interface StoryBeat {
+  beatType: string;
+  title: string;
+  paragraphs: string[];
+  eventLinks: EventLink[];
+}
+
 export interface ExpandedTheme {
   id: string;
   title: string;
@@ -90,8 +102,9 @@ export interface ExpandedTheme {
 export interface MainNarrative {
   pageTitle: string;
   centralQuestion: string;
-  overview: OverviewSection[];
   summary: string;
+  storyBeats: StoryBeat[];
+  overview?: OverviewSection[];
   themes: ExpandedTheme[];
   storyCharacter: string;
 }

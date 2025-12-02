@@ -6,7 +6,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import SEOSchema, { BreadcrumbSchema } from '@/components/SEO';
 import TimelineHeader from '@/components/timeline/TimelineHeader';
 import CentralQuestion from '@/components/timeline/CentralQuestion';
-import StoryOverview from '@/components/timeline/StoryOverview';
+import StoryBeatsSection from '@/components/timeline/StoryBeatsSection';
 import KeyStoryElements from '@/components/timeline/KeyStoryElements';
 import BirdsEyeStrip from '@/components/timeline/BirdsEyeStrip';
 import ZoomableTimeline from '@/components/timeline/ZoomableTimeline';
@@ -157,9 +157,13 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
         {/* Central Question */}
         <CentralQuestion narrative={structuredContent} />
 
-        {/* Story Overview */}
+        {/* Story Beats */}
         {structuredContent && (
-          <StoryOverview narrative={structuredContent} />
+          <StoryBeatsSection
+            narrative={structuredContent}
+            timelineSlug={timeline.slug}
+            events={timeline.events}
+          />
         )}
 
         {/* Key Story Elements */}

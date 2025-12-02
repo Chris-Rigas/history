@@ -468,6 +468,50 @@ Test every verb: Could you use a more specific one?
 - Human element - People with names making decisions under pressure
 
 ═══════════════════════════════════════════════════════════════════════════════
+CLARITY BEFORE COLOR (CRITICAL)
+═══════════════════════════════════════════════════════════════════════════════
+
+The vivid writing techniques above must FOLLOW a foundation of clarity, not replace it.
+
+**THE 60/40 RULE:**
+- ~60% of each beat should be clear explanation (who, what, why, consequences)
+- ~40% can be evocative detail (sensory anchors, vivid verbs, atmosphere)
+
+**FIRST MENTION REQUIREMENTS:**
+
+When a PERSON is first mentioned:
+✓ Include their role/position: "Pescennius Niger, governor of Syria and rival claimant to the throne"
+✓ Why they matter to this story: "whose eastern legions matched Severus in number"
+✗ NOT just: "Severus met Pescennius Niger and broke him"
+
+When a CONFLICT is first mentioned:
+✓ One sentence on what's at stake: "Three generals now claimed the purple; only one would survive"
+✓ Why it's happening: "The Praetorians had auctioned the throne, and the frontier armies refused to accept their choice"
+✗ NOT just: "Civil war erupted on two fronts"
+
+When a PLACE is first mentioned:
+✓ Brief orientation if not obvious: "Lugdunum (modern Lyon), the key to Gaul"
+✗ NOT just: "at Lugdunum in 197"
+
+**BEAT STRUCTURE:**
+
+Each story beat should follow this pattern:
+1. ORIENT (1-2 sentences): Who, what, when, why—establish the situation clearly
+2. NARRATE (2-4 sentences): What happened, with vivid detail
+3. CONNECT (1-2 sentences): Why it mattered, what it led to
+
+**EXAMPLE - BAD:**
+"Severus moved fast. East, he met Pescennius Niger and in 194 broke him—Dio sketches the tactic: shields locked into a testudo, bronze rims banging like a single drum."
+
+**EXAMPLE - GOOD:**
+"Severus faced two rival emperors: Pescennius Niger, governor of Syria with the eastern legions behind him, and Clodius Albinus, who commanded Britain and Gaul. He struck east first. At Issus in 194, Niger's army broke against Severan shields locked in testudo formation—Dio records the bronze rims banging like a single drum as the line advanced. Niger fled and died; now Severus turned west."
+
+The good example:
+- Identifies both rivals and their power bases (ORIENT)
+- Describes the battle with vivid detail (NARRATE)
+- Shows the consequence and transition (CONNECT)
+
+═══════════════════════════════════════════════════════════════════════════════
 BANNED PHRASES
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -704,37 +748,76 @@ Replace with specific action verbs that show HOW.
 Use one-sentence paragraphs for emphasis every 3-4 paragraphs.
 
 ═══════════════════════════════════════════════════════════════════════════════
-1. SUMMARY (2-3 sentences, 40-80 words)
+1. SUMMARY (2-3 sentences, 50-80 words)
 ═══════════════════════════════════════════════════════════════════════════════
 
-The hook that makes someone want to read more. Get to the interesting thing FAST.
+The hook that makes someone want to read more.
 
-Start with specific detail (date, place, action) not general context.
-Include at least one surprising or vivid element.
-End with forward momentum—what tension does this create?
+**STRUCTURE (in this order):**
+1. First sentence: WHAT happened and WHEN (factual anchor)
+2. Second sentence: Add one vivid or surprising detail
+3. Third sentence (optional): Forward momentum—what tension does this create?
+
+**EXAMPLE - BAD:**
+"Shield rims clanged and legions lifted Severus above a forest of spears. Purple touched iron. Rome now followed the beat of frontier drums."
+
+**EXAMPLE - GOOD:**
+"In April 193, the Danubian legions proclaimed Septimius Severus emperor—the first time frontier armies, not the Praetorian Guard, chose Rome's ruler. Shield rims clanged as soldiers hoisted him above a forest of spears. The road to Rome now led through civil war."
+
+The good example:
+- Leads with factual anchor (who, when, what, why it's significant)
+- Adds vivid detail second
+- Creates forward momentum
 
 ═══════════════════════════════════════════════════════════════════════════════
 2. DESCRIPTION (4-6 paragraphs, 600-800 words)
 ═══════════════════════════════════════════════════════════════════════════════
 
 **SECTION A: CONTEXT (1-2 paragraphs, 100-150 words)**
-What situation created this moment? What tensions were building?
-Ground in specific circumstances, not general background.
+
+Establish the situation BEFORE adding color.
+
+Requirements:
+- First paragraph: WHO is involved, WHAT is the situation, WHY is this happening
+- Any person mentioned for the first time gets a brief identifier
+- Any conflict mentioned gets one sentence on what's at stake
+- THEN you can add atmosphere and sensory detail
 
 **SECTION B: WHAT HAPPENED (2-3 paragraphs, 300-400 words)**
-The event itself in vivid detail.
-- What time/season? What did people see, hear, smell?
-- Who was there? What did they do?
-- What specific actions occurred in sequence?
-- Include at least ONE direct quote from a primary source if available
 
-Use the statistical + visceral combo at least once.
+The event itself. Here you can be more evocative, but maintain clarity.
+
+Requirements:
+- Chronological sequence: what happened first, second, third
+- Key actors clearly identified with their roles
+- At least ONE specific quote from a primary source if available
+- Sensory details woven in (don't lead with them)
 
 **SECTION C: IMMEDIATE CONSEQUENCES (1-2 paragraphs, 150-200 words)**
-What changed in the hours, days, weeks after?
-- Who gained/lost power?
-- What physical changes occurred?
-- How did people react? (With specific quotes if possible)
+
+What changed in the days and weeks after.
+
+Requirements:
+- Concrete changes (who gained/lost power, what was different)
+- Specific numbers where relevant
+- Connection to what comes next
+
+═══════════════════════════════════════════════════════════════════════════════
+CRITICAL FORMATTING RULE
+═══════════════════════════════════════════════════════════════════════════════
+
+Do NOT include section labels in your output text.
+
+**WRONG:**
+"Context Winter in Rome cracked under steel. Pertinax fell in March..."
+"What happened In April 193, standards lifted..."
+
+**RIGHT:**
+"Winter in Rome cracked under steel. Pertinax fell in March..."
+"In April 193, standards lifted across the parade ground..."
+
+The sections (Context, What Happened, Immediate Consequences) are structural guidance for YOU.
+Your output should be flowing prose without any headers, labels, or section markers.
 
 ═══════════════════════════════════════════════════════════════════════════════
 3. SIGNIFICANCE (3-4 paragraphs, 300-400 words)
@@ -770,7 +853,7 @@ Reserve importance 3 for 15-20% of events maximum.
 OUTPUT FORMAT
 ═══════════════════════════════════════════════════════════════════════════════
 
-Return JSON array:
+Return JSON array. The description field must be PURE PROSE with no section labels.
 {
   "expandedEvents": [
     {
@@ -778,7 +861,7 @@ Return JSON array:
       "slug": "event-slug",
       "year": -192,
       "summary": "...",
-      "description": "...",
+      "description": "Pure prose description flowing naturally across paragraphs. Do NOT start with 'Context' or any other label...",
       "significance": "...",
       "themeId": "sea-control-gateway-asia",
       "importance": 2

@@ -131,6 +131,30 @@ export default function StoryBeatsSection({ narrative, timelineSlug, events = []
 
   const validEventSlugs = new Set(events.map(event => event.slug).filter(Boolean));
 
+  // DEBUG LOGGING - remove after diagnosis
+  if (typeof window === 'undefined') {
+    const totalLinks = beats.reduce((sum, beat) => sum + (beat.eventLinks?.length || 0), 0);
+    const validLinks = beats.reduce(
+      (sum, beat) =>
+        sum + (beat.eventLinks || []).filter(link => validEventSlugs.has(link.eventSlug)).length,
+      0
+    );
+    const invalidSlugs = beats.flatMap(beat =>
+      (beat.eventLinks || [])
+        .filter(link => !validEventSlugs.has(link.eventSlug))
+        .map(link => link.eventSlug)
+    );
+
+    console.log(`[StoryBeatsSection] Events passed: ${events.length}`);
+    console.log(`[StoryBeatsSection] Valid event slugs: ${validEventSlugs.size}`);
+    console.log(`[StoryBeatsSection] Total eventLinks in beats: ${totalLinks}`);
+    console.log(`[StoryBeatsSection] Valid eventLinks (will render): ${validLinks}`);
+    if (invalidSlugs.length > 0) {
+      console.log(`[StoryBeatsSection] Invalid slugs (won't render):`, invalidSlugs.slice(0, 5));
+    }
+  }
+  // END DEBUG LOGGING
+
   return (
     <section className="py-12 bg-white">
       <div className="content-container max-w-4xl">

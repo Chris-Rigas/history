@@ -5,20 +5,42 @@ import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { cn } from '@/lib/utils';
 import { renderTextWithCitations } from '@/lib/timelines/citationRenderer';
 
+interface EnrichmentKeyFact {
+  title: string;
+  detail: string;
+  citations?: number[];
+}
+
 interface KeyStoryElementsProps {
   timeline: TimelineFull;
   narrative?: TimelineStructuredContent | null;
   categories?: ThemedTimelineCategory[];
+  enrichmentKeyFacts?: EnrichmentKeyFact[];
 }
 
 export default function KeyStoryElements({
   timeline,
   narrative,
   categories,
+  enrichmentKeyFacts,
 }: KeyStoryElementsProps) {
-  console.log(`[KeyStoryElements] narrative?.keyFacts:`, narrative?.keyFacts);
-  console.log(`[KeyStoryElements] keyFacts length:`, narrative?.keyFacts?.length || 0);
-  console.log(`[KeyStoryElements] using defaults:`, !narrative?.keyFacts?.length);
+  const keyFacts = enrichmentKeyFacts?.length
+    ? enrichmentKeyFacts
+    : narrative?.keyFacts?.length
+      ? narrative.keyFacts
+      : null;
+
+  const keyFactsSource = keyFacts
+    ? enrichmentKeyFacts?.length
+      ? 'enrichment'
+      : narrative?.keyFacts?.length
+        ? 'narrative'
+        : 'defaults'
+    : 'defaults';
+
+  console.log(`[KeyStoryElements] enrichmentKeyFacts: ${enrichmentKeyFacts?.length || 0}`);
+  console.log(`[KeyStoryElements] narrative.keyFacts: ${narrative?.keyFacts?.length || 0}`);
+  console.log(`[KeyStoryElements] using source: ${keyFactsSource}`);
 
   const defaultFacts = [
     { title: 'Start', detail: `${timeline.start_year}` },
@@ -35,11 +57,11 @@ export default function KeyStoryElements({
       : []),
   ];
 
-  const keyFacts = narrative?.keyFacts?.length ? narrative.keyFacts : defaultFacts;
+  const factsToRender = keyFacts || defaultFacts;
   const definingSummary = narrative?.summary ||
     (timeline.summary ? stripTimelineFormatting(timeline.summary) : '');
 
-  if (!narrative && keyFacts.length === 0) {
+  if (!narrative && factsToRender.length === 0) {
     return null;
   }
 
@@ -118,7 +140,7 @@ export default function KeyStoryElements({
               Quick Facts
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
-              {keyFacts.map(fact => {
+              {factsToRender.map(fact => {
                 const factCitations = Array.isArray(fact.citations) ? fact.citations : [];
 
                 const citationSuperscripts = factCitations.map(number => {

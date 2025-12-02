@@ -29,6 +29,12 @@ interface TimelinePageProps {
   };
 }
 
+interface EnrichmentData {
+  keyFacts?: Array<{ title: string; detail: string; citations?: number[] }>;
+  keyHighlights?: any[];
+  [key: string]: any;
+}
+
 // Generate static params for all timelines (for SSG)
 export async function generateStaticParams() {
   // This will be populated during build time
@@ -104,7 +110,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
   const structuredContent = parseStructuredContent(
     timeline.metadata?.structured_content ?? null,
   );
-  const enrichment = timeline.metadata?.enrichment || null;
+  const enrichment = (timeline.metadata?.enrichment as EnrichmentData | null) ?? null;
   const citations = timeline.sources || [];
   const themedCategories: ThemedTimelineCategory[] = (structuredContent?.themes || []).map(
     (theme, index) => ({
@@ -171,6 +177,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
           timeline={timeline}
           narrative={structuredContent}
           categories={themedCategories}
+          enrichmentKeyFacts={enrichment?.keyFacts}
         />
 
         {/* Bird's-Eye Timeline Strip */}

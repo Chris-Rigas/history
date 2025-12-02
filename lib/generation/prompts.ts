@@ -223,6 +223,7 @@ export function buildPhase3NarrativePrompt(context: GenerationContext) {
   }
 
   const { title, startYear, endYear } = seed;
+  
   return `You are crafting the main narrative content for a timeline about: "${title}" (${startYear} to ${endYear})
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -239,170 +240,355 @@ ${JSON.stringify(skeleton, null, 2)}
 YOUR MISSION
 ═══════════════════════════════════════════════════════════════════════════════
 
-Create the main narrative content that will appear at the TOP of the timeline page, BEFORE readers see the detailed event list.
-This content must ORIENT readers—tell them what they're about to learn, who the key players are, and why it matters.
+Create the main narrative content that appears at the TOP of the timeline page.
+This content must:
+1. ORIENT readers to the world before these events
+2. TELL THE STORY with forward momentum and event links
+3. SHOW THE IMPACT—what changed because of this period
+
+You are writing in the tradition of Barbara Tuchman: history as compelling narrative, grounded in specific detail, focused on causation and human experience. Write like you're telling a fascinating story to someone smart but distracted—they're one scroll away from leaving.
 
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT FORMAT (JSON)
 ═══════════════════════════════════════════════════════════════════════════════
 
-Return a single JSON object with this structure:
-
 {
-  "pageTitle": "Engaging title for the page (different from seed title if appropriate)",
-  "centralQuestion": "The dramatic tension that drives this period",
-  "storyCharacter": "What type of story is this?",
-  "summary": "2-3 sentence logline",
-  "overview": ["paragraph 1", "paragraph 2", "paragraph 3", "paragraph 4"],
+  "pageTitle": "Engaging title (5-12 words)",
+  "centralQuestion": "The dramatic tension driving this period (15-30 words)",
+  "storyCharacter": "What type of story is this? (5-10 words)",
+  "summary": "2-3 sentence logline (100-150 words)",
+  
+  "storyBeats": [
+    {
+      "beatType": "world-before|origins|rising-tension|etc.",
+      "title": "Short title for this beat (3-8 words)",
+      "paragraphs": ["paragraph 1", "paragraph 2"],
+      "eventLinks": [
+        {
+          "textToLink": "exact text phrase to make clickable",
+          "eventSlug": "matching-event-slug-from-skeleton"
+        }
+      ]
+    }
+  ],
+  
   "themes": [
     {
       "id": "kebab-case-id",
-      "title": "Theme Title",
-      "description": "What this theme means"
+      "title": "Theme Title (4-8 words)",
+      "description": "What this theme means (40-60 words)"
     }
   ]
 }
 
 ═══════════════════════════════════════════════════════════════════════════════
+STORY BEAT SYSTEM
+═══════════════════════════════════════════════════════════════════════════════
+
+CRITICAL: Not all timelines follow a conflict-driven narrative. Choose beats that genuinely fit this timeline's nature.
+
+**AVAILABLE BEAT TYPES:**
+
+OPENING BEATS (use 1-2):
+- world-before - Status quo before change began. What was the situation?
+- origins - Where/how something first emerged. For evolutionary topics.
+- the-question - Central tension introduced. What problem needs solving?
+- the-hook - Dramatic in medias res opening. Start with action or the weird thing.
+- seeds-of-change - Early warning signs. Preconditions gathering.
+
+DEVELOPMENT BEATS (use 2-4):
+- development - Natural progression, deepening understanding. No conflict required.
+- rising-tension - Building pressure, complications mounting, stakes increasing.
+- expansion - Growth, spread, scaling up. For infrastructure/institutions.
+- innovation - Key breakthrough or advancement. Technical or tactical.
+- competing-forces - Different factions, approaches, or ideas in tension.
+- the-mechanism - How something actually worked in practice.
+- human-element - Personal stories, what it meant to live through this.
+- case-study - Specific example that illuminates the broader pattern.
+
+PIVOT BEATS (use 1-2):
+- turning-point - Decisive moment that changed direction.
+- crisis - Maximum danger, instability, or uncertainty.
+- confrontation - Forces coming into direct conflict.
+- breakthrough - Decisive advance, victory, or solution.
+- twist - Unexpected recontextualization that changes how we see earlier events.
+- decision - Critical choice by key figures that shaped outcomes.
+
+RESOLUTION BEATS (use 1-2):
+- transformation - How things fundamentally changed.
+- new-order - The changed world/situation after events.
+- aftermath - Immediate consequences of the climactic events.
+- legacy - Long-term impact and enduring significance.
+- synthesis - Bringing threads together into unified understanding.
+- echoes - How this period influenced later events.
+- open-questions - What remains debated or contested.
+
+**RECOMMENDED PATTERNS:**
+
+Military Conflicts (wars, conquests):
+  world-before → rising-tension → confrontation → turning-point → aftermath → legacy
+
+Dynasty/Political Periods:
+  world-before → origins → development → crisis → transformation → legacy
+
+Biographies:
+  the-hook → world-before → rising-tension → decision → transformation → legacy
+
+Thematic/Evolutionary (citizenship, philosophy, institutions):
+  origins → development → case-study → twist → synthesis → legacy
+
+Infrastructure/Technology (roads, aqueducts, engineering):
+  origins → the-mechanism → innovation → expansion → human-element → legacy
+
+You may deviate from these patterns if the material demands it. The goal is narrative truth, not formula.
+
+═══════════════════════════════════════════════════════════════════════════════
+STORY BEAT SPECIFICATIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+**TOTAL LENGTH:** 6-8 story beats, 800-1200 words total across all beats.
+
+**EACH BEAT SHOULD:**
+- Have 1-3 paragraphs (100-200 words per beat)
+- Include specific dates, names, numbers, and places
+- Reference citations from research corpus [1], [2], etc.
+- Include eventLinks to relevant skeleton events where appropriate
+- Include at least one sensory detail (color, sound, texture)
+
+**EVENT LINKS:**
+Link to events when they are meaningfully mentioned in the narrative.
+- textToLink: The exact phrase in your paragraph to make clickable
+- eventSlug: Must match a slug from the skeleton's events array
+
+Example:
+{
+  "beatType": "confrontation",
+  "title": "Decision at Magnesia",
+  "paragraphs": [
+    "Near Magnesia ad Sipylum in winter 190/189, the Scipios faced Antiochus with 30,000 troops against a Seleucid host numbering perhaps 70,000 [2]. Eumenes' cavalry struck the Seleucid left; scythed chariots panicked their own lines, wheels clattering uselessly across the frozen ground..."
+  ],
+  "eventLinks": [
+    { "textToLink": "Magnesia ad Sipylum", "eventSlug": "battle-of-magnesia" }
+  ]
+}
+
+**OPENING BEAT(S) - ORIENT THE READER:**
+Get to something interesting fast. Within 50 words, the reader should think "wait, what?"
+Answer: What was the world like before? What forces were building? What do readers need to know?
+
+**DEVELOPMENT BEATS - TELL THE STORY:**
+Show causation: WHY did X lead to Y? Don't just list events—connect them.
+Include the human element: decisions, stakes, what people at the time were thinking.
+Use eventLinks to let readers explore specific events in detail.
+
+**RESOLUTION BEAT(S) - SHOW THE IMPACT:**
+Answer: What was fundamentally different after? Why does this period matter?
+Connect to larger patterns. What echoes into later history?
+
+═══════════════════════════════════════════════════════════════════════════════
 WRITING REQUIREMENTS
 ═══════════════════════════════════════════════════════════════════════════════
 
-TONE & STYLE:
-- Write for educated general readers, not academics
-- Avoid jargon without explanation
-- Use active voice and concrete details
-- Balance accessibility with intellectual depth
+CORE PRINCIPLE: Write like you're telling a fascinating story to a friend who's smart but distracted. Your reader is on a phone, one click away from leaving. Make every sentence earn the next sentence.
 
-NARRATIVE APPROACH:
-- Think in terms of: setup → rising tension → transformation → consequences
-- Show causation: explain WHY things happened, not just WHAT happened
-- Connect events to broader patterns and human experiences
+**SENTENCE RHYTHM:**
+- Vary sentence length dramatically
+- Use short sentences (3-8 words) for impact after longer ones
+- Pattern: Build tension with longer sentences → Release with short punch
 
-BANNED VAGUE PHRASES:
-- "marked a turning point" (show the turn instead)
-- "proved to be significant" (explain the significance)
-- "testament to" / "symbol of" (be specific about what it demonstrates)
-- "paved the way" / "set the stage" (explain the actual mechanism)
+Example rhythm:
+"The Confederacy had held for four years against overwhelming odds, bleeding men and treasure across a thousand miles of contested ground. Then it collapsed. Soldiers deserted en masse."
 
-REQUIRED ELEMENTS:
-- Include specific dates, names, places, numbers from the skeleton
-- Reference citations from research corpus where appropriate [1]
-- Make abstract concepts concrete with examples
+**PARAGRAPH LENGTH:**
+- 1-3 sentences per paragraph maximum
+- Use one-sentence paragraphs for emphasis every 3-4 paragraphs
+- Phone readers see walls of text and leave
+
+**SENSORY DETAILS (one per beat minimum):**
+- NAME actual colors: "scarlet and gold" not "bright colors"
+- INCLUDE sounds: "the clash of iron," "tolled" not "rang," "murmured" not "said"
+- Specific > generic always
+
+**EXACT NUMBERS (never vague quantities):**
+- ❌ BANNED: "many," "several," "numerous," "a large number of"
+- ✅ REQUIRED: Exact figures with breakdown when possible
+
+Bad: "Many soldiers died in the battle."
+Good: "The battle killed 50,000 Romans—eight legions destroyed in a single afternoon [3]."
+
+Better: "Seven queens rode in the procession—four dowager and three regnant [1]."
+(The breakdown adds texture and shows you did your research)
+
+**THE STATISTICAL + VISCERAL COMBO:**
+When you give a number, make it FELT in the next sentence.
+
+Example:
+"Every day on average two people were destroyed at the city's rail crossings [4]. Pedestrians retrieved severed heads."
+
+Pattern: Abstract statistic → Visceral specific reality
+
+**TRANSLATE HISTORICAL DETAILS:**
+Never leave historical information unexplained. Make it meaningful to modern readers.
+
+❌ "The project cost 800 talents."
+✅ "The project cost 800 talents—roughly the annual revenue of a prosperous Greek city-state [5]."
+
+❌ "The army marched 300 stadia."
+✅ "The army covered 300 stadia in three days—about 35 miles through mountain passes [2]."
+
+**THE THREE SPECIFICS RULE:**
+When describing any category, name three specific examples.
+
+❌ "The streets were lined with establishments."
+✅ "The streets angled past wine shops, gambling houses, and brothels."
+
+❌ "He wore ceremonial regalia."
+✅ "He wore a plumed helmet, gold braid, and a crimson sash."
+
+**ACTIVE VERBS (ban the weak ones):**
+❌ BANNED VERBS: was, were, went, made, did, had, got, came, said
+✅ USE INSTEAD: Specific action verbs that show HOW or WHY
+
+Test every verb: Could you use a more specific one?
+- "tolled" not "rang" (tells you it's a funeral bell)
+- "rode" not "went" (tells you how they traveled)
+- "retrieved" not "found" (implies effort, aftermath)
+- "destroyed" not "killed" (implies totality)
+
+**CONVERSATIONAL CONNECTORS:**
+- Use "But" not "However"
+- Use "So" not "Therefore" or "Thus"
+- Use "And" and "Now" to start sentences
+- Sounds like speech, creates flow
+
+**NARRATIVE TECHNIQUES:**
+- "Stair-stepping" - Stakes should generally escalate through the narrative
+- "Crazy progression" - Cover significant ground early to hook readers
+- Corroborative detail - Every generalization needs a specific example
+- Human element - People with names making decisions under pressure
+
+═══════════════════════════════════════════════════════════════════════════════
+BANNED PHRASES
+═══════════════════════════════════════════════════════════════════════════════
+
+VAGUE SIGNIFICANCE:
+- "marked a turning point" → Show the turn happening
+- "proved to be significant" → Explain the actual significance  
+- "would have lasting consequences" → Name the consequences
+- "paved the way" / "set the stage" → Explain the mechanism
+- "testament to" / "symbol of" → Be specific about what it demonstrates
+
+VAGUE QUANTITIES:
+- "many" / "several" / "numerous" / "various" → Use exact numbers
+- "significant number" / "considerable" → Use exact numbers
+- "growing" / "increasing" → By how much? Over what period?
+
+WEAK VERBS:
+- was, were, is, are → Rewrite with action verbs
+- went, came, got → Use verbs that show HOW (rode, marched, seized)
+- made, did, had → Use verbs that show WHAT (constructed, executed, possessed)
+
+THROAT-CLEARING:
+- "It is important to note that" → Just state the thing
+- "It should be mentioned that" → Just state the thing
+- "In order to understand" → Just explain it
 
 ═══════════════════════════════════════════════════════════════════════════════
 FIELD SPECIFICATIONS
 ═══════════════════════════════════════════════════════════════════════════════
 
 1. PAGE TITLE (5-12 words)
-A compelling, specific title that captures the essence of this period.
+Compelling and specific. Captures the essence. Get to the interesting thing.
 
-❌ BAD: "The Roman Empire"
-✅ GOOD: "Rome's Transformation from Republic to Empire"
-✅ GOOD: "The Crisis That Nearly Destroyed Rome"
+❌ BAD: "Roman Citizenship"
+✅ GOOD: "From City to Empire: Rome's Revolutionary Expansion of Citizenship"
 
-2. CENTRAL QUESTION (1 sentence, 15-30 words)
-The dramatic tension or unresolved problem that drives this period. Frame as a question with unclear outcome.
+❌ BAD: "The Punic Wars"  
+✅ GOOD: "Rome vs. Carthage: The Century That Shaped the Mediterranean"
 
-Examples:
-- "Could one man hold absolute power while maintaining the fiction of republican government?"
-- "Would Rome's military success destroy the republic it was meant to protect?"
-- "When the emperor became a prize won by armies, who could restore stability?"
+2. CENTRAL QUESTION (15-30 words)
+The dramatic tension or central puzzle. Frame as a question with unclear outcome.
+
+For conflict narratives:
+✅ "Could Rome survive Hannibal's invasion when three legions lay dead on a single battlefield?"
+
+For evolutionary narratives:
+✅ "How did a city's local privilege become the legal foundation of the largest empire the world had seen?"
+
+For technology narratives:
+✅ "What made Roman concrete so durable that structures built with it still stand two millennia later?"
 
 3. STORY CHARACTER (5-10 words)
-What TYPE of story is this? Use evocative language.
+What type of story is this? Be evocative.
 
-Examples:
-- "A dynasty's rise and tragic fall"
-- "Empire building its own trap"  
-- "Republic's violent transformation into autocracy"
-- "Survival against impossible odds"
+Conflict: "A duel for Mediterranean supremacy"
+Dynasty: "Five emperors who made Rome work"
+Biography: "The general who became a god"
+Evolutionary: "A privilege becomes a civilization"
+Technology: "Engineering an empire's infrastructure"
 
 4. SUMMARY (2-3 sentences, 100-150 words)
-The "logline" of this historical period. Answer: What's the ONE big story?
+The logline. What's at stake? What happened? Why did it matter?
+Use specific details, active voice, concrete claims.
 
-Make someone care in three sentences:
-- What was at stake?
-- What happened?
-- Why did it matter?
-
-Use concrete details, active voice, specific claims.
-
-5. OVERVIEW (4 paragraphs, 400-500 words total)
-
-This is the STORY of the period, structured dramatically:
-
-**PARAGRAPH 1 - SETUP (100-120 words)**
-- What was the world like before this period?
-- What tensions or forces were building?
-- Make it feel like something HAD to happen
-- Include specific context from research corpus
-
-Example opening: "By 235 CE, Rome had weathered five decades of relative stability under the Severan dynasty. But when the last Severan emperor fell to assassination, he left no clear successor—and no mechanism to choose one. What followed was fifty years of chaos that nearly destroyed the empire."
-
-**PARAGRAPH 2 - RISING ACTION (120-150 words)**
-- How did people try to solve the setup's problems?
-- What new complications arose?
-- Show the building momentum
-- Include specific turning points with dates from skeleton
-
-**PARAGRAPH 3 - CLIMAX & TRANSFORMATION (100-120 words)**
-- What was the decisive moment or period?
-- How did everything change?
-- Make the reader feel the weight of the shift
-- Ground in specific events from skeleton
-
-**PARAGRAPH 4 - RESOLUTION & CONSEQUENCES (80-110 words)**
-- How did this period end?
-- What was fundamentally different after?
-- Bridge to what came next
-- Connect to larger historical patterns
+5. STORY BEATS (6-8 beats, 800-1200 words total)
+See detailed specifications above.
 
 6. THEMES (3-5 themes)
+Specific patterns or mechanisms—NOT generic categories.
 
-Create thematic categories that reveal the FORCES at play in this period.
+❌ BAD: "Military Challenges" (vague)
+✅ GOOD: "Citizen-Soldiers vs. Mercenaries: Rome's Manpower Advantage"
 
-For each theme:
-- **id**: kebab-case identifier (e.g., "naval-adaptation")
-- **title**: Clear, specific title (4-8 words) - NOT generic like "Change and Continuity"
-- **description**: What this theme means (2-3 sentences, 40-60 words)
+❌ BAD: "Political Changes" (generic)
+✅ GOOD: "The Senate's Dilemma: Controlling Victorious Generals"
 
-**GOOD THEME EXAMPLES:**
-{
-  "id": "emperor-as-soldier",
-  "title": "When Emperors Became Battlefield Commanders",
-  "description": "Before 235, emperors ruled from Rome and managed politics. After Maximinus Thrax—a career soldier who never visited Rome—every emperor had to be a battlefield commander first. The question wasn't whether an emperor would lead armies, but where he would die: in civil war or defending the frontiers."
-}
-
-{
-  "id": "currency-collapse", 
-  "title": "The Collapse of Silver Currency",
-  "description": "Rome's silver denarius dropped from 90% silver content to less than 5% over fifty years. This wasn't just inflation—it was the breakdown of the economic system that had sustained the empire for centuries, forcing a fundamental restructuring of taxation and trade."
-}
-
-**BAD THEME EXAMPLES (avoid these):**
-❌ "Military Challenges" (too vague)
-❌ "Political Instability" (generic)
-❌ "Economic Problems" (no specificity)
-
-**THEME REQUIREMENTS:**
-- Must connect to specific events in the skeleton
-- Must explain a PATTERN or MECHANISM, not just describe what happened
-- Must be substantive enough to support later analysis in Phase 5
+Each theme must:
+- Connect to specific events in the skeleton
+- Explain a PATTERN or MECHANISM, not just describe what happened
+- Be substantive enough to support later analysis
 
 ═══════════════════════════════════════════════════════════════════════════════
 QUALITY CHECKLIST
 ═══════════════════════════════════════════════════════════════════════════════
 
 Before submitting, verify:
-✓ Central question is genuinely uncertain and drives the narrative
-✓ Overview paragraphs follow dramatic structure (setup → climax → resolution)
-✓ At least 5 specific dates/years mentioned in overview
-✓ At least 3 specific names mentioned in overview
-✓ Themes are specific and substantive, not generic categories
-✓ No banned vague phrases appear in any field
-✓ Summary makes someone want to learn more (creates curiosity)
-✓ Every paragraph advances the story, doesn't just list facts`;
+
+STRUCTURE:
+✓ Beat types genuinely fit this timeline (don't force conflict on non-conflict topics)
+✓ Opening beat(s) orient readers to the world before events
+✓ Resolution beat(s) show impact and legacy
+✓ 6-8 beats total, 800-1200 words across all beats
+✓ Each beat has an evocative title (not just the beat type name)
+
+SPECIFICS:
+✓ At least 8 specific dates/years mentioned
+✓ At least 6 specific names mentioned  
+✓ At least 5 eventLinks connecting narrative to skeleton events
+✓ All numbers are exact (no "many," "several," "numerous")
+✓ At least one color named per 200 words
+✓ At least one sound detail per beat
+
+LANGUAGE:
+✓ No banned vague phrases anywhere
+✓ No weak verbs (was, were, went, made, did, had, got)
+✓ Short punch sentences (3-8 words) used for emphasis
+✓ Paragraphs are 1-3 sentences max
+✓ Historical details translated to modern equivalents where helpful
+✓ Citations [1], [2] etc. reference research corpus
+
+THEMES:
+✓ 3-5 themes, all specific mechanisms (not generic categories)
+✓ Each theme connects to skeleton events
+
+READING EXPERIENCE:
+✓ Opening beat makes reader think "wait, what?" within 50 words
+✓ Forward momentum—readers want to keep reading
+✓ Stakes escalate through the narrative
+✓ Ending feels satisfying, not abrupt`;
 }
+
+export function buildPhase4EventsPrompt
 
 export function buildPhase4EventsPrompt(context: GenerationContext, eventsChunk: any[]) {
   if (!context.researchCorpus || !context.mainNarrative) {

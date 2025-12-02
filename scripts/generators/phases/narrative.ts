@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { buildPhase3NarrativePrompt } from '@/lib/generation/prompts';
 import type { GenerationContext, MainNarrative } from '@/lib/generation/types';
-import { safeJsonParse } from '@/lib/utils';
+import { safeJsonParse, slugify } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -33,7 +33,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
   console.log(`Parsed keys:`, Object.keys(parsed));
   console.log(`Has pageTitle:`, !!parsed.pageTitle);
   console.log(`Has centralQuestion:`, !!parsed.centralQuestion);
-  console.log(`Overview paragraphs:`, Array.isArray(parsed.overview) ? parsed.overview.length : 0);
+  console.log(`Story beats:`, Array.isArray(parsed.storyBeats) ? parsed.storyBeats.length : 0);
   console.log(`Themes:`, Array.isArray(parsed.themes) ? parsed.themes.length : 0);
   console.log('=== END PHASE 3 DEBUG ===\n');
 
@@ -44,11 +44,31 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
   const prompt = buildPhase3NarrativePrompt(context);
   const parsed = await callJsonCompletion(prompt);
 
+  const storyBeats = Array.isArray(parsed.storyBeats) ? parsed.storyBeats : [];
+
+  const skeletonEventSlugs = new Set(
+    (context.skeleton?.events || [])
+      .map(event => slugify((event as any).slug ?? event.title ?? ''))
+      .filter(Boolean)
+  );
+
+  storyBeats.forEach((beat: any, beatIndex: number) => {
+    (beat?.eventLinks || []).forEach((link: any) => {
+      if (!link?.eventSlug) return;
+      if (!skeletonEventSlugs.has(link.eventSlug)) {
+        console.warn(
+          `⚠️  Event link slug not found in skeleton (beat ${beatIndex + 1}): ${link.eventSlug}`
+        );
+      }
+    });
+  });
+
   return {
     pageTitle: parsed.pageTitle || '',
     centralQuestion: parsed.centralQuestion || '',
-    overview: Array.isArray(parsed.overview) ? parsed.overview : [],
     summary: parsed.summary || '',
+    storyBeats,
+    overview: Array.isArray(parsed.overview) ? parsed.overview : [],
     themes: Array.isArray(parsed.themes) ? parsed.themes : [],
     storyCharacter: parsed.storyCharacter || '',
   };

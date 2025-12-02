@@ -82,6 +82,18 @@ export interface TimelineCitationRaw {
   url?: string;
 }
 
+export interface TimelineEventLink {
+  textToLink: string;
+  eventSlug: string;
+}
+
+export interface TimelineStoryBeat {
+  beatType: string;
+  title: string;
+  paragraphs: string[];
+  eventLinks: TimelineEventLink[];
+}
+
 export interface TimelineOverviewSection {
   subheading?: string;
   content: string;
@@ -89,11 +101,13 @@ export interface TimelineOverviewSection {
 }
 
 export interface TimelineStructuredContent {
+  pageTitle?: string;
   summary: string;
   centralQuestion?: string;
   storyCharacter?: string;
   overview?: string | string[];
   overviewSections?: TimelineOverviewSection[];
+  storyBeats: TimelineStoryBeat[];
   keyFacts: TimelineStructuredFact[];
   themes: TimelineThemeCategory[];
   eventNotes: TimelineEventNote[];
@@ -146,6 +160,58 @@ function toStringArray(value: unknown): string[] {
   return value
     .map(item => cleanText(item))
     .filter(Boolean);
+}
+
+function normalizeEventLinks(raw: any): TimelineEventLink[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .map(link => {
+      const textToLink = cleanText(link?.textToLink ?? link?.text ?? '');
+      const eventSlug = cleanText(link?.eventSlug ?? link?.slug ?? '');
+
+      if (!textToLink || !eventSlug) {
+        return null;
+      }
+
+      return { textToLink, eventSlug } satisfies TimelineEventLink;
+    })
+    .filter(Boolean) as TimelineEventLink[];
+}
+
+function normalizeStoryBeats(raw: any): TimelineStoryBeat[] {
+  const beats = Array.isArray(raw) ? raw : [];
+
+  return beats
+    .map((beat, index) => {
+      const beatType = cleanText(beat?.beatType ?? beat?.type ?? '');
+      const title = cleanText(beat?.title ?? beat?.heading ?? beatType || `Beat ${index + 1}`);
+
+      let paragraphs: string[] = [];
+      if (Array.isArray(beat?.paragraphs)) {
+        paragraphs = toStringArray(beat.paragraphs);
+      } else if (typeof beat?.paragraphs === 'string') {
+        const cleaned = cleanText(beat.paragraphs);
+        paragraphs = cleaned ? [cleaned] : [];
+      } else if (typeof beat?.content === 'string') {
+        const cleaned = cleanText(beat.content);
+        paragraphs = cleaned ? [cleaned] : [];
+      }
+
+      const eventLinks = normalizeEventLinks(beat?.eventLinks ?? beat?.event_links);
+
+      if (!paragraphs.length && !eventLinks.length && !title && !beatType) {
+        return null;
+      }
+
+      return {
+        beatType,
+        title,
+        paragraphs,
+        eventLinks,
+      } satisfies TimelineStoryBeat;
+    })
+    .filter(Boolean) as TimelineStoryBeat[];
 }
 
 function normalizeRelationshipType(value: string): TimelineEventRelationshipType | null {
@@ -207,6 +273,7 @@ function normalizeContextSections(raw: any): TimelineStructuredSection[] {
 }
 
 export function normalizeStructuredContent(raw: any): TimelineStructuredContent {
+  const pageTitle = cleanText(raw?.pageTitle ?? raw?.title);
   const summary = cleanText(raw?.summary);
   const centralQuestion = cleanText(raw?.centralQuestion ?? raw?.central_tension);
   const storyCharacter = cleanText(raw?.storyCharacter ?? raw?.storyType);
@@ -218,6 +285,7 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
     : typeof raw?.overview === 'string'
     ? raw.overview.trim()
     : cleanText(raw?.mainContent);
+  const storyBeats = normalizeStoryBeats(raw?.storyBeats ?? raw?.story_beats);
 
   const usedIds = new Set<string>();
   const rawThemes = Array.isArray(raw?.themes) ? raw.themes : [];
@@ -436,10 +504,12 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
     : [];
 
   return {
+    pageTitle,
     summary,
     centralQuestion,
     storyCharacter,
     overview,
+    storyBeats,
     keyFacts,
     themes,
     eventNotes,

@@ -186,7 +186,7 @@ function normalizeStoryBeats(raw: any): TimelineStoryBeat[] {
   return beats
     .map((beat, index) => {
       const beatType = cleanText(beat?.beatType ?? beat?.type ?? '');
-      const title = cleanText(beat?.title ?? beat?.heading ?? beatType || `Beat ${index + 1}`);
+      const title = cleanText(beat?.title ?? beat?.heading ?? (beatType || `Beat ${index + 1}`));
 
       let paragraphs: string[] = [];
       if (Array.isArray(beat?.paragraphs)) {

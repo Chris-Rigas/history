@@ -804,7 +804,7 @@ Before submitting, verify EACH event has:
 
 }
 
-export function buildPhase4RecapPromptexport function buildPhase4RecapPrompt(context: GenerationContext) {
+export function buildPhase4RecapPrompt(context: GenerationContext) {
   if (!context.expandedEvents || !context.mainNarrative) {
     throw new Error('Missing expanded events or narrative for recap');
   }

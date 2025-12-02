@@ -14,7 +14,7 @@ import './load-env';
 
 import { getTimelineSeed, TIMELINE_SEEDS } from './ingest';
 import { generateTimelineComplete } from './generators/unified-pipeline';
-import { generateTimelinePeople } from './generators/person-generator';
+import { generateTimelinePeople, linkPeopleToEventsFromEnrichment } from './generators/person-generator';
 import { createEvent } from '@/lib/queries/events';
 import { getTimelineBySlug } from '@/lib/queries/timelines';
 import { getEventsByTimelineId } from '@/lib/queries/events';
@@ -140,7 +140,11 @@ async function generateCompleteTimeline(
             start_year: expandedEvent.year,
             end_year: (expandedEvent as any).endYear || null,
             location: null,
-            tags: expandedEvent.tags || [],
+            tags: expandedEvent.themeId
+              ? [expandedEvent.themeId]
+              : expandedEvent.tags?.length
+              ? [expandedEvent.tags[0]]
+              : [],
             importance: expandedEvent.importance || 2,
             summary: expandedEvent.summary,
             description_html: formatAsHtml(expandedEvent.description),
@@ -177,6 +181,11 @@ async function generateCompleteTimeline(
 
       if (!peopleResult.success) {
         console.error(`⚠️  People generation completed with errors`);
+      }
+
+      if (context?.enrichment?.people?.length) {
+        console.log('\n🔗 Linking people to events using enrichment data');
+        await linkPeopleToEventsFromEnrichment(context.enrichment.people, events);
       }
     }
 

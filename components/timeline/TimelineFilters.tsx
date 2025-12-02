@@ -2,47 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import type { ThemedTimelineCategory } from './types';
-import type { ThemeColorConfig } from './themeColors';
 import { cn } from '@/lib/utils';
 
 interface TimelineFiltersProps {
   events: any[];
   onFilterChange: (filters: FilterState) => void;
   categories?: ThemedTimelineCategory[];
-  tagColorMap?: Record<string, ThemeColorConfig>;
 }
 
 export interface FilterState {
   yearRange: [number, number];
-  tags: string[];
-  categories: string[];
+  themes: string[];
 }
 
 export default function TimelineFilters({
   events,
   onFilterChange,
   categories,
-  tagColorMap,
 }: TimelineFiltersProps) {
   // Extract unique values from events
   const minYear = Math.min(...events.map(e => e.start_year));
   const maxYear = Math.max(...events.map(e => e.start_year));
-  
-  const categoryLabelMap = new Map(
-    (categories || []).map(category => [category.id, category.title] as const),
-  );
 
-  const allTags = Array.from(new Set(
-    events.flatMap(e => e.tags || [])
-  )).sort();
+  const themesWithCounts = (categories || []).map(category => {
+    const count = events.filter(event => (event.tags?.[0] || '') === category.id).length;
+    return { ...category, count };
+  });
 
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [minYear, maxYear],
-    tags: [],
-    categories: [],
+    themes: [],
   });
-
-  const [isExpanded, setIsExpanded] = useState(false);
 
   // Notify parent of filter changes
   useEffect(() => {
@@ -58,14 +48,12 @@ export default function TimelineFilters({
   const resetFilters = () => {
     setFilters({
       yearRange: [minYear, maxYear],
-      tags: [],
-      categories: [],
+      themes: [],
     });
   };
 
   const hasActiveFilters =
-    filters.tags.length > 0 ||
-    filters.categories.length > 0 ||
+    filters.themes.length > 0 ||
     filters.yearRange[0] !== minYear ||
     filters.yearRange[1] !== maxYear;
 
@@ -74,143 +62,81 @@ export default function TimelineFilters({
       {/* Filter Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-gray-900">Filter Events</h3>
-        <div className="flex items-center space-x-3">
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Reset Filters
-            </button>
-          )}
+        {hasActiveFilters && (
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center space-x-1"
+            onClick={resetFilters}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
-            <span>{isExpanded ? 'Hide' : 'Show'} Filters</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-              width={16}
-              height={16}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            Reset Filters
           </button>
-        </div>
+        )}
       </div>
 
-      {/* Expanded Filters */}
-      {isExpanded && (
-        <div className="space-y-6 pt-4 border-t border-gray-200">
-          {categories && categories.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Focus by theme
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {categories.map(category => {
-                  const isActive = filters.categories.includes(category.id);
-                  return (
-                    <button
-                      key={category.id}
-                      onClick={() => {
-                        const nextCategories = isActive
-                          ? filters.categories.filter(id => id !== category.id)
-                          : [...filters.categories, category.id];
-                        setFilters({ ...filters, categories: nextCategories });
-                      }}
-                      className={cn(
-                        'px-3 py-1.5 rounded-full text-sm font-semibold transition-colors',
-                        isActive
-                          ? `${category.colorClass.dot} text-white`
-                          : `${category.colorClass.badge} ${category.colorClass.badgeText}`,
-                      )}
-                    >
-                      {category.title}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Year Range Slider */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Year Range: {filters.yearRange[0]} — {filters.yearRange[1]}
-            </label>
-            <div className="flex items-center space-x-4">
-              <input
-                type="range"
-                min={minYear}
-                max={maxYear}
-                value={filters.yearRange[0]}
-                onChange={(e) => handleYearRangeChange(0, parseInt(e.target.value))}
-                className="flex-1"
-              />
-              <input
-                type="range"
-                min={minYear}
-                max={maxYear}
-                value={filters.yearRange[1]}
-                onChange={(e) => handleYearRangeChange(1, parseInt(e.target.value))}
-                className="flex-1"
-              />
-            </div>
+      <div className="space-y-6">
+        {themesWithCounts.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setFilters({ ...filters, themes: [] })}
+              className={cn(
+                'px-3 py-1.5 rounded-full text-sm font-semibold border',
+                filters.themes.length === 0
+                  ? 'bg-antiqueBronze-600 text-white border-antiqueBronze-700'
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200',
+              )}
+            >
+              All Events
+            </button>
+            {themesWithCounts.map(theme => {
+              const isActive = filters.themes.includes(theme.id);
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => {
+                    const nextThemes = isActive
+                      ? filters.themes.filter(id => id !== theme.id)
+                      : [...filters.themes, theme.id];
+                    setFilters({ ...filters, themes: nextThemes });
+                  }}
+                  className={cn(
+                    'px-3 py-1.5 rounded-full text-sm font-semibold border flex items-center gap-2',
+                    isActive
+                      ? `${theme.colorClass.badge} ${theme.colorClass.badgeText} ${theme.colorClass.border}`
+                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200',
+                  )}
+                >
+                  <span className={cn('h-2 w-2 rounded-full', theme.colorClass.dot)} />
+                  {theme.title}
+                  <span className="text-xs text-gray-500">({theme.count})</span>
+                </button>
+              );
+            })}
           </div>
+        )}
 
-          {/* Tags */}
-          {allTags.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tags
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {allTags.map((tag) => {
-                  const color = tagColorMap?.[tag];
-                  const isActive = filters.tags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      onClick={() => {
-                        const newTags = isActive
-                          ? filters.tags.filter((t) => t !== tag)
-                          : [...filters.tags, tag];
-                        setFilters({ ...filters, tags: newTags });
-                      }}
-                      className={cn(
-                        'px-3 py-1.5 rounded-full text-sm font-semibold border transition-all',
-                        isActive
-                          ? [
-                              color?.badge || 'bg-antiqueBronze-600',
-                              color?.badgeText || 'text-white',
-                              color?.border || 'border-transparent',
-                              'shadow-inner',
-                            ]
-                          : [
-                              'bg-gray-100 text-gray-700 hover:bg-gray-200',
-                              'border-gray-200',
-                            ],
-                      )}
-                    >
-                      {isActive ? '✓ ' : ''}
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Year Range: {filters.yearRange[0]} — {filters.yearRange[1]}
+          </label>
+          <div className="flex items-center space-x-4">
+            <input
+              type="range"
+              min={minYear}
+              max={maxYear}
+              value={filters.yearRange[0]}
+              onChange={(e) => handleYearRangeChange(0, parseInt(e.target.value))}
+              className="flex-1"
+            />
+            <input
+              type="range"
+              min={minYear}
+              max={maxYear}
+              value={filters.yearRange[1]}
+              onChange={(e) => handleYearRangeChange(1, parseInt(e.target.value))}
+              className="flex-1"
+            />
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

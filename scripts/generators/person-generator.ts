@@ -6,6 +6,7 @@ import { slugify } from '@/lib/utils';
 import type { Timeline, Event } from '@/lib/database.types';
 import { stripTimelineFormatting } from '@/lib/timelines/formatting';
 import { serializeError, summarizeError } from '../utils/error';
+import type { ExpandedPerson } from '@/lib/generation/types';
 
 /**
  * Generate people outline for a timeline
@@ -169,21 +170,6 @@ export async function generateTimelinePeople(
 
       if (result.success && result.personId) {
         peopleIds.push(result.personId);
-        
-        // Link person to related events
-        for (const event of relatedEvents) {
-          try {
-            await linkToEvent(event.id, result.personId, personOutline.role);
-          } catch (err) {
-            const linkError = summarizeError(err);
-            console.error(`      ⚠️  Failed to link to event ${event.title}: ${linkError}`);
-
-            const details = serializeError(err);
-            if (details) {
-              console.error('      ℹ️  Link error details:', details);
-            }
-          }
-        }
       } else {
         errors.push({
           person: personOutline.name,
@@ -328,8 +314,49 @@ export async function linkPeopleToEvents(
       }
     }
   }
-  
+
   console.log(`   ✅ People linked to events`);
+}
+
+/**
+ * Link people to events using enrichment data (relatedEventSlugs)
+ */
+export async function linkPeopleToEventsFromEnrichment(
+  enrichmentPeople: ExpandedPerson[],
+  events: Event[],
+): Promise<void> {
+  console.log(`\n🔗 Linking people to events from enrichment data...`);
+
+  const { supabaseClient } = await import('@/lib/supabase');
+  const eventsBySlug = new Map(events.map(event => [event.slug, event] as const));
+
+  for (const person of enrichmentPeople) {
+    const { data: dbPerson } = await supabaseClient
+      .from('people')
+      .select('id')
+      .eq('slug', person.slug)
+      .single();
+
+    if (!dbPerson) {
+      console.warn(`⚠️  Person slug "${person.slug}" not found in database`);
+      continue;
+    }
+
+    for (const eventSlug of person.relatedEventSlugs || []) {
+      const event = eventsBySlug.get(eventSlug);
+      if (!event) {
+        console.warn(`⚠️  Event slug "${eventSlug}" not found for person "${person.name}"`);
+        continue;
+      }
+
+      try {
+        await linkToEvent(event.id, dbPerson.id, person.role);
+        console.log(`   ✓ Linked ${person.name} to ${event.title}`);
+      } catch (err) {
+        // Ignore duplicates silently
+      }
+    }
+  }
 }
 
 /**

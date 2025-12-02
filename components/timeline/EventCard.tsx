@@ -9,30 +9,48 @@ interface EventCardProps {
   timeline: Timeline;
   narrative?: EventNarrativeBinding;
   themeColor?: ThemeColorConfig;
-  tagColor?: ThemeColorConfig;
+  themeTitle?: string;
 }
 
-export default function EventCard({ event, timeline, narrative, themeColor, tagColor }: EventCardProps) {
+export default function EventCard({ event, timeline, narrative, themeColor, themeTitle }: EventCardProps) {
   const eventNarrative = narrative?.note;
   const relationships = narrative?.relationships ?? [];
-  const primaryTag = event.tags[0];
-  const supplementalTags = event.tags.filter((tag, index) => index !== 0);
-  const badgeColor = tagColor || themeColor;
+  const primaryTheme = event.tags?.[0];
+  const badgeColor = themeColor;
+
+  const importanceStyles = {
+    3: 'border-amber-400 shadow-lg',
+    2: 'border-gray-200 shadow-sm',
+    1: 'border-gray-200 opacity-95',
+  } as const;
+
+  const cardBorder = themeColor?.border || 'border-gray-200';
 
   return (
     <div
       id={`event-${event.slug}`}
-      className="group bg-white rounded-lg border border-gray-200 p-6 hover:border-antiqueBronze-400 hover:shadow-lg transition-all scroll-mt-24"
+      className={cn(
+        'group bg-white rounded-lg p-6 hover:shadow-lg transition-all scroll-mt-24 border-l-4',
+        importanceStyles[event.importance as 1 | 2 | 3] || 'border-gray-200',
+        cardBorder,
+      )}
     >
       {/* Date and Importance */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-lg font-bold text-antiqueBronze-600">
+          <div className="flex items-center gap-2 text-lg font-bold text-antiqueBronze-600">
+            <span className={cn('h-3 w-3 rounded-full', themeColor?.dot || 'bg-antiqueBronze-600')} />
             {event.start_year}
             {event.end_year && event.end_year !== event.start_year && (
               <span className="text-gray-400"> — {event.end_year}</span>
             )}
           </div>
+          {themeTitle && (
+            <div className="flex items-center text-xs text-gray-500 mt-1 gap-2">
+              <span className={cn('h-2 w-2 rounded-full', themeColor?.dot || 'bg-gray-300')} />
+              <span>{themeTitle}</span>
+            </div>
+          )}
           {event.location && (
             <div className="flex items-center text-sm text-gray-500 mt-1">
               <svg
@@ -60,7 +78,7 @@ export default function EventCard({ event, timeline, narrative, themeColor, tagC
             </div>
           )}
         </div>
-        {primaryTag && (
+        {primaryTheme && (
           <span
             className={cn(
               'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold',
@@ -68,7 +86,7 @@ export default function EventCard({ event, timeline, narrative, themeColor, tagC
               badgeColor?.badgeText || 'text-antiqueBronze-900',
             )}
           >
-            {primaryTag}
+            {themeTitle || primaryTheme}
           </span>
         )}
       </div>
@@ -135,48 +153,27 @@ export default function EventCard({ event, timeline, narrative, themeColor, tagC
         </div>
       )}
 
-      {/* Tags and Link */}
-      <div className="flex items-center justify-between">
-        {supplementalTags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {supplementalTags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-parchment-100 text-gray-700"
-              >
-                {tag}
-              </span>
-            ))}
-            {supplementalTags.length > 3 && (
-              <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-gray-500">
-                +{supplementalTags.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
-
-        <Link
-          href={`/timelines/${timeline.slug}/events/${event.slug}`}
-          className="text-blue-600 hover:text-blue-700 font-medium text-sm ml-auto flex items-center space-x-1"
+      <Link
+        href={`/timelines/${timeline.slug}/events/${event.slug}`}
+        className="text-blue-600 hover:text-blue-700 font-medium text-sm mt-4 inline-flex items-center space-x-1"
+      >
+        <span>Read More</span>
+        <svg
+          className="w-4 h-4"
+          width={16}
+          height={16}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <span>Read More</span>
-          <svg
-            className="w-4 h-4"
-            width={16}
-            height={16}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </Link>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </Link>
     </div>
   );
 }

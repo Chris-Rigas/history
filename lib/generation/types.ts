@@ -119,7 +119,8 @@ export interface ExpandedEvent {
   importance: 1 | 2 | 3;
   type: string;
   category: string;
-  tags: string[];
+  themeId: string;
+  tags?: string[];
 }
 
 export interface RecapParagraph {

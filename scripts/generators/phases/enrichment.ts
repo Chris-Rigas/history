@@ -39,6 +39,21 @@ async function callJsonCompletion(prompt: string): Promise<any> {
   console.log(`Theme insights:`, Array.isArray(parsed.themeInsights) ? parsed.themeInsights.length : 0);
   console.log(`Interpretation sections:`, Array.isArray(parsed.interpretationSections) ? parsed.interpretationSections.length : 0);
   console.log(`Key highlights:`, Array.isArray(parsed.keyHighlights) ? parsed.keyHighlights.length : 0);
+  console.log(`\n=== KEY FACTS DEBUG ===`);
+  console.log(`Raw keyFacts type:`, typeof parsed.keyFacts);
+  console.log(`Is array:`, Array.isArray(parsed.keyFacts));
+  console.log(`Length:`, parsed.keyFacts?.length || 0);
+  if (Array.isArray(parsed.keyFacts) && parsed.keyFacts.length > 0) {
+    console.log(`First fact structure:`, JSON.stringify(parsed.keyFacts[0], null, 2));
+    console.log(
+      `All fact titles:`,
+      parsed.keyFacts.map((f: any) => f?.title || 'NO TITLE')
+    );
+  } else {
+    console.log(`⚠️ keyFacts is empty or not an array`);
+    console.log(`Raw value:`, JSON.stringify(parsed.keyFacts)?.substring(0, 500));
+  }
+  console.log(`=== END KEY FACTS DEBUG ===\n`);
   console.log('=== END PHASE 5 DEBUG ===\n');
 
   return parsed;

@@ -235,6 +235,12 @@ async function saveUnifiedPipelineResults(
     keyHighlights: context.enrichment?.keyHighlights || [],
   };
 
+  console.log(`\n=== SAVING ENRICHMENT ===`);
+  console.log(`keyFacts count being saved:`, context.enrichment?.keyFacts?.length || 0);
+  if (context.enrichment?.keyFacts?.length) {
+    console.log(`Sample fact:`, JSON.stringify(context.enrichment.keyFacts[0]));
+  }
+
   console.log('Enrichment counts:');
   console.log(`  - interpretationSections: ${enrichmentData.interpretationSections.length}`);
   console.log(`  - keyHighlights: ${enrichmentData.keyHighlights.length}`);

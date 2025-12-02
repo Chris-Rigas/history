@@ -10,6 +10,7 @@ export type TimelineEventRelationshipType =
 export interface TimelineStructuredFact {
   title: string;
   detail: string;
+  citations?: number[];
 }
 
 export interface TimelineStructuredSection {
@@ -479,12 +480,22 @@ export function normalizeStructuredContent(raw: any): TimelineStructuredContent 
         .map((fact: any) => {
           const title = cleanText(fact?.title ?? fact?.label ?? '');
           const detail = cleanText(fact?.detail ?? fact?.text ?? '');
+          const citationsList = Array.isArray(fact?.citations)
+            ? fact.citations
+                .map((value: any) => {
+                  if (typeof value === 'number') return value;
+                  const parsed = parseInt(String(value), 10);
+                  return Number.isNaN(parsed) ? null : parsed;
+                })
+                .filter((value): value is number => value !== null)
+            : [];
           if (!title && !detail) {
             return null;
           }
           return {
             title: title || detail,
             detail: detail || title,
+            citations: citationsList.length ? citationsList : undefined,
           } satisfies TimelineStructuredFact;
         })
         .filter(Boolean) as TimelineStructuredFact[])

@@ -31,7 +31,11 @@ export async function saveExpandedEvents(
       start_year: expandedEvent.year,
       end_year: expandedEvent.endYear || null,
       location: null,
-      tags: expandedEvent.tags || [],
+      tags: expandedEvent.themeId
+        ? [expandedEvent.themeId]
+        : expandedEvent.tags?.length
+        ? [expandedEvent.tags[0]]
+        : [],
       importance: expandedEvent.importance || 2,
       summary: expandedEvent.summary,
       description_html: formatAsHtml(expandedEvent.description),

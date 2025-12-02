@@ -4,7 +4,6 @@ import { Fragment, useMemo, useState } from 'react';
 import type { Timeline, Event } from '@/lib/database.types';
 import type { EventNarrativeBinding, BoundConnector } from '@/lib/timelines/narrative';
 import type { ThemedTimelineCategory } from './types';
-import type { ThemeColorConfig } from './themeColors';
 import EventCard from './EventCard';
 import TimelineFilters, { type FilterState } from './TimelineFilters';
 import NarrativeConnector from './NarrativeConnector';
@@ -15,7 +14,6 @@ interface ZoomableTimelineProps {
   categories?: ThemedTimelineCategory[];
   eventNarratives?: Record<string, EventNarrativeBinding>;
   connectors?: BoundConnector[];
-  tagColorMap?: Record<string, ThemeColorConfig>;
 }
 
 export default function ZoomableTimeline({
@@ -24,15 +22,13 @@ export default function ZoomableTimeline({
   categories,
   eventNarratives,
   connectors,
-  tagColorMap,
 }: ZoomableTimelineProps) {
   const [filters, setFilters] = useState<FilterState>({
     yearRange: [
       Math.min(...events.map(e => e.start_year)),
       Math.max(...events.map(e => e.start_year)),
     ],
-    tags: [],
-    categories: [],
+    themes: [],
   });
 
   // Filter events based on current filters
@@ -46,19 +42,9 @@ export default function ZoomableTimeline({
         return false;
       }
 
-      // Tags filter
-      if (
-        filters.tags.length > 0 &&
-        !filters.tags.some((tag) => event.tags.includes(tag))
-      ) {
+      const themeId = event.tags?.[0];
+      if (filters.themes.length > 0 && (!themeId || !filters.themes.includes(themeId))) {
         return false;
-      }
-
-      if (filters.categories.length > 0) {
-        const categoryId = eventNarratives?.[event.slug]?.category?.id;
-        if (!categoryId || !filters.categories.includes(categoryId)) {
-          return false;
-        }
       }
 
       return true;
@@ -101,7 +87,6 @@ export default function ZoomableTimeline({
         events={events}
         onFilterChange={setFilters}
         categories={categories}
-        tagColorMap={tagColorMap}
       />
 
       {/* Event List */}
@@ -109,11 +94,9 @@ export default function ZoomableTimeline({
         <div className="space-y-6">
           {filteredEvents.map(event => {
             const narrative = eventNarratives?.[event.slug];
-            const themeColor = narrative?.category?.id
-              ? themeColorMap.get(narrative.category.id)
-              : undefined;
-            const primaryTagColor = event.tags[0]
-              ? tagColorMap?.[event.tags[0]]
+            const eventThemeId = event.tags?.[0] || narrative?.category?.id;
+            const themeColor = eventThemeId
+              ? themeColorMap.get(eventThemeId)
               : undefined;
             const connectorBlocks = connectorsBySlug.get(event.slug) || [];
 
@@ -124,7 +107,7 @@ export default function ZoomableTimeline({
                   timeline={timeline}
                   narrative={narrative}
                   themeColor={themeColor}
-                  tagColor={primaryTagColor}
+                  themeTitle={eventThemeId ? categories?.find(c => c.id === eventThemeId)?.title : undefined}
                 />
                 {connectorBlocks.map((connector, index) => (
                   <NarrativeConnector key={`${event.id}-connector-${index}`} text={connector.text} />
@@ -163,8 +146,7 @@ export default function ZoomableTimeline({
                   Math.min(...events.map(e => e.start_year)),
                   Math.max(...events.map(e => e.start_year)),
                 ],
-                tags: [],
-                categories: [],
+                themes: [],
               });
             }}
             className="text-blue-600 hover:text-blue-700 font-medium"

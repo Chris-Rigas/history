@@ -63,6 +63,34 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
     });
   });
 
+  console.log(`\n=== EVENT LINKS SUMMARY ===`);
+  let totalLinks = 0;
+  let validLinks = 0;
+  const invalidLinks: string[] = [];
+
+  storyBeats.forEach((beat: any, beatIndex: number) => {
+    const links = beat?.eventLinks || [];
+    totalLinks += links.length;
+
+    links.forEach((link: any) => {
+      if (link?.eventSlug && skeletonEventSlugs.has(link.eventSlug)) {
+        validLinks++;
+      } else if (link?.eventSlug) {
+        invalidLinks.push(`Beat ${beatIndex + 1}: "${link.eventSlug}"`);
+      }
+    });
+
+    console.log(`   Beat ${beatIndex + 1} "${beat?.title || 'untitled'}": ${links.length} links`);
+  });
+
+  console.log(`Total eventLinks: ${totalLinks}`);
+  console.log(`Valid (matching skeleton): ${validLinks}`);
+  console.log(`Invalid slugs: ${invalidLinks.length}`);
+  if (invalidLinks.length > 0) {
+    console.log(`   Invalid:`, invalidLinks.slice(0, 10).join(', '));
+  }
+  console.log(`=== END EVENT LINKS SUMMARY ===\n`);
+
   return {
     pageTitle: parsed.pageTitle || '',
     centralQuestion: parsed.centralQuestion || '',

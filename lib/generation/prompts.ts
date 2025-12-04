@@ -282,6 +282,188 @@ OUTPUT FORMAT (JSON)
 }
 
 ═══════════════════════════════════════════════════════════════════════════════
+STORY BEAT SYSTEM REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+BEFORE WRITING ANY BEATS, perform this internal reasoning process. Do NOT begin narrative construction until all steps are fully answered internally.
+
+1. NARRATIVE FRAME (the spine of the story)
+
+Identify one clean, unifying through-line that makes the entire narrative coherent.
+
+It must be a single macro tension, not a collection of events.
+
+It must create forward motion and rising stakes.
+
+It must explain why the selected events matter.
+
+Good:
+
+“A general’s gamble for political survival spirals into the creation of an empire.”
+
+Bad:
+
+“Multiple military campaigns in Gaul with different tribal leaders.”
+
+Everything in the story should connect back to this frame like ribs to a spine.
+
+2. CORE EVENTS (the essential 8–10 beats that carry the rising action)
+
+From the entire historical/event skeleton, select only the events that directly advance the through-line.
+
+For each selected event, the AI must internally justify:
+
+How does this event raise the stakes?
+
+How does it push the protagonist closer to or further from their goal?
+
+How does it contribute to setup → escalation → payoff?
+
+If an event does not meaningfully advance the rising action, it is not a core event. It becomes background context and should appear only briefly if necessary.
+
+Constraint:
+
+Cap core events at 8–10 total. Do not exceed this.
+
+These events should form a clean arc: setup, escalation, complication, crisis, payoff.
+
+3. CORE PEOPLE (strict limit: 5–6 total)
+
+Choose only the characters essential to driving the narrative tension.
+
+Protagonist(s)
+
+Whose struggle defines the story?
+
+Who carries the emotional and strategic weight?
+
+Antagonist(s)
+
+Who or what meaningfully opposes them and shapes their decisions?
+
+Key Supporting (1–3 maximum)
+
+Only those whose actions directly shape the core events or pivotal choices.
+
+Rules:
+
+Total character set must not exceed 6.
+
+Anyone outside this group may appear only if strictly required and only in 1–2 sentences.
+
+Do not introduce new names mid-story unless absolutely unavoidable.
+
+If a figure does not influence the narrative spine or one of the core events, they should not receive narrative weight.
+
+4. FILTERING INFORMATION (to prevent clutter and fragmentation)
+
+Before writing beats, filter all available information through these questions:
+
+Does this detail advance the through-line?
+
+Does this person change the protagonist’s path?
+
+Does this event escalate stakes or set up the payoff?
+
+If removed, would the narrative still make sense?
+
+If the answer is “yes, it still works,” the detail gets cut.
+
+This prevents digression, character overload, and the “Wikipedia list of subplots” problem.
+
+5. NARRATIVE EXECUTION RULES (when writing the beats)
+Clarity First
+
+Each beat must follow logically from the previous one.
+
+Avoid branching subplots and side quests.
+
+Escalation
+
+The beats must show tension increasing, problems compounding, or stakes rising.
+
+Simplicity
+
+Summarize supporting events in one sentence if they are not part of the core skeleton.
+
+Keep the storyline extremely readable and cohesive.
+
+Continuity
+
+Maintain one protagonist journey, one central conflict, one payoff.
+
+Economy
+
+No new major characters after beat 3.
+
+No more than one major setting shift per act unless essential.
+
+No exposition dumps: information must be embedded organically.
+
+═══════════════════════════════════════════════════════════════════════════════
+HOOK / OPENING BEAT REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+
+How to Craft a Strong Hook for Text-Only Content
+1. Create immediate emotional or intellectual excitement
+
+Your first sentence should spark curiosity, tension, surprise, or a bold claim. If you don’t feel energized writing it, readers won’t feel energized reading it.
+
+2. Promise a payoff the reader must reach
+
+Make it clear right away what the reader will gain—an answer, a twist, a secret, an insight, a resolution, a revelation. The hook should make the rest of the piece feel too rewarding to skip.
+
+3. Keep the idea extremely simple and instantly graspable
+
+The reader should understand the core premise in seconds. Clarity beats cleverness—especially for a broad audience.
+
+4. Avoid warm-ups, throat-clearing, or background
+
+Drop readers directly into the core tension or core idea. No slow buildup, no “Before I explain…” Just lead with the most compelling point immediately.
+
+5. Remove every dull sentence in the first 3–5 lines
+
+Retention in text is about momentum. The opening should feel fast, clean, and purposeful. Anything that doesn’t accelerate the reader gets cut.
+
+6. Use formats that naturally hook readers
+
+Certain text structures make people want to keep going:
+
+A mystery or question: “Why did a single decision in 1998 reshape the entire industry?”
+
+Stakes escalating: each paragraph revealing something bigger or stranger
+
+A bold challenge: “Here’s the most counterintuitive thing I’ve learned in 10 years.”
+
+A narrative that builds toward a reveal
+
+Choose a format that inherently pulls the reader forward.
+
+7. Lead with something novel or unexpected
+
+Text hooks thrive on surprise value. A surprising fact, contradiction, anecdote, or claim instantly signals: this won’t be predictable.
+
+8. Take a bigger swing than feels safe
+
+A great hook is not lukewarm. It should feel bold, declarative, or sharply framed. Safe openings disappear; strong openings stand out.
+
+9. Sound authentically like a human, not a corporate memo
+
+Readers respond to honesty, personality, and real stakes. Plain, direct language is always better than polished but empty phrasing.
+
+10. Make the reader understand what the journey will be
+
+Within a few sentences, they should know:
+
+What this is about
+
+Why it matters
+
+Where it’s going
+
+The clarity of the roadmap is part of the hook.
+
+═══════════════════════════════════════════════════════════════════════════════
 STORY BEAT SYSTEM
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -289,12 +471,8 @@ CRITICAL: Not all timelines follow a conflict-driven narrative. Choose beats tha
 
 **AVAILABLE BEAT TYPES:**
 
-OPENING BEATS (use 1-2):
-- world-before - Status quo before change began. What was the situation?
-- origins - Where/how something first emerged. For evolutionary topics.
-- the-question - Central tension introduced. What problem needs solving?
-- the-hook - Dramatic in medias res opening. Start with action or the weird thing.
-- seeds-of-change - Early warning signs. Preconditions gathering.
+OPENING BEATS (Just 1):
+- Use hook / opening beat instructions above.
 
 DEVELOPMENT BEATS (use 2-4):
 - development - Natural progression, deepening understanding. No conflict required.
@@ -386,6 +564,29 @@ Answer: What was fundamentally different after? Why does this period matter?
 Connect to larger patterns. What echoes into later history?
 
 ═══════════════════════════════════════════════════════════════════════════════
+BEAT CONNECTION APPROACH
+═══════════════════════════════════════════════════════════════════════════════
+
+BEAT CONNECTIONS (required):
+
+Each beat after the first MUST begin with a transition that:
+- References something from the previous beat
+- Shows causation or consequence
+- Creates momentum ("Because X... / After X... / But X meant...")
+
+Each beat after beat 3 SHOULD include at least one callback to an earlier beat:
+- "The same Rhine that Ariovistus had crossed now..."
+- "Caesar's debts—the ones that drove him north—now..."
+
+BAD (standalone):
+Beat 3: "By 57 BCE, a Belgic coalition gathered..."
+Beat 4: "Next, Caesar turned west..."
+
+GOOD (connected):
+Beat 3: "The speed that crushed the Helvetii now alarmed the north. By 57 BCE, a Belgic coalition gathered..."
+Beat 4: "The Belgic victory bought Caesar credibility—but also enemies. He turned west, where the Veneti..."
+
+═══════════════════════════════════════════════════════════════════════════════
 WRITING REQUIREMENTS
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -404,7 +605,7 @@ Example rhythm:
 - Use one-sentence paragraphs for emphasis every 3-4 paragraphs
 - Phone readers see walls of text and leave
 
-**SENSORY DETAILS (one per beat minimum):**
+**SENSORY DETAILS (include when it makes sense, don't force it):**
 - NAME actual colors: "scarlet and gold" not "bright colors"
 - INCLUDE sounds: "the clash of iron," "tolled" not "rang," "murmured" not "said"
 - Specific > generic always
@@ -425,47 +626,11 @@ When you give a number, make it FELT in the next sentence.
 Example:
 "Every day on average two people were destroyed at the city's rail crossings [4]. Pedestrians retrieved severed heads."
 
-Pattern: Abstract statistic → Visceral specific reality
-
-**TRANSLATE HISTORICAL DETAILS:**
-Never leave historical information unexplained. Make it meaningful to modern readers.
-
-❌ "The project cost 800 talents."
-✅ "The project cost 800 talents—roughly the annual revenue of a prosperous Greek city-state [5]."
-
-❌ "The army marched 300 stadia."
-✅ "The army covered 300 stadia in three days—about 35 miles through mountain passes [2]."
-
-**THE THREE SPECIFICS RULE:**
-When describing any category, name three specific examples.
-
-❌ "The streets were lined with establishments."
-✅ "The streets angled past wine shops, gambling houses, and brothels."
-
-❌ "He wore ceremonial regalia."
-✅ "He wore a plumed helmet, gold braid, and a crimson sash."
-
-**ACTIVE VERBS (ban the weak ones):**
-❌ BANNED VERBS: was, were, went, made, did, had, got, came, said
-✅ USE INSTEAD: Specific action verbs that show HOW or WHY
-
-Test every verb: Could you use a more specific one?
-- "tolled" not "rang" (tells you it's a funeral bell)
-- "rode" not "went" (tells you how they traveled)
-- "retrieved" not "found" (implies effort, aftermath)
-- "destroyed" not "killed" (implies totality)
-
 **CONVERSATIONAL CONNECTORS:**
 - Use "But" not "However"
 - Use "So" not "Therefore" or "Thus"
 - Use "And" and "Now" to start sentences
 - Sounds like speech, creates flow
-
-**NARRATIVE TECHNIQUES:**
-- "Stair-stepping" - Stakes should generally escalate through the narrative
-- "Crazy progression" - Cover significant ground early to hook readers
-- Corroborative detail - Every generalization needs a specific example
-- Human element - People with names making decisions under pressure
 
 ═══════════════════════════════════════════════════════════════════════════════
 CLARITY BEFORE COLOR (CRITICAL)
@@ -473,9 +638,6 @@ CLARITY BEFORE COLOR (CRITICAL)
 
 The vivid writing techniques above must FOLLOW a foundation of clarity, not replace it.
 
-**THE 60/40 RULE:**
-- ~60% of each beat should be clear explanation (who, what, why, consequences)
-- ~40% can be evocative detail (sensory anchors, vivid verbs, atmosphere)
 
 **FIRST MENTION REQUIREMENTS:**
 
@@ -493,24 +655,6 @@ When a PLACE is first mentioned:
 ✓ Brief orientation if not obvious: "Lugdunum (modern Lyon), the key to Gaul"
 ✗ NOT just: "at Lugdunum in 197"
 
-**BEAT STRUCTURE:**
-
-Each story beat should follow this pattern:
-1. ORIENT (1-2 sentences): Who, what, when, why—establish the situation clearly
-2. NARRATE (2-4 sentences): What happened, with vivid detail
-3. CONNECT (1-2 sentences): Why it mattered, what it led to
-
-**EXAMPLE - BAD:**
-"Severus moved fast. East, he met Pescennius Niger and in 194 broke him—Dio sketches the tactic: shields locked into a testudo, bronze rims banging like a single drum."
-
-**EXAMPLE - GOOD:**
-"Severus faced two rival emperors: Pescennius Niger, governor of Syria with the eastern legions behind him, and Clodius Albinus, who commanded Britain and Gaul. He struck east first. At Issus in 194, Niger's army broke against Severan shields locked in testudo formation—Dio records the bronze rims banging like a single drum as the line advanced. Niger fled and died; now Severus turned west."
-
-The good example:
-- Identifies both rivals and their power bases (ORIENT)
-- Describes the battle with vivid detail (NARRATE)
-- Shows the consequence and transition (CONNECT)
-
 ═══════════════════════════════════════════════════════════════════════════════
 BANNED PHRASES
 ═══════════════════════════════════════════════════════════════════════════════
@@ -526,11 +670,6 @@ VAGUE QUANTITIES:
 - "many" / "several" / "numerous" / "various" → Use exact numbers
 - "significant number" / "considerable" → Use exact numbers
 - "growing" / "increasing" → By how much? Over what period?
-
-WEAK VERBS:
-- was, were, is, are → Rewrite with action verbs
-- went, came, got → Use verbs that show HOW (rode, marched, seized)
-- made, did, had → Use verbs that show WHAT (constructed, executed, possessed)
 
 THROAT-CLEARING:
 - "It is important to note that" → Just state the thing
@@ -593,19 +732,8 @@ These will be expanded into full "Thematic Threads" in later phases.
 
 **THEME REQUIREMENTS:**
 
-Each theme should identify a specific MECHANISM or PATTERN, not a generic category.
+Each theme should identify a specific MECHANISM or PATTERN, but be grouped into relatively high level categories to connect immediately to concepts the reader is familiar with.
 
-❌ BANNED (too generic):
-- "Military Developments"
-- "Political Changes"
-- "Economic Factors"
-- "Social Transformations"
-
-✅ GOOD (specific mechanisms):
-- "Sea Control as Gateway to Asia" — identifies the specific strategic mechanism
-- "Hegemony Through Allied Proxies" — names Rome's method of control
-- "Treaty as Security Architecture" — explains what the treaty actually accomplished
-- "Boundary Engineering with the Taurus Line" — specific geographic/political tool
 
 **DESCRIPTION STRUCTURE:**
 
@@ -645,14 +773,8 @@ STRUCTURE:
 ✓ Resolution beat(s) show impact and legacy
 ✓ 6-8 beats total, 800-1200 words across all beats
 ✓ Each beat has an evocative title (not just the beat type name)
+✓ Each beat picks up where the last one left off, building narrative tension
 
-SPECIFICS:
-✓ At least 8 specific dates/years mentioned
-✓ At least 6 specific names mentioned  
-✓ At least 5 eventLinks connecting narrative to skeleton events
-✓ All numbers are exact (no "many," "several," "numerous")
-✓ At least one color named per 200 words
-✓ At least one sound detail per beat
 
 LANGUAGE:
 ✓ No banned vague phrases anywhere
@@ -661,12 +783,15 @@ LANGUAGE:
 ✓ Paragraphs are 1-3 sentences max
 ✓ Historical details translated to modern equivalents where helpful
 ✓ Citations [1], [2] etc. reference research corpus
+✓ All numbers are exact (no "many," "several," "numerous")
+
 
 THEMES:
 ✓ 3-5 themes, all specific mechanisms (not generic categories)
 ✓ Each theme connects to skeleton events
 
 READING EXPERIENCE:
+✓ Everything is explained to a user who has a high school level of knowledge about history; they are interested by not experts
 ✓ Opening beat makes reader think "wait, what?" within 50 words
 ✓ Forward momentum—readers want to keep reading
 ✓ Stakes escalate through the narrative

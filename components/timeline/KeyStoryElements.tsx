@@ -79,7 +79,7 @@ export default function KeyStoryElements({
               </h3>
               {definingSummary && (
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  {definingSummary}
+                  {renderTextWithCitations(definingSummary, narrative?.citations)}
                 </p>
               )}
               {narrative?.storyCharacter && (
@@ -113,7 +113,10 @@ export default function KeyStoryElements({
                           </p>
                           {category.description && (
                             <p className="text-sm text-gray-600">
-                              {category.description}
+                              {renderTextWithCitations(
+                                category.description,
+                                narrative?.citations,
+                              )}
                             </p>
                           )}
                         </div>
@@ -141,24 +144,6 @@ export default function KeyStoryElements({
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {factsToRender.map(fact => {
-                const factCitations = Array.isArray(fact.citations) ? fact.citations : [];
-
-                const citationSuperscripts = factCitations.map(number => {
-                  const citation = narrative?.citations?.find(entry => entry.number === number);
-
-                  return (
-                    <sup key={`fact-citation-${number}`}>
-                      <a
-                        href={`#citation-${number}`}
-                        className="text-blue-600 hover:underline"
-                        title={citation?.source || citation?.title || `Source [${number}]`}
-                      >
-                        [{number}]
-                      </a>
-                    </sup>
-                  );
-                });
-
                 return (
                   <div
                     key={`${fact.title}-${fact.detail}`}
@@ -169,7 +154,6 @@ export default function KeyStoryElements({
                     </p>
                     <p className="text-lg font-medium text-gray-900 mt-1">
                       {renderTextWithCitations(fact.detail, narrative?.citations)}
-                      {citationSuperscripts}
                     </p>
                   </div>
                 );

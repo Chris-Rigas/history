@@ -988,6 +988,38 @@ Assign this event to exactly ONE theme from the available themes list.
 Choose the theme that BEST captures this event's primary significance.
 
 ═══════════════════════════════════════════════════════════════════════════════
+TIMELINE CATEGORY (required)
+════════════════════════════════════════════════════════════════════════════════
+
+Assign this event to exactly ONE category from this fixed list:
+
+- military: Battles, campaigns, conquests, sieges, military reforms
+- political: Succession, appointments, coups, power transfers, elections
+- diplomatic: Treaties, alliances, embassies, negotiations
+- economic: Taxation, trade, finances, monetary reforms
+- cultural: Religion, architecture, arts, games, spectacles, literature
+- crisis: Disasters, revolts, assassinations, plagues, famines
+- legal: Laws, edicts, constitutional changes, judicial decisions
+- administrative: Provincial reforms, infrastructure, census, bureaucracy
+
+Choose the BEST fit. If an event spans multiple categories (e.g., a law about taxation), 
+pick the primary thrust:
+- A law being passed → legal
+- The fiscal impact of that law → economic
+- A building being constructed → cultural
+- A building program as policy → administrative
+
+Return as:
+{
+  ...
+  "category": "political",
+  "themeId": "law-as-legitimacy"
+}
+
+The "category" field must be one of the 8 values above (lowercase).
+The "themeId" field should still reference the thematic thread this event most relates to.
+
+═══════════════════════════════════════════════════════════════════════════════
 5. IMPORTANCE (required)
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1011,6 +1043,7 @@ Return JSON array. The description field must be PURE PROSE with no section labe
       "summary": "...",
       "description": "Pure prose description flowing naturally across paragraphs. Do NOT start with 'Context' or any other label...",
       "significance": "...",
+      "category": "political",
       "themeId": "sea-control-gateway-asia",
       "importance": 2
     }

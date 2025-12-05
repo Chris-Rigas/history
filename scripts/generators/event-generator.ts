@@ -2,6 +2,7 @@ import { createEvent } from '@/lib/queries/events';
 import { linkEventToTimeline } from '@/lib/queries/timelines';
 import { slugify } from '@/lib/utils';
 import type { Timeline } from '@/lib/database.types';
+import { isValidCategory } from '@/lib/timeline/categories';
 
 export interface ExpandedEventInput {
   title: string;
@@ -11,6 +12,8 @@ export interface ExpandedEventInput {
   summary: string;
   description: string;
   significance: string;
+  category: string;
+  themeId?: string;
   tags?: string[];
   importance?: number;
 }
@@ -25,17 +28,20 @@ export async function saveExpandedEvents(
   const eventIds: string[] = [];
 
   for (const expandedEvent of expandedEvents) {
+    if (!isValidCategory(expandedEvent.category)) {
+      console.warn(
+        `Invalid category "${expandedEvent.category}" for event "${expandedEvent.title}", defaulting to "political"`,
+      );
+      expandedEvent.category = 'political';
+    }
+
     const event = await createEvent({
       title: expandedEvent.title,
       slug: expandedEvent.slug || slugify(expandedEvent.title),
       start_year: expandedEvent.year,
       end_year: expandedEvent.endYear || null,
       location: null,
-      tags: expandedEvent.themeId
-        ? [expandedEvent.themeId]
-        : expandedEvent.tags?.length
-        ? [expandedEvent.tags[0]]
-        : [],
+      tags: [expandedEvent.category],
       importance: expandedEvent.importance || 2,
       summary: expandedEvent.summary,
       description_html: formatAsHtml(expandedEvent.description),

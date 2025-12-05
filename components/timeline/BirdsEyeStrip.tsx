@@ -3,32 +3,23 @@
 import { useMemo, useState } from 'react';
 import type { Timeline, Event } from '@/lib/database.types';
 import type { EventNarrativeBinding } from '@/lib/timelines/narrative';
-import type { ThemedTimelineCategory } from './types';
 import { cn } from '@/lib/utils';
+import { getCategoryColor } from './themeColors';
+import { TIMELINE_CATEGORIES, isValidCategory } from '@/lib/timeline/categories';
 
 interface BirdsEyeStripProps {
   timeline: Timeline;
   events: Event[];
-  categories?: ThemedTimelineCategory[];
   eventNarratives?: Record<string, EventNarrativeBinding>;
 }
 
 export default function BirdsEyeStrip({
   timeline,
   events,
-  categories,
   eventNarratives,
 }: BirdsEyeStripProps) {
   const [hoveredEvent, setHoveredEvent] = useState<Event | null>(null);
   const [showRelationships, setShowRelationships] = useState(false);
-
-  const categoryColorMap = useMemo(() => {
-    const map = new Map<string, ThemedTimelineCategory['colorClass']>();
-    categories?.forEach(category => {
-      map.set(category.id, category.colorClass);
-    });
-    return map;
-  }, [categories]);
 
   const eventBySlug = useMemo(() => {
     return new Map(events.map(event => [event.slug, event] as const));
@@ -68,10 +59,11 @@ export default function BirdsEyeStrip({
         }
 
         const sourceEvent = eventBySlug.get(slug);
-        const sourceThemeId = sourceEvent?.tags?.[0] || narrative.category?.id;
-        const color = sourceThemeId
-          ? categoryColorMap.get(sourceThemeId)?.line
-          : undefined;
+        const sourceCategory =
+          (sourceEvent?.tags?.[0] && isValidCategory(sourceEvent.tags[0])
+            ? sourceEvent.tags[0]
+            : 'political');
+        const color = getCategoryColor(sourceCategory).line;
         lines.push({
           sourceSlug: slug,
           targetSlug: relationship.targetSlug,
@@ -82,13 +74,14 @@ export default function BirdsEyeStrip({
     });
 
     return lines;
-  }, [eventNarratives, categoryColorMap, eventBySlug]);
+  }, [eventNarratives, eventBySlug]);
 
-  const hoveredNarrative = hoveredEvent ? eventNarratives?.[hoveredEvent.slug] : undefined;
-  const hoveredPrimaryTheme = hoveredEvent?.tags?.[0] || hoveredNarrative?.category?.id;
-  const hoveredThemeColors = hoveredPrimaryTheme
-    ? categoryColorMap.get(hoveredPrimaryTheme)
-    : undefined;
+  const hoveredCategory =
+    hoveredEvent?.tags?.[0] && isValidCategory(hoveredEvent.tags[0])
+      ? hoveredEvent.tags[0]
+      : 'political';
+  const hoveredThemeColors = getCategoryColor(hoveredCategory);
+  const hoveredCategoryLabel = TIMELINE_CATEGORIES[hoveredCategory as keyof typeof TIMELINE_CATEGORIES]?.label || hoveredCategory;
 
   const handleEventClick = (eventSlug: string) => {
     const element = document.getElementById(`event-${eventSlug}`);
@@ -158,11 +151,11 @@ export default function BirdsEyeStrip({
           {/* Event dots */}
           {events.map((event) => {
             const position = getEventPosition(event.start_year);
-            const narrative = eventNarratives?.[event.slug];
-            const primaryTheme = event.tags[0] || narrative?.category?.id;
-            const colorClass = primaryTheme
-              ? categoryColorMap.get(primaryTheme)
-              : undefined;
+            const category =
+              event.tags[0] && isValidCategory(event.tags[0])
+                ? event.tags[0]
+                : 'political';
+            const colorClass = getCategoryColor(category);
 
             return (
               <button
@@ -174,12 +167,7 @@ export default function BirdsEyeStrip({
                 onClick={() => handleEventClick(event.slug)}
                 aria-label={`Jump to ${event.title}`}
               >
-                <div
-                  className={cn(
-                    'timeline-dot',
-                    colorClass?.dot || 'bg-gray-400',
-                  )}
-                />
+                <div className={cn('timeline-dot', colorClass.dot || 'bg-gray-400')} />
               </button>
             );
           })}
@@ -199,7 +187,7 @@ export default function BirdsEyeStrip({
                 <h3 className="text-lg font-bold text-gray-900 mb-1">
                   {hoveredEvent.title}
                 </h3>
-                {hoveredPrimaryTheme && (
+                {hoveredCategoryLabel && (
                   <span
                     className={cn(
                       'inline-flex text-xs font-semibold px-2 py-0.5 rounded-full mb-2',
@@ -207,7 +195,7 @@ export default function BirdsEyeStrip({
                       hoveredThemeColors?.badgeText || 'text-gray-800',
                     )}
                   >
-                    {hoveredPrimaryTheme}
+                    {hoveredCategoryLabel}
                   </span>
                 )}
                 {hoveredEvent.summary && (
@@ -221,24 +209,17 @@ export default function BirdsEyeStrip({
         )}
 
         {/* Legend */}
-        {(categories || []).length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-6 pt-6 border-t border-gray-200">
-            {categories?.map(category => (
-              <span
-                key={category.id}
-                className={cn(
-                  'inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold border',
-                  category.colorClass.lightBg,
-                  category.colorClass.badgeText,
-                  category.colorClass.border,
-                )}
-              >
-                <span className={cn('h-2 w-2 rounded-full', category.colorClass.dot)} />
-                {category.title}
-              </span>
-            ))}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-3 justify-center mt-4">
+          {Object.entries(TIMELINE_CATEGORIES).map(([key, { label }]) => {
+            const colors = getCategoryColor(key);
+            return (
+              <div key={key} className="flex items-center gap-1.5">
+                <span className={cn('w-2.5 h-2.5 rounded-full', colors.dot)} />
+                <span className="text-sm text-gray-600">{label}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-4">

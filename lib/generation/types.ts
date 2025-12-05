@@ -119,8 +119,8 @@ export interface ExpandedEvent {
   significance: string;
   importance: 1 | 2 | 3;
   type: string;
-  category: string;
-  themeId: string;
+  category: string;      // Fixed category: military, political, etc.
+  themeId: string;       // Links to thematic thread
   tags?: string[];
 }
 

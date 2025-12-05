@@ -1,6 +1,8 @@
 import type { TimelineFull, Event } from '@/lib/database.types';
 import type { ThemeColorConfig } from './themeColors';
 import { cn } from '@/lib/utils';
+import { getCategoryColor } from './themeColors';
+import { isValidCategory } from '@/lib/timeline/categories';
 
 interface StoryformRecapProps {
   timeline: TimelineFull;
@@ -44,7 +46,9 @@ function renderParagraphWithLinks(
     processedText = processedText.replace(link.textToLink, placeholder);
 
     const tag = event.tags[0];
-    const color = tag ? tagColorMap?.[tag] : undefined;
+    const color = tag
+      ? tagColorMap?.[tag] || (isValidCategory(tag) ? getCategoryColor(tag) : undefined)
+      : undefined;
 
     replacements.push({
       text: link.textToLink,
@@ -122,7 +126,9 @@ export default function StoryformRecap({
             <div className="flex flex-col gap-3">
               {events.map(event => {
                 const tag = event.tags[0];
-                const color = tag ? tagColorMap?.[tag] : undefined;
+                const color = tag
+                  ? tagColorMap?.[tag] || (isValidCategory(tag) ? getCategoryColor(tag) : undefined)
+                  : undefined;
                 return (
                   <a
                     key={event.id}

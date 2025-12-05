@@ -119,20 +119,6 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
     }),
   );
   const narrativeBindings = bindNarrativeData(timeline.events, structuredContent);
-  const tagColorMap = timeline.events.length
-    ? timeline.events.reduce<Record<string, ReturnType<typeof getThemeColor>>>((map, event) => {
-        event.tags.forEach(tag => {
-          if (!tag) {
-            return;
-          }
-          if (!map[tag]) {
-            const index = Object.keys(map).length;
-            map[tag] = getThemeColor(index);
-          }
-        });
-        return map;
-      }, {})
-    : {};
 
   // Breadcrumb data
   const breadcrumbItems = [
@@ -186,9 +172,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
             <BirdsEyeStrip
               timeline={timeline}
               events={timeline.events}
-              categories={themedCategories}
               eventNarratives={narrativeBindings.eventNarratives}
-              tagColorMap={tagColorMap}
             />
           </div>
         </section>
@@ -199,10 +183,8 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
             <ZoomableTimeline
               timeline={timeline}
               events={timeline.events}
-              categories={themedCategories}
               eventNarratives={narrativeBindings.eventNarratives}
               connectors={narrativeBindings.connectors}
-              tagColorMap={tagColorMap}
             />
           </div>
         </section>
@@ -213,7 +195,6 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               <StoryformRecap
                 timeline={timeline}
                 events={timeline.events}
-                tagColorMap={tagColorMap}
               />
             </div>
           </section>
@@ -226,7 +207,6 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               <HighlightCardsEnriched
                 keyHighlights={enrichment.keyHighlights}
                 timeline={timeline}
-                tagColorMap={tagColorMap}
                 citations={citations}
               />
             </div>
@@ -237,7 +217,6 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
               <HighlightCards
                 timeline={timeline}
                 events={highlightEvents}
-                tagColorMap={tagColorMap}
               />
             </div>
           </section>

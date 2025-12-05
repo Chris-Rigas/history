@@ -2,6 +2,8 @@ import type { TimelineFull, Event } from '@/lib/database.types';
 import type { ThemeColorConfig } from './themeColors';
 import { cn } from '@/lib/utils';
 import { Fragment } from 'react';
+import { getCategoryColor } from './themeColors';
+import { isValidCategory } from '@/lib/timeline/categories';
 
 interface DramaticSummaryProps {
   timeline: TimelineFull;
@@ -85,7 +87,9 @@ export default function DramaticSummary({
             <div className="flex flex-col gap-3">
               {events.map(event => {
                 const tag = event.tags[0];
-                const color = tag ? tagColorMap?.[tag] : undefined;
+                const color = tag
+                  ? tagColorMap?.[tag] || (isValidCategory(tag) ? getCategoryColor(tag) : undefined)
+                  : undefined;
                 return (
                   <a
                     key={event.id}
@@ -120,8 +124,9 @@ export default function DramaticSummary({
                   ? `Finally, in ${event.start_year},`
                   : `Then in ${event.start_year},`;
                 const detail = cleanSummary(event.summary);
-                const color = event.tags[0]
-                  ? tagColorMap?.[event.tags[0]]
+                const category = event.tags[0];
+                const color = category
+                  ? tagColorMap?.[category] || (isValidCategory(category) ? getCategoryColor(category) : undefined)
                   : undefined;
 
                 return (

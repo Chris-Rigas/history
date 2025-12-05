@@ -34,6 +34,9 @@ async function callJsonCompletion(prompt: string): Promise<any> {
 
   console.log(`Parsed keys:`, Object.keys(parsed));
   console.log(`People count:`, Array.isArray(parsed.people) ? parsed.people.length : 0);
+  if (Array.isArray(parsed.people)) {
+    console.log(`  Expanded people names:`, parsed.people.map((p: any) => p.name).join(', '));
+  }
   console.log(`Turning points:`, Array.isArray(parsed.turningPoints) ? parsed.turningPoints.length : 0);
   console.log(`Perspectives:`, Array.isArray(parsed.perspectives) ? parsed.perspectives.length : 0);
   console.log(`Theme insights:`, Array.isArray(parsed.themeInsights) ? parsed.themeInsights.length : 0);

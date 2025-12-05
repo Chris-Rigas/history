@@ -257,7 +257,7 @@ OUTPUT FORMAT (JSON)
   "centralQuestion": "The dramatic tension driving this period (15-30 words)",
   "storyCharacter": "What type of story is this? (5-10 words)",
   "summary": "2-3 sentence logline (100-150 words)",
-  
+
   "storyBeats": [
     {
       "beatType": "world-before|origins|rising-tension|etc.",
@@ -271,15 +271,38 @@ OUTPUT FORMAT (JSON)
       ]
     }
   ],
-  
+
   "themes": [
     {
       "id": "kebab-case-id",
       "title": "Theme Title (4-8 words)",
       "description": "What this theme means (40-60 words)"
     }
-  ]
+  ],
+
+  "keyPeople": ["Full Name 1", "Full Name 2", "Full Name 3", "Full Name 4"]
 }
+
+═══════════════════════════════════════════════════════════════════════════════
+KEY PEOPLE SELECTION (CRITICAL - MUST INCLUDE)
+═══════════════════════════════════════════════════════════════════════════════
+
+From the skeleton people list, select 4-6 individuals who are CENTRAL to this narrative.
+
+SELECTION CRITERIA:
+✓ These people appear multiple times in your story beats
+✓ They drive major turning points in the narrative
+✓ They represent different perspectives or factions
+✓ Their actions directly caused significant outcomes
+✓ They are essential to understanding the central question
+
+OUTPUT as an array of names (must exactly match skeleton person names):
+
+"keyPeople": ["Full Name 1", "Full Name 2", "Full Name 3", "Full Name 4"]
+
+IMPORTANT: Use the exact full names as they appear in the SKELETON people list above.
+Do NOT include people who are only mentioned briefly.
+Do NOT include more than 6 people.
 
 ═══════════════════════════════════════════════════════════════════════════════
 STORY BEAT SYSTEM REQUIREMENTS
@@ -1205,9 +1228,13 @@ Return a single JSON object with these arrays:
 }
 Use citation numbers that match the research corpus. Include the citation numbers used in each element so they can be rendered.
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 1: PEOPLE (expand from skeleton)
+SECTION 1: PEOPLE (expand ONLY key people selected by narrative)
 ═══════════════════════════════════════════════════════════════════════════════
-For each person in the skeleton, generate:
+The narrative phase has selected the following key people to feature:
+${JSON.stringify(context.mainNarrative.keyPeople, null, 2)}
+
+Expand ONLY these selected people. Find them in the skeleton by matching names.
+For each selected person, generate:
 {
 "name": "Full Name",
 "slug": "kebab-case-slug",

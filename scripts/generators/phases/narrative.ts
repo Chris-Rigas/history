@@ -30,6 +30,10 @@ async function callJsonCompletion(prompt: string): Promise<any> {
 
   const cleaned = content.replace(/```json|```/g, '').trim();
   const parsed = safeJsonParse(cleaned, {});
+  console.log(`Key people selected:`, Array.isArray(parsed.keyPeople) ? parsed.keyPeople.length : 0);
+  if (Array.isArray(parsed.keyPeople)) {
+    console.log(`  Names:`, parsed.keyPeople.join(', '));
+  }
   console.log(`Parsed keys:`, Object.keys(parsed));
   console.log(`Has pageTitle:`, !!parsed.pageTitle);
   console.log(`Has centralQuestion:`, !!parsed.centralQuestion);
@@ -99,5 +103,6 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
     overview: Array.isArray(parsed.overview) ? parsed.overview : [],
     themes: Array.isArray(parsed.themes) ? parsed.themes : [],
     storyCharacter: parsed.storyCharacter || '',
+    keyPeople: Array.isArray(parsed.keyPeople) ? parsed.keyPeople : [],
   };
 }

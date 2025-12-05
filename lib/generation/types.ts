@@ -107,6 +107,7 @@ export interface MainNarrative {
   overview?: OverviewSection[];
   themes: ExpandedTheme[];
   storyCharacter: string;
+  keyPeople: string[];
 }
 
 export interface ExpandedEvent {

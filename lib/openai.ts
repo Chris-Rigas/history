@@ -169,6 +169,7 @@ Return a JSON object with this structure:
 - Each event should be linked at most ONCE in the entire narrative (first meaningful mention)
 - eventSlug must match the slug field from the events provided
 - textToLink must be an EXACT substring from the paragraph text
+- The textToLink should match the actual words used in the paragraph (do NOT default to the event title if the phrasing differs)
 - If you mention an event but don't want to link it (e.g., passing reference), omit it from eventLinks
 
 **EXAMPLE**:

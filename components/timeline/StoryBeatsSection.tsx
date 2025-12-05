@@ -152,6 +152,22 @@ export default function StoryBeatsSection({ narrative, timelineSlug, events = []
     if (invalidSlugs.length > 0) {
       console.log(`[StoryBeatsSection] Invalid slugs (won't render):`, invalidSlugs.slice(0, 5));
     }
+
+    beats.forEach((beat, beatIndex) => {
+      (beat.eventLinks || []).forEach(link => {
+        const foundInParagraphs = (beat.paragraphs || []).some(paragraph =>
+          paragraph.includes(link.textToLink)
+        );
+
+        if (!foundInParagraphs) {
+          console.log(`[StoryBeatsSection] ⚠️ textToLink NOT FOUND in paragraphs:`);
+          console.log(`   Beat ${beatIndex + 1}: "${link.textToLink}"`);
+          console.log(
+            `   Looking in: "${(beat.paragraphs || []).join(' ').substring(0, 100)}..."`
+          );
+        }
+      });
+    });
   }
   // END DEBUG LOGGING
 

@@ -17,7 +17,6 @@ import InterpretationSection from '@/components/timeline/InterpretationSection';
 import GeminiQA from '@/components/timeline/GeminiQA';
 import PerspectivesSection from '@/components/timeline/PerspectivesSection';
 import CitationsSection from '@/components/timeline/CitationsSection';
-import StoryformRecap from '@/components/timeline/StoryformRecap';
 import { parseStructuredContent } from '@/lib/timelines/structuredContent';
 import { bindNarrativeData } from '@/lib/timelines/narrative';
 import { getThemeColor } from '@/components/timeline/themeColors';
@@ -188,17 +187,6 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
             />
           </div>
         </section>
-
-        {timeline.events.length > 0 && (
-          <section className="py-12 bg-parchment-100">
-            <div className="content-container">
-              <StoryformRecap
-                timeline={timeline}
-                events={timeline.events}
-              />
-            </div>
-          </section>
-        )}
 
         {/* Highlight Cards Section - Use enrichment if available */}
         {enrichment?.keyHighlights && enrichment.keyHighlights.length > 0 ? (

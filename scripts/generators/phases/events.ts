@@ -1,10 +1,6 @@
 import OpenAI from 'openai';
-import { buildPhase4EventsPrompt, buildPhase4RecapPrompt } from '@/lib/generation/prompts';
-import type {
-  ExpandedEvent,
-  GenerationContext,
-  StoryformRecap,
-} from '@/lib/generation/types';
+import { buildPhase4EventsPrompt } from '@/lib/generation/prompts';
+import type { ExpandedEvent, GenerationContext } from '@/lib/generation/types';
 import { safeJsonParse } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -84,13 +80,4 @@ export async function executePhase4Events(
   }
 
   return events;
-}
-
-export async function executePhase4StoryformRecap(context: GenerationContext): Promise<StoryformRecap> {
-  const prompt = buildPhase4RecapPrompt(context);
-  const parsed = await callJsonCompletion(prompt, 2000);
-
-  return {
-    paragraphs: Array.isArray(parsed.paragraphs) ? parsed.paragraphs : [],
-  };
 }

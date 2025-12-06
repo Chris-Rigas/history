@@ -124,15 +124,6 @@ export interface ExpandedEvent {
   tags?: string[];
 }
 
-export interface RecapParagraph {
-  text: string;
-  eventLinks: Array<{ eventSlug: string; textToLink: string }>;
-}
-
-export interface StoryformRecap {
-  paragraphs: RecapParagraph[];
-}
-
 export interface ExpandedPerson {
   name: string;
   slug: string;
@@ -224,7 +215,6 @@ export interface GenerationContext {
   skeleton?: TimelineSkeleton;
   mainNarrative?: MainNarrative;
   expandedEvents?: ExpandedEvent[];
-  storyformRecap?: StoryformRecap;
   enrichment?: Enrichment;
   seo?: SEOMetadata;
 }

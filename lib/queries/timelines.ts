@@ -237,7 +237,6 @@ export interface TimelineMetadataPayload {
   primarySources?: Json | null;
   totalSources?: number | null;
   structuredContent?: Json | null;
-  storyformRecap?: Json | null;
   researchCorpus?: Json | null;
   skeleton?: Json | null;
   enrichment?: Json | null;
@@ -261,7 +260,6 @@ export async function upsertTimelineMetadata(
     primary_sources: payload.primarySources ?? null,
     total_sources: payload.totalSources ?? null,
     structured_content: payload.structuredContent ?? null,
-    storyform_recap: payload.storyformRecap ?? null,
     research_corpus: payload.researchCorpus ?? null,
     skeleton: payload.skeleton ?? null,
     enrichment: payload.enrichment ?? null,

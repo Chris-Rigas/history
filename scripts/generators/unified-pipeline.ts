@@ -2,7 +2,7 @@ import type { GenerationContext, TimelineSeed } from '@/lib/generation/types';
 import { executePhase1Research } from './phases/research';
 import { executePhase2Skeleton } from './phases/skeleton';
 import { executePhase3Narrative } from './phases/narrative';
-import { executePhase4Events, executePhase4StoryformRecap } from './phases/events';
+import { executePhase4Events } from './phases/events';
 import { executePhase5Enrichment } from './phases/enrichment';
 import { executePhase6SEO } from './phases/seo';
 
@@ -28,7 +28,6 @@ export async function generateTimelineComplete(seed: TimelineSeed): Promise<Gene
   } else {
     context.expandedEvents = [];
   }
-  context.storyformRecap = await executePhase4StoryformRecap(context);
 
   // Phase 5: Enrichment
   console.log('✨ Phase 5: Enrichment...');

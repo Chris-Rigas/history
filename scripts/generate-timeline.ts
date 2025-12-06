@@ -269,7 +269,6 @@ async function saveUnifiedPipelineResults(
       summary: context.mainNarrative?.summary || '',
     } as any,
     enrichment: enrichmentData as any,
-    storyformRecap: context.storyformRecap as any,
     seoTitle: context.seo?.seoTitle || null,
     metaDescription: context.seo?.metaDescription || null,
     relatedKeywords: context.seo?.keywords || null,

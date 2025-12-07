@@ -14,15 +14,18 @@ import './load-env';
 
 import { getTimelineSeed, TIMELINE_SEEDS } from './ingest';
 import { generateTimelineComplete } from './generators/unified-pipeline';
-import { generateTimelinePeople, linkPeopleToEventsFromEnrichment } from './generators/person-generator';
-import { createEvent } from '@/lib/queries/events';
-import { getTimelineBySlug } from '@/lib/queries/timelines';
-import { getEventsByTimelineId } from '@/lib/queries/events';
+import { createEvent, getEventsByTimelineId, linkPersonToEvent } from '@/lib/queries/events';
+import {
+  createTimeline,
+  getTimelineBySlug,
+  linkEventToTimeline,
+  linkPersonToTimeline,
+} from '@/lib/queries/timelines';
 import { serializeError, summarizeError } from './utils/error';
 import { supabaseAdmin } from '@/lib/supabase';
 import { slugify } from '@/lib/utils';
 import type { GenerationContext, TimelineSeed as UnifiedSeed } from '@/lib/generation/types';
-import { createTimeline, linkEventToTimeline } from '@/lib/queries/timelines';
+import { createPerson } from '@/lib/queries/people';
 
 interface GenerationOptions {
   timeline?: string;
@@ -164,28 +167,13 @@ async function generateCompleteTimeline(
     // Load events for subsequent steps
     events = await getEventsByTimelineId(timeline.id, { client: supabaseAdmin });
 
-    // Step 3: Generate people (unless events-only)
-    if (!options.eventsOnly) {
+    // Step 3: Save people from enrichment (unless events-only)
+    if (!options.eventsOnly && context?.enrichment?.people?.length) {
       console.log(`\n${'─'.repeat(80)}`);
-      console.log('STEP 3: Generating People');
+      console.log('STEP 3: Saving People from Enrichment');
       console.log(`${'─'.repeat(80)}`);
 
-      const personCount = options.personCount || seed.peopleCount || 10;
-      const peopleResult = await generateTimelinePeople(timeline, events, personCount, {
-        delayMs: 2000,
-        onProgress: (current, total, person) => {
-          console.log(`\n   [${current}/${total}] ${person}`);
-        },
-      });
-
-      if (!peopleResult.success) {
-        console.error(`⚠️  People generation completed with errors`);
-      }
-
-      if (context?.enrichment?.people?.length) {
-        console.log('\n🔗 Linking people to events using enrichment data');
-        await linkPeopleToEventsFromEnrichment(context.enrichment.people, events);
-      }
+      await saveEnrichmentPeopleToDatabase(context.enrichment.people, timeline, events);
     }
 
     // Summary
@@ -304,6 +292,64 @@ function formatAsHtml(text: string): string {
   // Split into paragraphs and wrap in <p> tags
   const paragraphs = text.split(/\n\n+/);
   return paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
+}
+
+/**
+ * Save enrichment people to database with event links
+ */
+async function saveEnrichmentPeopleToDatabase(
+  enrichedPeople: any[],
+  timeline: any,
+  events: any[]
+): Promise<void> {
+  console.log(`\n👥 Saving ${enrichedPeople.length} people from enrichment...`);
+
+  // Build event slug → event record map for linking
+  const eventSlugMap = new Map(events.map(e => [e.slug, e]));
+
+  const savedPeopleIds: string[] = [];
+
+  for (let i = 0; i < enrichedPeople.length; i++) {
+    const enrichedPerson = enrichedPeople[i];
+
+    console.log(`   [${i + 1}/${enrichedPeople.length}] ${enrichedPerson.name}`);
+
+    try {
+      // 1. Create person record
+      const person = await createPerson({
+        name: enrichedPerson.name,
+        slug: enrichedPerson.slug,
+        birth_year: enrichedPerson.birthYear || null,
+        death_year: enrichedPerson.deathYear || null,
+        bio_short: enrichedPerson.bioShort,
+        bio_long: enrichedPerson.bioLong,
+      });
+
+      // 2. Link to timeline
+      await linkPersonToTimeline(timeline.id, person.id, enrichedPerson.role);
+
+      savedPeopleIds.push(person.id);
+
+      // 3. Link to related events based on relatedEventSlugs from enrichment
+      if (enrichedPerson.relatedEventSlugs?.length) {
+        for (const eventSlug of enrichedPerson.relatedEventSlugs) {
+          const event = eventSlugMap.get(eventSlug);
+          if (event) {
+            await linkPersonToEvent(event.id, person.id);
+            console.log(`      ✓ Linked to event: ${event.title}`);
+          } else {
+            console.warn(`      ⚠️  Event slug not found: ${eventSlug}`);
+          }
+        }
+      }
+
+      console.log(`      ✅ Person saved: ${person.id}`);
+    } catch (error) {
+      console.error(`      ❌ Error saving ${enrichedPerson.name}:`, error);
+    }
+  }
+
+  console.log(`\n✅ Saved ${savedPeopleIds.length} people to database`);
 }
 
 /**

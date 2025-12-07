@@ -4,6 +4,9 @@ import type {
   TimelineSeed,
 } from './types';
 
+import { slugify } from '@/lib/utils';
+
+
 function stringifyCorpus(researchCorpus?: ResearchCorpus) {
   return researchCorpus ? JSON.stringify(researchCorpus, null, 2) : '';
 }

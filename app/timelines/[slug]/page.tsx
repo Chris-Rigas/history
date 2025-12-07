@@ -103,7 +103,7 @@ export default async function TimelinePage({ params }: TimelinePageProps) {
     notFound();
   }
 
-  // Get highlight events (importance = 3)
+  // Get highlight events
   const highlightEvents = await getTimelineHighlightEvents(timeline.id, 8);
 
   const structuredContent = parseStructuredContent(

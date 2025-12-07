@@ -13,7 +13,6 @@
     end_year integer,
     location text,
     tags text[],
-    importance integer,
     summary text,
     description_html text,
     significance_html text,

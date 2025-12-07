@@ -18,20 +18,13 @@ export default function EventCard({ event, timeline, narrative, themeColor, them
   const primaryTheme = event.tags?.[0];
   const badgeColor = themeColor;
 
-  const importanceStyles = {
-    3: 'border-amber-400 shadow-lg',
-    2: 'border-gray-200 shadow-sm',
-    1: 'border-gray-200 opacity-95',
-  } as const;
-
   const cardBorder = themeColor?.border || 'border-gray-200';
 
   return (
     <div
       id={`event-${event.slug}`}
       className={cn(
-        'group bg-white rounded-lg p-6 hover:shadow-lg transition-all scroll-mt-24 border-l-4',
-        importanceStyles[event.importance as 1 | 2 | 3] || 'border-gray-200',
+        'group bg-white rounded-lg p-6 hover:shadow-lg transition-all scroll-mt-24 border border-l-4 border-gray-200',
         cardBorder,
       )}
     >

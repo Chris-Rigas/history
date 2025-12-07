@@ -36,7 +36,6 @@ export interface SkeletonEvent {
   oneSentence: string;
   keyFacts: string[];
   citationsToUse: number[];
-  importance: 1 | 2 | 3;
   type: string;
   category: string;
 }
@@ -117,7 +116,6 @@ export interface ExpandedEvent {
   summary: string;
   description: string;
   significance: string;
-  importance: 1 | 2 | 3;
   type: string;
   category: string;      // Fixed category: military, political, etc.
   themeId: string;       // Links to thematic thread

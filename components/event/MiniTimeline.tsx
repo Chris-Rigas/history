@@ -28,11 +28,7 @@ export default function MiniTimeline({
           className={`w-4 h-4 rounded-full border-2 border-white shadow-md ${
             isCurrentEvent
               ? 'bg-red-600 w-6 h-6'
-              : event.importance === 3
-              ? 'bg-red-500'
-              : event.importance === 2
-              ? 'bg-blue-500'
-              : 'bg-gray-400'
+              : 'bg-antiqueBronze-500'
           }`}
         />
 

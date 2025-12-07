@@ -34,13 +34,7 @@ export default function PersonTimeline({ timeline, person, events }: PersonTimel
             <div key={event.id} className="relative pl-20">
               {/* Timeline Dot */}
               <div className="absolute left-0 flex items-center justify-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                  event.importance === 3
-                    ? 'bg-red-100 border-4 border-red-500'
-                    : event.importance === 2
-                    ? 'bg-blue-100 border-4 border-blue-500'
-                    : 'bg-gray-100 border-4 border-gray-400'
-                }`}>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-antiqueBronze-100 border-4 border-antiqueBronze-500">
                   <span className="text-lg font-bold text-gray-700">
                     {index + 1}
                   </span>
@@ -56,22 +50,17 @@ export default function PersonTimeline({ timeline, person, events }: PersonTimel
                   {/* Date and Badge */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="text-lg font-bold text-antiqueBronze-600">
-                        {event.start_year}
-                        {event.end_year && event.end_year !== event.start_year && (
-                          <span className="text-gray-400"> — {event.end_year}</span>
-                        )}
-                      </div>
-                      {event.importance === 3 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                          MAJOR
-                        </span>
+                    <div className="text-lg font-bold text-antiqueBronze-600">
+                      {event.start_year}
+                      {event.end_year && event.end_year !== event.start_year && (
+                        <span className="text-gray-400"> — {event.end_year}</span>
                       )}
                     </div>
+                  </div>
 
-                    {event.location && (
-                      <div className="text-sm text-gray-500">
-                        {event.location}
+                  {event.location && (
+                    <div className="text-sm text-gray-500">
+                      {event.location}
                       </div>
                     )}
                   </div>
@@ -136,12 +125,6 @@ export default function PersonTimeline({ timeline, person, events }: PersonTimel
               {events.length}
             </div>
             <div className="text-sm text-gray-600 mt-1">Total Events</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-red-600">
-              {events.filter(e => e.importance === 3).length}
-            </div>
-            <div className="text-sm text-gray-600 mt-1">Major Events</div>
           </div>
           <div>
             <div className="text-3xl font-bold text-gray-700">

@@ -126,7 +126,7 @@ export default async function HomePage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Explore Events</h3>
               <p className="text-gray-600">
-                Navigate through interactive timelines, filter by importance, and discover key turning points.
+                Navigate through interactive timelines and discover key turning points.
               </p>
             </div>
             

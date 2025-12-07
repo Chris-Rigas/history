@@ -145,7 +145,6 @@ async function generateCompleteTimeline(
               : expandedEvent.tags?.length
               ? [expandedEvent.tags[0]]
               : [],
-            importance: expandedEvent.importance || 2,
             summary: expandedEvent.summary,
             description_html: formatAsHtml(expandedEvent.description),
             significance_html: formatAsHtml(expandedEvent.significance),

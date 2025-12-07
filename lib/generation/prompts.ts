@@ -141,7 +141,6 @@ For each event, provide:
     "Largest defeat in Roman history to that date [4]"
   ],
   "citationsToUse": [1, 3, 4],
-  "importance": 3,  // 1=notable, 2=significant, 3=major turning point
   "type": "battle",
   "category": "Military Conflict"
 }
@@ -835,8 +834,11 @@ CONTEXT FROM PREVIOUS PHASES
 RESEARCH CORPUS (your source for facts and citations):
 ${stringifyCorpus(context.researchCorpus)}
 
-MAIN NARRATIVE (themes for consistency):
+MAIN NARRATIVE (the overall story these events belong to):
 ${JSON.stringify(context.mainNarrative, null, 2)}
+
+KEY PEOPLE (central figures in this narrative - focus on these when relevant):
+${JSON.stringify(context.mainNarrative.keyPeople, null, 2)}
 
 AVAILABLE THEMES (assign exactly ONE to each event):
 ${JSON.stringify(context.mainNarrative.themes.map(t => ({ id: t.id, title: t.title })), null, 2)}
@@ -848,204 +850,284 @@ ${JSON.stringify(eventsChunk, null, 2)}
 YOUR MISSION
 ═══════════════════════════════════════════════════════════════════════════════
 
-Expand each skeleton event into FULL NARRATIVE CONTENT with:
-1. SUMMARY (the hook - 2-3 sentences)
+Expand each skeleton event into FULL NARRATIVE CONTENT that fits within the larger timeline story.
+
+Each event is a CHAPTER in the bigger narrative established in Phase 3. Your job is to:
+1. Tell this event's story compellingly while maintaining narrative continuity
+2. Connect to adjacent events—readers may arrive from other event pages
+3. Feature key people prominently when they're involved; introduce others clearly
+
+You are writing in the tradition of Barbara Tuchman: history as compelling narrative, grounded in specific detail, focused on causation and human experience.
+
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+For each event, produce:
+
+1. SUMMARY (the hook - 2-3 sentences, 50-80 words)
 2. DESCRIPTION (the full story - 4-6 paragraphs, 600-800 words)
 3. SIGNIFICANCE (the consequences - 3-4 paragraphs, 300-400 words)
 4. THEME ASSIGNMENT (exactly one theme ID from the list above)
-5. IMPORTANCE (1-3 rating)
-
-You are a narrative historian in the tradition of Erik Larson and Barbara Tuchman.
-Write like you're telling a fascinating story to someone smart but distracted.
+5. CATEGORY (one of: military, political, diplomatic, economic, cultural, crisis, legal, administrative)
 
 ═══════════════════════════════════════════════════════════════════════════════
-WRITING TECHNIQUES (apply throughout)
+NARRATIVE POSITIONING
+═══════════════════════════════════════════════════════════════════════════════
+
+Each event exists within the larger narrative arc. Before writing, consider:
+
+**WHERE IN THE STORY IS THIS EVENT?**
+- Early events: More context needed; establish stakes and introduce key players
+- Middle events: Can assume some familiarity; focus on escalation and complications
+- Late events: Show consequences; connect to resolution and legacy
+
+**HOW DOES THIS EVENT CONNECT?**
+- What came before? Reference it briefly to orient readers
+- What comes after? Create forward momentum without spoiling
+- Which key people are involved? Feature them prominently
+
+**WHAT'S THIS EVENT'S ROLE?**
+- Setup: Establishes conditions for what follows
+- Escalation: Raises stakes or introduces complications
+- Turning point: Changes the trajectory
+- Resolution: Shows consequences or outcomes
+
+═══════════════════════════════════════════════════════════════════════════════
+KEY PEOPLE HANDLING
+═══════════════════════════════════════════════════════════════════════════════
+
+The main narrative identified these KEY PEOPLE as central to the story:
+- When a key person appears, you can reference them with lighter introduction (readers may know them)
+- Still provide role context: "Caesar, still deep in debt and hungry for military glory..."
+- Show their specific actions and decisions—these are the protagonists
+
+For OTHER PEOPLE who appear in this event but aren't in the key people list:
+- Provide clear first-mention identification: "Pescennius Niger, governor of Syria and rival claimant"
+- Explain why they matter to THIS event
+- Keep focus tight—don't let supporting characters overwhelm the narrative
+
+═══════════════════════════════════════════════════════════════════════════════
+HOOK / SUMMARY REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+The summary is your hook—2-3 sentences that make someone want to read the full event.
+
+**BALANCE:** This event is part of a larger story. The hook should:
+- Stand alone (someone might land here directly)
+- Connect to the broader narrative (reward readers following the timeline)
+
+**STRUCTURE:**
+1. First sentence: WHAT happened, WHEN, and WHO was involved (factual anchor)
+2. Second sentence: One vivid or surprising detail that creates interest
+3. Third sentence (optional): Forward momentum—what tension does this create?
+
+**EXAMPLE - TOO DISCONNECTED:**
+"Shield rims clanged and soldiers lifted their general skyward. Purple touched iron. The frontier had spoken."
+
+**EXAMPLE - WELL BALANCED:**
+"In April 193, the Danubian legions proclaimed Septimius Severus emperor—answering the Praetorians' auction of the throne with steel. Shield rims clanged as soldiers hoisted him above a forest of spears. Three men now claimed the purple; only one would survive the year."
+
+The good example:
+- Anchors in time and connects to prior events (the auction)
+- Provides vivid detail
+- Creates forward momentum within the larger narrative
+
+═══════════════════════════════════════════════════════════════════════════════
+EVENT STORY STRUCTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+Each event follows a mini-arc within the larger narrative. Think of it as one chapter in a book.
+
+**OPENING (1-2 paragraphs):**
+- Orient the reader: What's the situation? Who's involved?
+- Connect to what came before (briefly)
+- Establish the stakes for THIS event
+
+**DEVELOPMENT (2-3 paragraphs):**
+- What happened, in sequence
+- Key decisions and their reasoning
+- Specific details: numbers, places, quotes from sources
+
+**RESOLUTION (1-2 paragraphs):**
+- Immediate outcome
+- What changed?
+- Subtle forward momentum to what comes next
+
+**KEEP IT FOCUSED:**
+- One main thread per event (avoid branching subplots)
+- 3-4 named individuals maximum per event
+- Clear cause → effect → consequence chain
+
+═══════════════════════════════════════════════════════════════════════════════
+EVENT CONNECTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Events should feel connected, not isolated. Use these techniques:
+
+**BACKWARD CONNECTIONS (in opening):**
+Reference prior events briefly to orient readers:
+- "The speed that crushed the Helvetii now alarmed the north..."
+- "Caesar's debts—the ones that drove him north—now seemed manageable..."
+- "Three months after the auction shocked Rome..."
+
+**FORWARD MOMENTUM (in resolution):**
+Create anticipation without spoiling:
+- "The treaty bought time. Whether it bought enough remained to be seen."
+- "Severus controlled Rome. But Niger still held the East."
+
+**CALLBACK LANGUAGE:**
+When appropriate, echo language or themes from the main narrative:
+- If the main narrative frames this as "a gamble," use gambling imagery
+- If a key theme is "treaty as weapon," reinforce that framing
+
+═══════════════════════════════════════════════════════════════════════════════
+CLARITY BEFORE COLOR (CRITICAL)
+═══════════════════════════════════════════════════════════════════════════════
+
+Vivid writing must follow a foundation of clarity, not replace it.
+
+**FIRST MENTION REQUIREMENTS:**
+
+When a PERSON is first mentioned:
+✓ Include their role/position: "Pescennius Niger, governor of Syria and rival claimant"
+✓ Why they matter to this event: "whose three legions matched Severus in number"
+✗ NOT just: "Niger gathered his forces in the East"
+
+When a CONFLICT is first mentioned:
+✓ One sentence on what's at stake: "Control of the eastern provinces—and their tax revenue—hung in the balance"
+✓ Why it's happening NOW
+✗ NOT just: "War erupted across Syria"
+
+When a PLACE is first mentioned:
+✓ Brief orientation if not obvious: "Issus, the narrow coastal pass where Alexander had broken Persia three centuries before"
+✓ Why this location matters
+✗ NOT just: "They met at Issus"
+
+**THE RULE:** A reader with high-school history knowledge should never feel lost. Explain context BEFORE adding color.
+
+═══════════════════════════════════════════════════════════════════════════════
+WRITING TECHNIQUES
 ═══════════════════════════════════════════════════════════════════════════════
 
 **SENTENCE RHYTHM:**
 Vary length dramatically. Use short punch sentences (3-8 words) after longer ones.
 
-Example:
-"The Roman fleet assembled at Ephesus numbered seventy ships, their bronze rams 
-gleaming in the autumn sun, oars shipped and crews restless. Then the Rhodians arrived. 
-Everything changed."
+"The Roman fleet assembled at Ephesus numbered seventy ships, their bronze rams gleaming in the autumn sun, oars shipped and crews restless. Then the Rhodians arrived. Everything changed."
 
 **STATISTICAL + VISCERAL COMBO:**
 Give a number, then make it FELT in the next sentence.
 
-Example:
 "Twelve thousand talents over twelve years [4]. The treasury at Antioch would echo empty."
 
-**SENSORY ANCHORS (required):**
-Each event description must include:
-- At least ONE specific color (scarlet, bronze, azure—not "bright" or "colorful")
-- At least ONE sound (creak of oarlocks, clash of shields, murmur of senators)
+**SENSORY ANCHORS (required per event):**
+- At least ONE specific color (scarlet, bronze, azure—not "bright")
+- At least ONE sound (creak of oarlocks, clash of shields)
 - At least 3 specific places named
 
 **EXACT NUMBERS:**
-Never use "many," "several," "numerous," or "significant number."
-Always specific: "70,000 Seleucid troops," "ten decked ships," "four days' march."
-Translate when helpful: "roughly a knight's annual income."
-
-**BANNED VERBS:**
-- was, were, went, made, did, had, got, came, said
-Replace with specific action verbs that show HOW.
+Never use "many," "several," "numerous."
+Always specific: "70,000 troops," "ten ships," "four days' march."
 
 **PARAGRAPH LENGTH:**
 1-3 sentences maximum per paragraph.
-Use one-sentence paragraphs for emphasis every 3-4 paragraphs.
+Use one-sentence paragraphs for emphasis.
+
+**CONVERSATIONAL CONNECTORS:**
+- Use "But" not "However"
+- Use "So" not "Therefore"
+- Start sentences with "And" and "Now"
 
 ═══════════════════════════════════════════════════════════════════════════════
-1. SUMMARY (2-3 sentences, 50-80 words)
+BANNED PHRASES
 ═══════════════════════════════════════════════════════════════════════════════
 
-The hook that makes someone want to read more.
+VAGUE SIGNIFICANCE:
+- "marked a turning point" → Show the turn happening
+- "proved to be significant" → Explain the actual significance
+- "would have lasting consequences" → Name the consequences
+- "paved the way" / "set the stage" → Explain the mechanism
 
-**STRUCTURE (in this order):**
-1. First sentence: WHAT happened and WHEN (factual anchor)
-2. Second sentence: Add one vivid or surprising detail
-3. Third sentence (optional): Forward momentum—what tension does this create?
+VAGUE QUANTITIES:
+- "many" / "several" / "numerous" → Use exact numbers
+- "significant number" → Use exact numbers
 
-**EXAMPLE - BAD:**
-"Shield rims clanged and legions lifted Severus above a forest of spears. Purple touched iron. Rome now followed the beat of frontier drums."
-
-**EXAMPLE - GOOD:**
-"In April 193, the Danubian legions proclaimed Septimius Severus emperor—the first time frontier armies, not the Praetorian Guard, chose Rome's ruler. Shield rims clanged as soldiers hoisted him above a forest of spears. The road to Rome now led through civil war."
-
-The good example:
-- Leads with factual anchor (who, when, what, why it's significant)
-- Adds vivid detail second
-- Creates forward momentum
+WEAK VERBS:
+- was, were, went, made, did, had, got → Use specific action verbs
 
 ═══════════════════════════════════════════════════════════════════════════════
-2. DESCRIPTION (4-6 paragraphs, 600-800 words)
+DESCRIPTION STRUCTURE (600-800 words)
 ═══════════════════════════════════════════════════════════════════════════════
+
+Write as FLOWING PROSE. Do NOT include section labels.
 
 **SECTION A: CONTEXT (1-2 paragraphs, 100-150 words)**
+- WHO is involved, WHAT is the situation, WHY is this happening NOW
+- Brief connection to prior events
+- Any new person gets a clear identifier
 
-Establish the situation BEFORE adding color.
+**SECTION B: THE EVENT (2-3 paragraphs, 300-400 words)**
+- Chronological sequence of what happened
+- Key decisions and actions
+- At least ONE quote from primary source if available
+- Sensory details woven in naturally
 
-Requirements:
-- First paragraph: WHO is involved, WHAT is the situation, WHY is this happening
-- Any person mentioned for the first time gets a brief identifier
-- Any conflict mentioned gets one sentence on what's at stake
-- THEN you can add atmosphere and sensory detail
-
-**SECTION B: WHAT HAPPENED (2-3 paragraphs, 300-400 words)**
-
-The event itself. Here you can be more evocative, but maintain clarity.
-
-Requirements:
-- Chronological sequence: what happened first, second, third
-- Key actors clearly identified with their roles
-- At least ONE specific quote from a primary source if available
-- Sensory details woven in (don't lead with them)
-
-**SECTION C: IMMEDIATE CONSEQUENCES (1-2 paragraphs, 150-200 words)**
-
-What changed in the days and weeks after.
-
-Requirements:
-- Concrete changes (who gained/lost power, what was different)
-- Specific numbers where relevant
-- Connection to what comes next
+**SECTION C: IMMEDIATE AFTERMATH (1-2 paragraphs, 150-200 words)**
+- What changed in days/weeks after
+- Concrete outcomes (who gained/lost, what shifted)
+- Momentum toward what comes next
 
 ═══════════════════════════════════════════════════════════════════════════════
-CRITICAL FORMATTING RULE
-═══════════════════════════════════════════════════════════════════════════════
-
-Do NOT include section labels in your output text.
-
-**WRONG:**
-"Context Winter in Rome cracked under steel. Pertinax fell in March..."
-"What happened In April 193, standards lifted..."
-
-**RIGHT:**
-"Winter in Rome cracked under steel. Pertinax fell in March..."
-"In April 193, standards lifted across the parade ground..."
-
-The sections (Context, What Happened, Immediate Consequences) are structural guidance for YOU.
-Your output should be flowing prose without any headers, labels, or section markers.
-
-═══════════════════════════════════════════════════════════════════════════════
-3. SIGNIFICANCE (3-4 paragraphs, 300-400 words)
+SIGNIFICANCE STRUCTURE (300-400 words)
 ═══════════════════════════════════════════════════════════════════════════════
 
 The "SO WHAT?"—explain mechanisms and consequences.
 
-**Paragraph 1: Direct Impact** - What specifically changed because of this?
-**Paragraph 2: Broader Patterns** - How does this connect to larger themes?
-**Paragraph 3: Historical Perspective** - Why do historians still study this?
+**Paragraph 1: Direct Impact**
+What specifically changed because of this event?
 
-BANNED: "symbol of," "testament to," "paved the way," "significant."
-Use specific mechanisms instead.
+**Paragraph 2: Connection to Themes**
+How does this event illuminate the themes identified in the main narrative?
 
-═══════════════════════════════════════════════════════════════════════════════
-4. THEME ASSIGNMENT (required)
-═══════════════════════════════════════════════════════════════════════════════
+**Paragraph 3: Broader Patterns**
+How does this connect to the larger story? What does it set up or resolve?
 
-Assign this event to exactly ONE theme from the available themes list.
-Choose the theme that BEST captures this event's primary significance.
+**Paragraph 4 (optional): Historical Perspective**
+Why do historians still study this? What debates does it inform?
 
 ═══════════════════════════════════════════════════════════════════════════════
-TIMELINE CATEGORY (required)
-════════════════════════════════════════════════════════════════════════════════
+CATEGORY ASSIGNMENT
+═══════════════════════════════════════════════════════════════════════════════
 
-Assign this event to exactly ONE category from this fixed list:
+Assign exactly ONE category from this fixed list:
 
 - military: Battles, campaigns, conquests, sieges, military reforms
-- political: Succession, appointments, coups, power transfers, elections
+- political: Succession, appointments, coups, power transfers
 - diplomatic: Treaties, alliances, embassies, negotiations
 - economic: Taxation, trade, finances, monetary reforms
-- cultural: Religion, architecture, arts, games, spectacles, literature
-- crisis: Disasters, revolts, assassinations, plagues, famines
-- legal: Laws, edicts, constitutional changes, judicial decisions
-- administrative: Provincial reforms, infrastructure, census, bureaucracy
+- cultural: Religion, architecture, arts, games, literature
+- crisis: Disasters, revolts, assassinations, plagues
+- legal: Laws, edicts, constitutional changes
+- administrative: Provincial reforms, infrastructure, bureaucracy
 
-Choose the BEST fit. If an event spans multiple categories (e.g., a law about taxation), 
-pick the primary thrust:
-- A law being passed → legal
-- The fiscal impact of that law → economic
-- A building being constructed → cultural
-- A building program as policy → administrative
-
-Return as:
-{
-  ...
-  "category": "political",
-  "themeId": "law-as-legitimacy"
-}
-
-The "category" field must be one of the 8 values above (lowercase).
-The "themeId" field should still reference the thematic thread this event most relates to.
-
-═══════════════════════════════════════════════════════════════════════════════
-5. IMPORTANCE (required)
-═══════════════════════════════════════════════════════════════════════════════
-
-- 1: Notable detail (provides context, color, or continuity)
-- 2: Significant event (shaped outcomes, important to narrative)
-- 3: Major turning point (fundamentally changed trajectory, outcome was uncertain)
-
-Reserve importance 3 for 15-20% of events maximum.
+Choose the PRIMARY thrust. A law about taxation → legal. The fiscal impact → economic.
 
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT FORMAT
 ═══════════════════════════════════════════════════════════════════════════════
 
-Return JSON array. The description field must be PURE PROSE with no section labels.
+Return JSON array:
 {
   "expandedEvents": [
     {
       "title": "Event title (must match input)",
       "slug": "event-slug",
       "year": -192,
-      "summary": "...",
-      "description": "Pure prose description flowing naturally across paragraphs. Do NOT start with 'Context' or any other label...",
-      "significance": "...",
+      "summary": "2-3 sentence hook...",
+      "description": "Flowing prose, 600-800 words, no section labels...",
+      "significance": "3-4 paragraphs on consequences and meaning...",
       "category": "political",
-      "themeId": "sea-control-gateway-asia",
-      "importance": 2
+      "themeId": "theme-id-from-list"
     }
   ]
 }
@@ -1055,17 +1137,34 @@ QUALITY CHECKLIST
 ═══════════════════════════════════════════════════════════════════════════════
 
 Before submitting, verify EACH event has:
+
+NARRATIVE FIT:
+✓ Opens with connection to prior events or broader context
+✓ Features key people prominently when involved
+✓ New people get clear role identification
+✓ Creates forward momentum in resolution
+
+CLARITY:
+✓ Stakes are clear within first 2 paragraphs
+✓ Reader with high-school history knowledge won't feel lost
+✓ Cause → effect → consequence chain is explicit
+
+WRITING QUALITY:
 ✓ At least 2-3 specific numbers with citations
 ✓ At least 1 color mentioned by name
 ✓ At least 1 sound described
 ✓ At least 3 specific places named
-✓ 3-5 citations to research corpus
+✓ 3-5 citations to research corpus [1], [2], etc.
 ✓ No banned vague phrases
-✓ Active voice throughout (no passive "was done")
 ✓ Short punch sentences used for emphasis
-✓ Exactly ONE themeId from the available themes
-✓ Importance rating (1, 2, or 3)`;
+✓ Paragraphs 1-3 sentences max
 
+REQUIRED FIELDS:
+✓ summary (50-80 words)
+✓ description (600-800 words, pure prose)
+✓ significance (300-400 words)
+✓ category (one of the 8 options)
+✓ themeId (from available themes list)`;
 }
 
 export function buildPhase5EnrichmentPrompt(context: GenerationContext) {

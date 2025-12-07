@@ -106,24 +106,7 @@ async function showStats(): Promise<void> {
     .from('people')
     .select('*', { count: 'exact', head: true });
   console.log(`People: ${peopleCount || 0}`);
-  
-  // Events by importance
-  const { data: eventsByImportance } = await supabaseAdmin
-    .from('events')
-    .select('importance');
-  
-  const importanceCounts = { 1: 0, 2: 0, 3: 0 };
-  eventsByImportance?.forEach((e: any) => {
-    if (e.importance) {
-      importanceCounts[e.importance as 1 | 2 | 3]++;
-    }
-  });
-  
-  console.log(`\nEvents by importance:`);
-  console.log(`  - Notable (1): ${importanceCounts[1]}`);
-  console.log(`  - Significant (2): ${importanceCounts[2]}`);
-  console.log(`  - Major (3): ${importanceCounts[3]}`);
-  
+
   // Timeline with most events
   const { data: timelinesWithEvents } = await supabaseAdmin
     .from('timelines')

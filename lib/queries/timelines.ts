@@ -307,7 +307,7 @@ export async function getTimelineFull(
 }
 
 /**
- * Get highlight events for a timeline (importance = 3)
+ * Get highlight events for a timeline
  */
 export async function getTimelineHighlightEvents(
   timelineId: string,
@@ -354,7 +354,6 @@ export async function getTimelineHighlightEvents(
       return titleA.localeCompare(titleB);
     })
     .map(item => item.event as Event)
-    .filter(event => event.importance === 3)
     .slice(0, limit);
 
   return events;

@@ -1151,7 +1151,7 @@ Return JSON array:
       "summary": "2-3 sentence hook...",
       "description": "Flowing prose, 600-800 words, no section labels...",
       "significance": "3-4 paragraphs on consequences and meaning...",
-      "category": "political",
+      "category": "<CHOOSE: military|political|diplomatic|economic|cultural|crisis|legal|administrative>",
       "themeId": "theme-id-from-list"
     }
   ]

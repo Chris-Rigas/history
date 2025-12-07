@@ -3,6 +3,7 @@ import type {
   ResearchCorpus,
   TimelineSeed,
 } from './types';
+import { slugify } from '../utils';
 
 function stringifyCorpus(researchCorpus?: ResearchCorpus) {
   return researchCorpus ? JSON.stringify(researchCorpus, null, 2) : '';
@@ -234,6 +235,32 @@ ${stringifyCorpus(researchCorpus)}
 
 SKELETON (events, people, themes already established):
 ${JSON.stringify(skeleton, null, 2)}
+
+═══════════════════════════════════════════════════════════════════════════════
+CRITICAL: EVENT SLUG MATCHING RULES
+═══════════════════════════════════════════════════════════════════════════════
+
+When creating eventLinks in your storyBeats, you MUST use slugs that EXACTLY match 
+the skeleton events above.
+
+HOW TO CREATE MATCHING SLUGS:
+1. Take the EXACT event title from the skeleton (e.g., "First Dacian War (101–102)")
+2. Convert to lowercase
+3. Replace spaces with hyphens
+4. Replace parentheses and special characters with hyphens
+5. Remove consecutive hyphens
+
+CORRECT SLUG EXAMPLES from the skeleton above:
+${(skeleton?.events || []).slice(0, 5).map((e: any) => 
+  `- Event title: "${e.title}"
+  → Correct slug: "${slugify(e.title)}"`
+).join('\n')}
+
+WRONG: Modifying titles or omitting year ranges from slugs
+RIGHT: Using the exact slugified version of the skeleton title
+
+If an event is "First Dacian War (101–102)", the slug MUST be "first-dacian-war-101-102"
+NOT "first-dacian-war" or "dacian-war-101-102" or any variation.
 
 ═══════════════════════════════════════════════════════════════════════════════
 YOUR MISSION

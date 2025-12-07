@@ -35,25 +35,6 @@ export const EVENT_WORD_COUNT_MAX = 900;
 export const PERSON_WORD_COUNT_MIN = 600;
 export const PERSON_WORD_COUNT_MAX = 1000;
 
-// Importance Levels
-export const IMPORTANCE_LEVELS = {
-  NOTABLE: 1,
-  SIGNIFICANT: 2,
-  MAJOR: 3,
-} as const;
-
-export const IMPORTANCE_LABELS = {
-  [IMPORTANCE_LEVELS.NOTABLE]: 'Notable Event',
-  [IMPORTANCE_LEVELS.SIGNIFICANT]: 'Significant Event',
-  [IMPORTANCE_LEVELS.MAJOR]: 'Major Event',
-} as const;
-
-export const IMPORTANCE_COLORS = {
-  [IMPORTANCE_LEVELS.NOTABLE]: 'gray',
-  [IMPORTANCE_LEVELS.SIGNIFICANT]: 'blue',
-  [IMPORTANCE_LEVELS.MAJOR]: 'red',
-} as const;
-
 // Event Types
 export const EVENT_TYPES = [
   'Battle',

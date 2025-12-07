@@ -98,7 +98,6 @@ type QueryClient = SupabaseClient<Database>;
 interface QueryOptions {
   client?: QueryClient;
   limit?: number;
-  importance?: number;
   tags?: string[];
 }
 
@@ -166,11 +165,6 @@ export async function getEventsByTimelineId(
   const sorted = sortTimelineEventRows(rows);
 
   let events = sorted.map(row => row.events as Event);
-
-  // Apply filters if provided
-  if (options?.importance) {
-    events = events.filter(e => e.importance === options.importance);
-  }
 
   if (options?.tags && options.tags.length > 0) {
     events = events.filter(e =>

@@ -15,7 +15,6 @@ export interface ExpandedEventInput {
   category: string;
   themeId?: string;
   tags?: string[];
-  importance?: number;
 }
 
 /**
@@ -42,7 +41,6 @@ export async function saveExpandedEvents(
       end_year: expandedEvent.endYear || null,
       location: null,
       tags: [expandedEvent.category],
-      importance: expandedEvent.importance || 2,
       summary: expandedEvent.summary,
       description_html: formatAsHtml(expandedEvent.description),
       significance_html: formatAsHtml(expandedEvent.significance),

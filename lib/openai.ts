@@ -725,7 +725,6 @@ export async function generateEventContent(params: {
   significance: string;
   tags: string[];
   type: string;
-  importance: number;
 }> {
   const { title, year, timelineContext, existingEvents } = params;
 
@@ -846,14 +845,10 @@ Answer the "SO WHAT?"—with mechanisms, precedents, and sourced consequences. A
 BANNED: "symbol of power," "testament to," "encapsulated," or any unsourced emotional claim. Use vivid, specific facts instead.
 
 ═══════════════════════════════════════════════════════════
-4. TYPE & IMPORTANCE (for categorization)
+4. TYPE (for categorization)
 ═══════════════════════════════════════════════════════════
 
-Based on the content above, assign:
-- **type**: Brief category (e.g., "Political Reform", "Military Conquest", "Succession Crisis")
-- **importance**: 1 (notable detail), 2 (significant event), 3 (major turning point)
-
-Importance 3 should be reserved for events that fundamentally changed what came after or where the outcome was genuinely uncertain.
+Based on the content above, assign a brief **type** (e.g., "Political Reform", "Military Conquest", "Succession Crisis").
 
 ═══════════════════════════════════════════════════════════
 RETURN FORMAT
@@ -865,8 +860,7 @@ Return as JSON:
   "description": "...",
   "significance": "...",
   "tags": ["category"],
-  "type": "category name",
-  "importance": 2
+  "type": "category name"
 }
 
 Remember: You're not writing an encyclopedia entry. You're telling the story of a moment that mattered. Make it sing.`
@@ -893,8 +887,6 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
   const parsed = parseEventContentJson(content);
 
   if (parsed) {
-    const importance = Number(parsed.importance);
-
     if (!parsed.summary || !String(parsed.summary).trim()) {
       console.warn(
         `⚠️  Event content missing summary after parse for "${title}" (${year}). Parsed keys: ${
@@ -917,7 +909,6 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
       significance: typeof parsed.significance === 'string' ? parsed.significance.trim() : '',
       tags: normalizeEventTags(parsed.tags),
       type: typeof parsed.type === 'string' && parsed.type.trim() ? parsed.type.trim() : 'Event',
-      importance: Number.isFinite(importance) ? importance : 2,
     };
   }
 
@@ -934,7 +925,6 @@ Remember: You're not writing an encyclopedia entry. You're telling the story of 
     significance: '',
     tags: [],
     type: 'Event',
-    importance: 2,
   };
 }
 
@@ -1023,7 +1013,6 @@ export async function generateEventOutline(params: {
 }): Promise<Array<{
   title: string;
   year: number;
-  importance: number;
 }>> {
   const { timelineTitle, startYear, endYear, region, eventCount = 20 } = params;
 
@@ -1032,11 +1021,10 @@ export async function generateEventOutline(params: {
     items: {
       type: 'object',
       additionalProperties: false,
-      required: ['title', 'year', 'importance'],
+      required: ['title', 'year'],
       properties: {
         title: { type: 'string' },
         year: { type: 'integer' },
-        importance: { type: 'integer', minimum: 1, maximum: 3 },
       },
     },
   } as const;
@@ -1046,7 +1034,6 @@ export async function generateEventOutline(params: {
 REQUIREMENTS
 - Generate exactly ${eventCount} events for "${timelineTitle}" (${startYear} - ${endYear}${region ? `, ${region}` : ''}).
 - Mix political, cultural, economic, and social events.
-- Importance is 1 (notable), 2 (significant), or 3 (major turning point).
 - Output valid JSON only. Follow the schema exactly and omit any commentary.
 
 SCHEMA (verbatim)
@@ -1076,13 +1063,11 @@ ${JSON.stringify(eventSchema, null, 2)}`;
       item =>
         item &&
         typeof item.title === 'string' &&
-        Number.isInteger(item.year) &&
-        Number.isInteger(item.importance)
+        Number.isInteger(item.year)
     )
     .map(item => ({
       title: item.title.trim(),
       year: item.year,
-      importance: Math.min(3, Math.max(1, item.importance)),
     }));
 
   if (normalized.length > 0) {

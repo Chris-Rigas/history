@@ -35,7 +35,6 @@ export default function HighlightCardsEnriched({
     end_year: null,
     location: null,
     tags: highlight.tags,
-    importance: 3,
     summary: highlight.summary,
     description_html: null,
     significance_html: `<p>${highlight.whyItMatters}</p><p><strong>Immediate Impact:</strong> ${highlight.immediateImpact}</p>`,

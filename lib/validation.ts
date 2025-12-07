@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IMPORTANCE_LEVELS, MAX_YEAR, MIN_YEAR } from './constants';
+import { MAX_YEAR, MIN_YEAR } from './constants';
 
 const optionalTrimmedString = (options?: { maxLength?: number }) =>
   z
@@ -70,13 +70,6 @@ const eventSchema = z
       .array(z.string().trim().min(1, 'Tag cannot be empty').max(50))
       .optional()
       .transform(value => value ?? []),
-    importance: z
-      .number()
-      .int('Importance must be an integer')
-      .min(IMPORTANCE_LEVELS.NOTABLE)
-      .max(IMPORTANCE_LEVELS.MAJOR)
-      .nullable()
-      .optional(),
     summary: optionalTrimmedString({ maxLength: 5000 }),
     description_html: optionalTrimmedString(),
     significance_html: optionalTrimmedString(),

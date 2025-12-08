@@ -144,13 +144,13 @@ async function generateCompleteTimeline(
     // Load events for subsequent steps
     events = await getEventsByTimelineId(timeline.id, { client: supabaseAdmin });
 
-    // Step 3: Save people from enrichment (unless events-only)
-    if (!options.eventsOnly && context?.enrichment?.people?.length) {
+    // Step 3: Save people from Phase 4.5 (unless events-only)
+    if (!options.eventsOnly && context?.people?.length) {
       console.log(`\n${'─'.repeat(80)}`);
-      console.log('STEP 3: Saving People from Enrichment');
+      console.log('STEP 3: Saving People to Database');
       console.log(`${'─'.repeat(80)}`);
 
-      await saveEnrichmentPeopleToDatabase(context.enrichment.people, timeline, events);
+      await savePeopleToDatabase(context.people, timeline, events);
     }
 
     // Summary
@@ -199,7 +199,7 @@ async function saveUnifiedPipelineResults(
   }
 
   const enrichmentData = {
-    people: context.enrichment?.people || [],
+    people: context.people || context.enrichment?.people || [],
     turningPoints: context.enrichment?.turningPoints || [],
     perspectives: context.enrichment?.perspectives || [],
     themeInsights: context.enrichment?.themeInsights || [],
@@ -266,12 +266,12 @@ function formatStoryBeatsAsHtml(
 /**
  * Save enrichment people to database with event links
  */
-async function saveEnrichmentPeopleToDatabase(
+async function savePeopleToDatabase(
   enrichedPeople: any[],
   timeline: any,
   events: any[]
 ): Promise<void> {
-  console.log(`\n👥 Saving ${enrichedPeople.length} people from enrichment...`);
+  console.log(`\n👥 Saving ${enrichedPeople.length} people from Phase 4.5...`);
 
   // Build event slug → event record map for linking
   const eventSlugMap = new Map(events.map(e => [e.slug, e]));

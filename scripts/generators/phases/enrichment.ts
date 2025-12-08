@@ -67,7 +67,7 @@ export async function executePhase5Enrichment(context: GenerationContext): Promi
   const parsed = await callJsonCompletion(prompt);
 
   return {
-    people: Array.isArray(parsed.people) ? parsed.people : [],
+    people: [], // People are now generated in Phase 4.5
     turningPoints: Array.isArray(parsed.turningPoints) ? parsed.turningPoints : [],
     perspectives: Array.isArray(parsed.perspectives) ? parsed.perspectives : [],
     themeInsights: Array.isArray(parsed.themeInsights) ? parsed.themeInsights : [],

@@ -1300,7 +1300,7 @@ RELATED EVENT SLUGS:
 - Include ONLY events where this person directly participated, commanded, negotiated, or decisively influenced outcomes
 - Do NOT include events just because they happened during the person's lifetime
 - Event slugs must match EXACTLY from the EXPANDED EVENTS list above
-- Use 3-6 slugs per person (fewer if corpus supports fewer direct involvements)
+- Use the appropriate number of slugs for events the person was involved in - no upper or lower limit
 
 ═══════════════════════════════════════════════════════════════════════════════
 WRITING STYLE REQUIREMENTS
@@ -1332,7 +1332,7 @@ Before submitting, verify EACH biography has:
 ✓ At least 2-3 specific place names
 ✓ At least one memorable detail or anecdote
 ✓ Active voice throughout
-✓ 3-6 related event slugs that exactly match expanded events list
+✓ The relevant number related event slugs that exactly match expanded events list
 ✓ No vague phrases like "many", "several", "numerous"
 ✓ No clichés or generic historical language
 

@@ -14,11 +14,11 @@ import './load-env';
 
 import { getTimelineSeed, TIMELINE_SEEDS } from './ingest';
 import { generateTimelineComplete } from './generators/unified-pipeline';
-import { createEvent, getEventsByTimelineId, linkPersonToEvent } from '@/lib/queries/events';
+import { saveExpandedEvents } from './generators/event-generator';
+import { getEventsByTimelineId, linkPersonToEvent } from '@/lib/queries/events';
 import {
   createTimeline,
   getTimelineBySlug,
-  linkEventToTimeline,
   linkPersonToTimeline,
 } from '@/lib/queries/timelines';
 import { serializeError, summarizeError } from './utils/error';
@@ -132,32 +132,9 @@ async function generateCompleteTimeline(
 
       // Save expanded events from unified pipeline
       if (context.expandedEvents && context.expandedEvents.length > 0) {
-        const eventIds: string[] = [];
-
         console.log(`\n📅 Saving ${context.expandedEvents.length} events...`);
-
-        for (const expandedEvent of context.expandedEvents) {
-          const event = await createEvent({
-            title: expandedEvent.title,
-            slug: expandedEvent.slug || slugify(expandedEvent.title),
-            start_year: expandedEvent.year,
-            end_year: (expandedEvent as any).endYear || null,
-            location: null,
-            tags: expandedEvent.themeId
-              ? [expandedEvent.themeId]
-              : expandedEvent.tags?.length
-              ? [expandedEvent.tags[0]]
-              : [],
-            summary: expandedEvent.summary,
-            description_html: formatAsHtml(expandedEvent.description),
-            significance_html: formatAsHtml(expandedEvent.significance),
-          });
-
-          await linkEventToTimeline(timeline.id, event.id);
-          eventIds.push(event.id);
-        }
-
-        console.log(`✅ Saved ${eventIds.length} events`);
+        const eventIds = await saveExpandedEvents(timeline, context.expandedEvents as any);
+        console.log(`✅ Saved ${eventIds.length} events using unified event saver`);
       }
 
       // Refresh timeline data after updates
@@ -284,14 +261,6 @@ function formatStoryBeatsAsHtml(
     .flatMap(beat => beat?.paragraphs || [])
     .map(p => `<p>${p}</p>`)
     .join('\n');
-}
-
-function formatAsHtml(text: string): string {
-  if (!text) return '';
-
-  // Split into paragraphs and wrap in <p> tags
-  const paragraphs = text.split(/\n\n+/);
-  return paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
 }
 
 /**

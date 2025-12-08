@@ -6,7 +6,6 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import SEOSchema, { BreadcrumbSchema } from '@/components/SEO';
 import PersonHeader from '@/components/person/PersonHeader';
 import PersonTimeline from '@/components/person/PersonTimeline';
-import RelatedEvents from '@/components/person/RelatedEvents';
 import PersonQA from '@/components/person/PersonQA';
 
 interface PersonPageProps {
@@ -118,19 +117,6 @@ export default async function PersonPage({ params }: PersonPageProps) {
           <section className="py-12 bg-white">
             <div className="content-container">
               <PersonTimeline
-                timeline={timeline}
-                person={person}
-                events={timelineEvents}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Related Events Grid */}
-        {timelineEvents.length > 0 && (
-          <section className="py-12 bg-parchment-50">
-            <div className="content-container">
-              <RelatedEvents
                 timeline={timeline}
                 person={person}
                 events={timelineEvents}

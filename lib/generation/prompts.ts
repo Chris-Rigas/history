@@ -1267,7 +1267,7 @@ Return a single JSON object:
 {
   "people": [
     {
-      "name": "Full Name",
+      "name": "Most recognizable name for modern audience",
       "slug": "kebab-case-slug",
       "birthYear": -100,
       "deathYear": -44,

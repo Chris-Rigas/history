@@ -213,6 +213,7 @@ export interface GenerationContext {
   skeleton?: TimelineSkeleton;
   mainNarrative?: MainNarrative;
   expandedEvents?: ExpandedEvent[];
+  people?: ExpandedPerson[];
   enrichment?: Enrichment;
   seo?: SEOMetadata;
 }

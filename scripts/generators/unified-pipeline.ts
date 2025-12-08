@@ -3,6 +3,7 @@ import { executePhase1Research } from './phases/research';
 import { executePhase2Skeleton } from './phases/skeleton';
 import { executePhase3Narrative } from './phases/narrative';
 import { executePhase4Events } from './phases/events';
+import { executePhase4_5People } from './phases/people';
 import { executePhase5Enrichment } from './phases/enrichment';
 import { executePhase6SEO } from './phases/seo';
 
@@ -28,6 +29,10 @@ export async function generateTimelineComplete(seed: TimelineSeed): Promise<Gene
   } else {
     context.expandedEvents = [];
   }
+
+  // Phase 4.5: People Expansion
+  console.log('👥 Phase 4.5: People...');
+  context.people = await executePhase4_5People(context);
 
   // Phase 5: Enrichment
   console.log('✨ Phase 5: Enrichment...');

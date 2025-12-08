@@ -1195,6 +1195,160 @@ REQUIRED FIELDS:
 ✓ themeId (from available themes list)`;
 }
 
+export function buildPhase4_5PeoplePrompt(context: GenerationContext) {
+  if (!context.researchCorpus || !context.skeleton || !context.mainNarrative || !context.expandedEvents) {
+    throw new Error('Missing context for people expansion prompt');
+  }
+
+  return `You are generating biographical content for key figures in: "${describeSeed(context.seed)}"
+
+═══════════════════════════════════════════════════════════════════════════════
+CONTEXT FROM PREVIOUS PHASES
+═══════════════════════════════════════════════════════════════════════════════
+
+RESEARCH CORPUS (your source for facts and citations):
+${stringifyCorpus(context.researchCorpus)}
+
+SKELETON PEOPLE (basic facts about all people identified):
+${JSON.stringify(context.skeleton.people, null, 2)}
+
+KEY PEOPLE SELECTED BY NARRATIVE (expand these ONLY):
+${JSON.stringify(context.mainNarrative.keyPeople, null, 2)}
+
+EXPANDED EVENTS (for linking people to specific events):
+${JSON.stringify(context.expandedEvents.map(e => ({ title: e.title, slug: e.slug, year: e.year, summary: e.summary })), null, 2)}
+
+═══════════════════════════════════════════════════════════════════════════════
+YOUR MISSION
+═══════════════════════════════════════════════════════════════════════════════
+
+Generate complete biographical content for ONLY the key people selected by the narrative phase.
+
+For each person:
+1. Find their basic info in the SKELETON PEOPLE list
+2. Use the RESEARCH CORPUS for detailed facts and citations
+3. Write engaging, historically accurate biographies
+4. Link them to specific events they directly participated in
+
+You are writing compelling biographical prose in the tradition of David McCullough and Doris Kearns Goodwin—bring these historical figures to life with specific details, memorable anecdotes, and clear explanations of their significance.
+
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT FORMAT (RETURN JSON ONLY)
+═══════════════════════════════════════════════════════════════════════════════
+
+Return a single JSON object:
+
+{
+  "people": [
+    {
+      "name": "Full Name",
+      "slug": "kebab-case-slug",
+      "birthYear": -100,
+      "deathYear": -44,
+      "role": "Brief role descriptor (10-15 words max)",
+      "bioShort": "2-3 sentence summary (80-150 words)",
+      "bioLong": "Full biography (400-600 words, 3-5 paragraphs)",
+      "relatedEventSlugs": ["event-slug-1", "event-slug-2"]
+    }
+  ]
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+DETAILED REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+ROLE (10-15 words):
+A concise descriptor that captures their primary identity.
+Examples: "Roman Emperor and Stoic philosopher", "Carthaginian general who invaded Italy", "English monarch during the Spanish Armada"
+
+BIO SHORT (80-150 words, 2-3 sentences):
+A tight, compelling summary that answers:
+- Who were they?
+- What did they do that mattered?
+- Why do they belong in this timeline?
+
+Include 1-2 specific facts or accomplishments. Make it quotable—something that could appear in a museum caption.
+
+BIO LONG (400-600 words, 3-5 paragraphs):
+Structure explicitly as follows:
+
+PARAGRAPH 1 - EARLY LIFE & BACKGROUND (80-120 words):
+- Birth circumstances, family background
+- Early influences, education, formative experiences
+- What shaped them before they entered the historical stage?
+
+PARAGRAPH 2-3 - MAJOR ACCOMPLISHMENTS & ROLE (200-300 words):
+- Key events they participated in or commanded
+- Decisive moments and turning points
+- Their strategies, decisions, successes, failures
+- Specific battles, policies, reforms, or achievements
+- Use concrete numbers, dates, and place names
+
+PARAGRAPH 4 - CHALLENGES & COMPLEXITY (100-150 words):
+- Obstacles they faced
+- Controversies or difficult decisions
+- How they handled adversity or opposition
+- Human dimension—what kind of person were they?
+
+PARAGRAPH 5 - LEGACY & SIGNIFICANCE (80-120 words):
+- Long-term impact of their actions
+- How they're remembered or interpreted
+- Their place in the larger historical narrative
+- What changed because they existed?
+
+RELATED EVENT SLUGS:
+- Include ONLY events where this person directly participated, commanded, negotiated, or decisively influenced outcomes
+- Do NOT include events just because they happened during the person's lifetime
+- Event slugs must match EXACTLY from the EXPANDED EVENTS list above
+- Use 3-6 slugs per person (fewer if corpus supports fewer direct involvements)
+
+═══════════════════════════════════════════════════════════════════════════════
+WRITING STYLE REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Write in active voice—people DO things, they don't have things done to them
+✓ Use specific details: exact numbers, named places, quoted phrases
+✓ Show character through actions and decisions, not abstract adjectives
+✓ Connect personal motivations to historical outcomes
+✓ Make it vivid—help readers visualize scenes and understand stakes
+✓ Avoid clichés like "rose through the ranks" or "left an indelible mark"
+✓ Ground everything in the research corpus—cite sources as needed
+
+BAD: "He was a brilliant military leader who won many victories."
+GOOD: "At Cannae in 216 BCE, he encircled eight Roman legions using a double envelopment, killing 50,000 in a single afternoon—the worst defeat in Roman history [4]."
+
+BAD: "She was beloved by her people and ruled wisely."
+GOOD: "When Parliament pushed for Mary Stuart's execution, Elizabeth delayed for months, agonizing over killing an anointed queen. She signed the death warrant, then tried to recall it—too late [8]."
+
+═══════════════════════════════════════════════════════════════════════════════
+QUALITY CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+Before submitting, verify EACH biography has:
+✓ bioShort is 80-150 words (not 60, not 200)
+✓ bioLong is 400-600 words divided into 3-5 paragraphs
+✓ Clear five-part structure: Early Life → Accomplishments → Challenges → Legacy
+✓ At least 3-5 specific numbers or dates
+✓ At least 2-3 specific place names
+✓ At least one memorable detail or anecdote
+✓ Active voice throughout
+✓ 3-6 related event slugs that exactly match expanded events list
+✓ No vague phrases like "many", "several", "numerous"
+✓ No clichés or generic historical language
+
+═══════════════════════════════════════════════════════════════════════════════
+REMEMBER
+═══════════════════════════════════════════════════════════════════════════════
+
+These biographies will be featured prominently on the timeline. They need to:
+- Stand alone as compelling mini-narratives
+- Integrate seamlessly with the overall timeline story
+- Give readers a vivid sense of who these people were
+- Be historically accurate and properly grounded in sources
+
+You're not writing encyclopedia entries. You're writing portraits of people who shaped history.`;
+}
+
 export function buildPhase5EnrichmentPrompt(context: GenerationContext) {
   if (!context.researchCorpus || !context.skeleton || !context.mainNarrative || !context.expandedEvents) {
     throw new Error('Missing context for enrichment prompt');
@@ -1217,7 +1371,6 @@ OUTPUT SCOPE (RETURN JSON ONLY)
 ═══════════════════════════════════════════════════════════════════════════════
 Return a single JSON object with these arrays:
 {
-"people": [...],
 "turningPoints": [...],
 "perspectives": [...],
 "themeInsights": [...],
@@ -1227,31 +1380,10 @@ Return a single JSON object with these arrays:
 }
 Use citation numbers that match the research corpus. Include the citation numbers used in each element so they can be rendered.
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 1: PEOPLE (expand ONLY key people selected by narrative)
+NOTE: PEOPLE ARE HANDLED IN PHASE 4.5
 ═══════════════════════════════════════════════════════════════════════════════
-The narrative phase has selected the following key people to feature:
-${JSON.stringify(context.mainNarrative.keyPeople, null, 2)}
-
-Expand ONLY these selected people. Find them in the skeleton by matching names.
-For each selected person, generate:
-{
-"name": "Full Name",
-"slug": "kebab-case-slug",
-"birthYear": -100,
-"deathYear": -44,
-"role": "Brief role description (10-15 words)",
-"bioShort": "2-3 sentence summary with citations",
-"bioLong": "3-4 paragraphs with citations",
-"relatedEventSlugs": ["event-slug-1", "event-slug-2"]
-}
-
-RELATED EVENT RULES (do not skip):
-- Include ONLY events where this person directly participated, commanded, negotiated, or decisively influenced outcomes.
-- Do NOT list events just because they happened during the person's lifetime.
-- Event slugs must match EXACTLY from the EXPANDED EVENTS list above.
-- Use 3-6 slugs per person unless the corpus supports fewer direct involvements.
-
-Keep bioShort to 80-120 words. Keep bioLong to 300-400 words.
+People biographies are generated in a separate dedicated phase.
+This enrichment phase focuses on analytical content, not biographical content.
 ═══════════════════════════════════════════════════════════════════════════════
 SECTION 2: TURNING POINTS (3-5 pivotal moments)
 ═══════════════════════════════════════════════════════════════════════════════

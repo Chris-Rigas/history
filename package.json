@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "ts-node --project tsconfig.scripts.json scripts/generate-timeline.ts",
+    "batch-generate": "ts-node --project tsconfig.scripts.json scripts/batch-generate-timelines.ts",
     "seed": "ts-node --project tsconfig.scripts.json scripts/seed-database.ts",
     "type-check": "tsc --noEmit"
   },

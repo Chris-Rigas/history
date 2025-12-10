@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Generate timelines
-        run: npm run generate
+        run: npm run batch-generate
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -34,7 +34,7 @@ jobs:
 
       - name: Notify on success
         if: success()
-        run: echo "✅ Successfully generated timelines!"
+        run: echo "✅ Successfully generated 3 timelines!"
 
       - name: Notify on failure
         if: failure()

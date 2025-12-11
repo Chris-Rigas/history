@@ -136,12 +136,12 @@ async function generateCompleteTimeline(
     }
 
     // Step 2: Generate people (if we have events and enriched people)
-    if (context?.enrichedPeople && context.enrichedPeople.length > 0 && events.length > 0) {
+    if (context?.people && context.people.length > 0 && events.length > 0) {
       console.log(`\n${'─'.repeat(80)}`);
       console.log('STEP 2: Saving People from Enrichment Phase');
       console.log(`${'─'.repeat(80)}`);
 
-      await savePeopleToDatabase(context.enrichedPeople, timeline, events);
+      await savePeopleToDatabase(context.people, timeline, events);
     }
 
     console.log(`\n${'='.repeat(80)}`);
@@ -166,17 +166,44 @@ async function saveUnifiedPipelineResults(
   timelineId: string,
   context: GenerationContext
 ): Promise<void> {
-  const { upsertTimelineMetadata } = await import('@/lib/queries/timelines');
+  console.log('\n=== SAVING TO DATABASE ===');
+  const { replaceTimelineSources, upsertTimelineMetadata } = await import('@/lib/queries/timelines');
 
-  console.log('\n=== SAVING UNIFIED PIPELINE RESULTS TO DATABASE ===');
+  // Save research corpus citations as timeline sources
+  if (context.researchCorpus?.citations) {
+    await replaceTimelineSources(
+      timelineId,
+      context.researchCorpus.citations.map((citation, index) => ({
+        number: index + 1,
+        source: citation.source || '',
+        url: citation.url || '',
+      }))
+    );
+  }
 
   const enrichmentData = {
-    people: context.enrichedPeople || [],
-    perspectives: context.enrichedPerspectives || [],
+    people: context.people || context.enrichment?.people || [],
+    turningPoints: context.enrichment?.turningPoints || [],
+    perspectives: context.enrichment?.perspectives || [],
+    themeInsights: context.enrichment?.themeInsights || [],
+    keyFacts: context.enrichment?.keyFacts || [],
+    interpretationSections: context.enrichment?.interpretationSections || [],
+    keyHighlights: context.enrichment?.keyHighlights || [],
   };
 
-  console.log(`Enriched people: ${enrichmentData.people.length}`);
-  console.log(`Perspectives: ${enrichmentData.perspectives.length}`);
+  console.log(`\n=== SAVING ENRICHMENT ===`);
+  console.log(`keyFacts count being saved:`, context.enrichment?.keyFacts?.length || 0);
+  if (context.enrichment?.keyFacts?.length) {
+    console.log(`Sample fact:`, JSON.stringify(context.enrichment.keyFacts[0]));
+  }
+
+  console.log('Enrichment counts:');
+  console.log(`  - interpretationSections: ${enrichmentData.interpretationSections.length}`);
+  console.log(`  - keyHighlights: ${enrichmentData.keyHighlights.length}`);
+  console.log(`  - perspectives: ${enrichmentData.perspectives.length}`);
+  console.log(`  - turningPoints: ${enrichmentData.turningPoints.length}`);
+  console.log(`  - themeInsights: ${enrichmentData.themeInsights.length}`);
+  console.log(`  - people: ${enrichmentData.people.length}`);
 
   // Save all phase outputs to metadata
   await upsertTimelineMetadata(timelineId, {
@@ -235,6 +262,8 @@ async function savePeopleToDatabase(
   // Build event slug → event record map for linking
   const eventSlugMap = new Map(events.map(e => [e.slug, e]));
 
+  const savedPeopleIds: string[] = [];
+
   for (let i = 0; i < enrichedPeople.length; i++) {
     const enrichedPerson = enrichedPeople[i];
 
@@ -254,32 +283,36 @@ async function savePeopleToDatabase(
       // 2. Link to timeline
       await linkPersonToTimeline(timeline.id, person.id, enrichedPerson.role);
 
-      // 3. Link to events if we have event links
-      if (enrichedPerson.eventLinks && Array.isArray(enrichedPerson.eventLinks)) {
-        for (const link of enrichedPerson.eventLinks) {
-          const event = eventSlugMap.get(link.eventSlug);
+      savedPeopleIds.push(person.id);
+
+      // 3. Link to related events based on relatedEventSlugs from enrichment
+      if (enrichedPerson.relatedEventSlugs?.length) {
+        for (const eventSlug of enrichedPerson.relatedEventSlugs) {
+          const event = eventSlugMap.get(eventSlug);
           if (event) {
-            await linkPersonToEvent(event.id, person.id, link.role);
+            await linkPersonToEvent(event.id, person.id);
+            console.log(`      ✓ Linked to event: ${event.title}`);
           } else {
-            console.warn(`      ⚠️  Event not found for slug: ${link.eventSlug}`);
+            console.warn(`      ⚠️  Event slug not found: ${eventSlug}`);
           }
         }
       }
 
-      console.log(`      ✅ Person saved and linked`);
+      console.log(`      ✅ Person saved: ${person.id}`);
     } catch (error) {
-      console.error(`      ❌ Failed to save ${enrichedPerson.name}:`, error);
+      console.error(`      ❌ Error saving ${enrichedPerson.name}:`, error);
     }
   }
 
-  console.log(`✅ Completed saving ${enrichedPeople.length} people\n`);
+  console.log(`\n✅ Saved ${savedPeopleIds.length} people to database`);
 }
 
 /**
  * Main execution
  */
 async function main() {
-  console.log(`\n${'='.repeat(80)}
+  console.log(`
+${'='.repeat(80)}
 BATCH TIMELINE GENERATION
 ${'='.repeat(80)}
 

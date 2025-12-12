@@ -3,10 +3,8 @@ import type {
   ResearchCorpus,
   TimelineSeed,
   StoryBeat,
-  TimelineSkeleton,
+  ExpandedEvent,
 } from './types';
-
-import { slugify } from '@/lib/utils';
 
 
 function stringifyCorpus(researchCorpus?: ResearchCorpus) {
@@ -823,18 +821,18 @@ READING EXPERIENCE:
 ✓ Ending feels satisfying, not abrupt`;
 }
 
-export function buildPhase3bEventLinksPrompt(
+export function buildPhase4cEventLinksPrompt(
   storyBeats: StoryBeat[],
-  skeleton: TimelineSkeleton
+  expandedEvents: ExpandedEvent[]
 ): string {
   return `You are adding intelligent hyperlinks to a historical narrative.
 
 ═══════════════════════════════════════════════════════════════════════════════
-AVAILABLE EVENTS TO LINK TO
+AVAILABLE EVENTS TO LINK TO (with database slugs)
 ═══════════════════════════════════════════════════════════════════════════════
 
-${skeleton.events
-    .map((e, i) => `${i + 1}. "${e.title}" → slug: "${slugify(e.title)}"`)
+${expandedEvents
+    .map((e, i) => `${i + 1}. "${e.title}" → slug: "${e.slug}"`)
     .join('\n')}
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -850,18 +848,20 @@ YOUR TASK
 Identify 10-15 places in the story beats where events are naturally mentioned and 
 should become clickable links.
 
-SELECTION CRITERIA:
-- Link the FIRST mention of each major event in the narrative
-- Prefer natural phrases over formal titles (e.g., "Nero's suicide" not "Nero's Suicide Ends Julio-Claudian Dynasty")
-- Choose phrases that readers would naturally want to click to learn more
-- Distribute links across different beats (don't cluster them all in one section)
-- Only link to events that are clearly referenced in the text
-
 CRITICAL RULES:
 1. The "textToLink" MUST be an EXACT substring from the paragraph text (preserving case)
-2. Use the shortest natural phrase that clearly references the event
-3. Each event should typically only be linked once (on first mention)
-4. Total of 10-15 links across all beats
+2. The "eventSlug" MUST be copied EXACTLY from the slug shown above (character-for-character)
+3. Use the shortest natural phrase that clearly references the event
+4. Each event should typically only be linked once (on first mention)
+5. Total of 10-15 links across all beats
+
+⚠️  CRITICAL: Use the EXACT slug values shown after → in the events list above.
+DO NOT generate your own slugs. DO NOT modify them. COPY them exactly.
+
+Example:
+✅ CORRECT: "eventSlug": "neros-suicide-ends-julio-claudian-line-68"
+❌ WRONG:   "eventSlug": "neros-suicide"
+❌ WRONG:   "eventSlug": "nero-suicide-68"
 
 ═══════════════════════════════════════════════════════════════════════════════
 OUTPUT FORMAT
@@ -876,7 +876,7 @@ Return a JSON array of event links organized by beat:
       "eventLinks": [
         {
           "textToLink": "Nero's suicide",
-          "eventSlug": "neros-suicide-ends-julio-claudian-dynasty",
+          "eventSlug": "neros-suicide-ends-julio-claudian-line-68",
           "paragraphIndex": 1
         }
       ]
@@ -887,6 +887,7 @@ Return a JSON array of event links organized by beat:
 IMPORTANT: 
 - beatIndex and paragraphIndex are 0-based
 - textToLink must match the paragraph text EXACTLY (including capitalization)
+- eventSlug must be copied EXACTLY from the list above
 - Aim for 10-15 total links across all beats`;
 }
 

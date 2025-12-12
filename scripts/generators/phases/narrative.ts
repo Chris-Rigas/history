@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 import { buildPhase3NarrativePrompt } from '@/lib/generation/prompts';
-import { addEventLinksToBeats } from './add-event-links';
 import type { GenerationContext, MainNarrative } from '@/lib/generation/types';
 import { safeJsonParse } from '@/lib/utils';
 
@@ -50,12 +49,6 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
   const parsed = await callJsonCompletion(prompt);
 
   let storyBeats = Array.isArray(parsed.storyBeats) ? parsed.storyBeats : [];
-
-  // Phase 3b: Add event links via GPT-5
-  if (context.skeleton && storyBeats.length > 0) {
-    console.log('\n🔗 Phase 3b: Adding event links to narrative...');
-    storyBeats = await addEventLinksToBeats(storyBeats, context.skeleton);
-  }
 
   return {
     pageTitle: parsed.pageTitle || '',

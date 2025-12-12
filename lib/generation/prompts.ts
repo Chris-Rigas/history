@@ -2,6 +2,8 @@ import type {
   GenerationContext,
   ResearchCorpus,
   TimelineSeed,
+  StoryBeat,
+  TimelineSkeleton,
 } from './types';
 
 import { slugify } from '@/lib/utils';
@@ -264,13 +266,8 @@ OUTPUT FORMAT (JSON)
     {
       "beatType": "world-before|origins|rising-tension|etc.",
       "title": "Short title for this beat (3-8 words)",
-      "paragraphs": ["paragraph 1", "paragraph 2"],
-      "eventLinks": [
-        {
-          "textToLink": "exact text phrase to make clickable",
-          "eventSlug": "matching-event-slug-from-skeleton"
-        }
-      ]
+      "paragraphs": ["paragraph 1", "paragraph 2"]
+      // Note: eventLinks will be added in a separate phase
     }
   ],
 
@@ -555,25 +552,8 @@ STORY BEAT SPECIFICATIONS
 - Have 1-3 paragraphs (100-200 words per beat)
 - Include specific dates, names, numbers, and places
 - Reference citations from research corpus [1], [2], etc.
-- Include eventLinks to relevant skeleton events where appropriate
+- Include natural references to key skeleton events where appropriate
 - Include at least one sensory detail (color, sound, texture)
-
-**EVENT LINKS:**
-Link to events when they are meaningfully mentioned in the narrative.
-- textToLink: The exact phrase in your paragraph to make clickable
-- eventSlug: Must match a slug from the skeleton's events array
-
-Example:
-{
-  "beatType": "confrontation",
-  "title": "Decision at Magnesia",
-  "paragraphs": [
-    "Near Magnesia ad Sipylum in winter 190/189, the Scipios faced Antiochus with 30,000 troops against a Seleucid host numbering perhaps 70,000 [2]. Eumenes' cavalry struck the Seleucid left; scythed chariots panicked their own lines, wheels clattering uselessly across the frozen ground..."
-  ],
-  "eventLinks": [
-    { "textToLink": "Magnesia ad Sipylum", "eventSlug": "battle-of-magnesia" }
-  ]
-}
 
 **OPENING BEAT(S) - ORIENT THE READER:**
 Get to something interesting fast. Within 50 words, the reader should think "wait, what?"
@@ -582,7 +562,7 @@ Answer: What was the world like before? What forces were building? What do reade
 **DEVELOPMENT BEATS - TELL THE STORY:**
 Show causation: WHY did X lead to Y? Don't just list events—connect them.
 Include the human element: decisions, stakes, what people at the time were thinking.
-Use eventLinks to let readers explore specific events in detail.
+Use natural references to events where they fit organically.
 
 **RESOLUTION BEAT(S) - SHOW THE IMPACT:**
 Answer: What was fundamentally different after? Why does this period matter?
@@ -681,29 +661,24 @@ When a PLACE is first mentioned:
 ✗ NOT just: "at Lugdunum in 197"
 
 ═══════════════════════════════════════════════════════════════════════════════
-CRITICAL: EVENT SLUG MATCHING RULES
+NATURAL EVENT REFERENCES
 ═══════════════════════════════════════════════════════════════════════════════
 
-When creating eventLinks in your storyBeats, you MUST use slugs that EXACTLY match 
-the skeleton events above.
+When writing your story beats, naturally mention key events from the skeleton where 
+they fit organically into the narrative. Use natural phrasing, not formal event titles.
 
-HOW TO CREATE MATCHING SLUGS:
-1. Take the EXACT event title from the skeleton (e.g., "First Dacian War (101–102)")
-2. Convert to lowercase
-3. Replace spaces with hyphens
-4. Replace parentheses and special characters with hyphens
-5. Remove consecutive hyphens
+GOOD natural mentions:
+✓ "Nero's suicide in June 68"
+✓ "the Senate's proclamation of Galba" 
+✓ "Otho's coup killed Galba and Piso in the Forum"
+✓ "when the Rhine legions mutinied and proclaimed Vitellius"
+✓ "the battle of Bedriacum"
 
-CORRECT SLUG EXAMPLES from the skeleton above:
-${(skeleton?.events || []).slice(0, 5).map((e: any) => 
-  `- Event title: "${e.title}"\n  → Correct slug: "${slugify(e.title)}"`
-).join('\n')}
+DON'T force full formal titles into prose:
+✗ "Then 'Senate Proclaims Galba Emperor' occurred..."
+✗ "The event 'Rhine Mutiny and Proclamation of Vitellius' happened..."
 
-WRONG: Modifying titles or omitting year ranges from slugs
-RIGHT: Using the exact slugified version of the skeleton title
-
-If an event is "First Dacian War (101–102)", the slug MUST be "first-dacian-war-101-102"
-NOT "first-dacian-war" or "dacian-war-101-102" or any variation.
+Write naturally—event links will be added intelligently in post-processing.
 
 ═══════════════════════════════════════════════════════════════════════════════
 BANNED PHRASES
@@ -846,6 +821,73 @@ READING EXPERIENCE:
 ✓ Forward momentum—readers want to keep reading
 ✓ Stakes escalate through the narrative
 ✓ Ending feels satisfying, not abrupt`;
+}
+
+export function buildPhase3bEventLinksPrompt(
+  storyBeats: StoryBeat[],
+  skeleton: TimelineSkeleton
+): string {
+  return `You are adding intelligent hyperlinks to a historical narrative.
+
+═══════════════════════════════════════════════════════════════════════════════
+AVAILABLE EVENTS TO LINK TO
+═══════════════════════════════════════════════════════════════════════════════
+
+${skeleton.events
+    .map((e, i) => `${i + 1}. "${e.title}" → slug: "${slugify(e.title)}"`)
+    .join('\n')}
+
+═══════════════════════════════════════════════════════════════════════════════
+STORY BEATS TO ADD LINKS TO
+═══════════════════════════════════════════════════════════════════════════════
+
+${JSON.stringify(storyBeats, null, 2)}
+
+═══════════════════════════════════════════════════════════════════════════════
+YOUR TASK
+═══════════════════════════════════════════════════════════════════════════════
+
+Identify 10-15 places in the story beats where events are naturally mentioned and 
+should become clickable links.
+
+SELECTION CRITERIA:
+- Link the FIRST mention of each major event in the narrative
+- Prefer natural phrases over formal titles (e.g., "Nero's suicide" not "Nero's Suicide Ends Julio-Claudian Dynasty")
+- Choose phrases that readers would naturally want to click to learn more
+- Distribute links across different beats (don't cluster them all in one section)
+- Only link to events that are clearly referenced in the text
+
+CRITICAL RULES:
+1. The "textToLink" MUST be an EXACT substring from the paragraph text (preserving case)
+2. Use the shortest natural phrase that clearly references the event
+3. Each event should typically only be linked once (on first mention)
+4. Total of 10-15 links across all beats
+
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT FORMAT
+═══════════════════════════════════════════════════════════════════════════════
+
+Return a JSON array of event links organized by beat:
+
+{
+  "beats": [
+    {
+      "beatIndex": 0,
+      "eventLinks": [
+        {
+          "textToLink": "Nero's suicide",
+          "eventSlug": "neros-suicide-ends-julio-claudian-dynasty",
+          "paragraphIndex": 1
+        }
+      ]
+    }
+  ]
+}
+
+IMPORTANT: 
+- beatIndex and paragraphIndex are 0-based
+- textToLink must match the paragraph text EXACTLY (including capitalization)
+- Aim for 10-15 total links across all beats`;
 }
 
 export function buildPhase4EventsPrompt(context: GenerationContext, eventsChunk: any[]) {

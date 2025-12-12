@@ -12,19 +12,23 @@ async function callJsonCompletion(prompt: string): Promise<any> {
   const response = await openai.chat.completions.create({
     model: 'gpt-5',
     messages: [
-      {
-        role: 'system',
-        content: 'You are an expert at identifying natural places to add hyperlinks in narrative text. Return valid JSON only.'
+      { 
+        role: 'system', 
+        content: 'You are an expert at identifying natural places to add hyperlinks in narrative text. Return valid JSON only.' 
       },
       { role: 'user', content: prompt },
     ],
     max_completion_tokens: 4000,
-    temperature: 0.3, // Lower temperature for more precise matching
+    temperature: 1, // GPT-5 only supports temperature: 1
   });
 
   const content = response.choices[0].message?.content || '{}';
   console.log(`Response length: ${content.length} characters`);
   console.log(`Finish reason: ${response.choices[0].finish_reason}`);
+
+  if (response.choices[0].finish_reason === 'length') {
+    console.error('⚠️  WARNING: Response truncated due to max_tokens!');
+  }
 
   const cleaned = content.replace(/```json|```/g, '').trim();
   const parsed = safeJsonParse(cleaned, {});

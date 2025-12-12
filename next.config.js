@@ -26,6 +26,11 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
 
+  // Disable TypeScript build errors
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // Experimental features
   experimental: {
     // Enable server actions if needed

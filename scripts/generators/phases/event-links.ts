@@ -1,25 +1,25 @@
 import OpenAI from 'openai';
-import { buildPhase3bEventLinksPrompt } from '@/lib/generation/prompts';
-import type { StoryBeat, TimelineSkeleton, EventLink } from '@/lib/generation/types';
+import { buildPhase4cEventLinksPrompt } from '@/lib/generation/prompts';
+import type { StoryBeat, EventLink, ExpandedEvent } from '@/lib/generation/types';
 import { safeJsonParse } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function callJsonCompletion(prompt: string): Promise<any> {
-  console.log(`\n=== PHASE 3b: EVENT LINKS API CALL ===`);
+  console.log(`\n=== PHASE 4c: EVENT LINKS API CALL ===`);
   console.log(`Prompt length: ${prompt.length} characters`);
 
   const response = await openai.chat.completions.create({
     model: 'gpt-5',
     messages: [
-      { 
-        role: 'system', 
-        content: 'You are an expert at identifying natural places to add hyperlinks in narrative text. Return valid JSON only.' 
+      {
+        role: 'system',
+        content: 'You are an expert at identifying natural places to add hyperlinks in narrative text. Return valid JSON only.'
       },
       { role: 'user', content: prompt },
     ],
-    max_completion_tokens: 30000,
-    temperature: 1, // GPT-5 only supports temperature: 1
+    max_completion_tokens: 4000,
+    temperature: 1,
   });
 
   const content = response.choices[0].message?.content || '{}';
@@ -34,24 +34,33 @@ async function callJsonCompletion(prompt: string): Promise<any> {
   const parsed = safeJsonParse(cleaned, {});
   
   console.log(`Beats with links:`, Array.isArray(parsed.beats) ? parsed.beats.length : 0);
-  const totalLinks = Array.isArray(parsed.beats) 
+  const totalLinks = Array.isArray(parsed.beats)
     ? parsed.beats.reduce((sum: number, beat: any) => 
         sum + (Array.isArray(beat.eventLinks) ? beat.eventLinks.length : 0), 0)
     : 0;
   console.log(`Total links to add:`, totalLinks);
-  console.log('=== END PHASE 3b DEBUG ===\n');
+  console.log('=== END PHASE 4c DEBUG ===\n');
 
   return parsed;
 }
 
 /**
  * Add event links to story beats using GPT-5
+ * Now Phase 4c - runs after Phase 4 (events) so we have database slugs
  */
 export async function addEventLinksToBeats(
   storyBeats: StoryBeat[],
-  skeleton: TimelineSkeleton
+  expandedEvents: ExpandedEvent[]
 ): Promise<StoryBeat[]> {
-  const prompt = buildPhase3bEventLinksPrompt(storyBeats, skeleton);
+  // Build set of valid event slugs from database (with year suffixes)
+  const validEventSlugs = new Set(expandedEvents.map(e => e.slug));
+  
+  console.log(`\n=== VALID EVENT SLUGS FROM DATABASE ===`);
+  console.log(`Total expanded events: ${expandedEvents.length}`);
+  console.log(`Sample slugs:`, Array.from(validEventSlugs).slice(0, 5));
+  console.log('===================================\n');
+
+  const prompt = buildPhase4cEventLinksPrompt(storyBeats, expandedEvents);
   const parsed = await callJsonCompletion(prompt);
 
   if (!parsed.beats || !Array.isArray(parsed.beats)) {
@@ -59,15 +68,12 @@ export async function addEventLinksToBeats(
     return storyBeats;
   }
 
-  // Create a deep copy of story beats to modify
   const updatedBeats = JSON.parse(JSON.stringify(storyBeats));
 
-  // Validation counters
   let validLinks = 0;
   let invalidLinks = 0;
   const invalidReasons: string[] = [];
 
-  // Apply event links from API response
   parsed.beats.forEach((beatWithLinks: any) => {
     const beatIndex = beatWithLinks.beatIndex;
     
@@ -88,7 +94,6 @@ export async function addEventLinksToBeats(
           return;
         }
 
-        // Validate that the text actually exists in the paragraph
         const paragraph = updatedBeats[beatIndex].paragraphs[paragraphIndex];
         if (!paragraph) {
           invalidLinks++;
@@ -103,7 +108,14 @@ export async function addEventLinksToBeats(
           return;
         }
 
-        // Valid link
+        // Validate event slug exists in database
+        if (!validEventSlugs.has(eventSlug)) {
+          invalidLinks++;
+          invalidReasons.push(`Event slug "${eventSlug}" not in database`);
+          console.warn(`⚠️  Event slug "${eventSlug}" not in database. Text was: "${textToLink}"`);
+          return;
+        }
+
         eventLinks.push({ textToLink, eventSlug });
         validLinks++;
       });

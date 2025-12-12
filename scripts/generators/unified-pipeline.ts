@@ -18,7 +18,7 @@ export async function generateTimelineComplete(seed: TimelineSeed): Promise<Gene
   console.log('🦴 Phase 2: Skeleton...');
   context.skeleton = await executePhase2Skeleton(context);
 
-  // Phase 3: Main Narrative
+  // Phase 3: Main Narrative (WITHOUT event links)
   console.log('📝 Phase 3: Main Narrative...');
   context.mainNarrative = await executePhase3Narrative(context);
 
@@ -28,6 +28,16 @@ export async function generateTimelineComplete(seed: TimelineSeed): Promise<Gene
     context.expandedEvents = await executePhase4Events(context, context.skeleton.events);
   } else {
     context.expandedEvents = [];
+  }
+
+  // Phase 4c: Add Event Links (NEW LOCATION - after Phase 4)
+  console.log('🔗 Phase 4c: Adding event links to narrative...');
+  if (context.mainNarrative?.storyBeats && context.expandedEvents?.length) {
+    const { addEventLinksToBeats } = await import('./phases/event-links');
+    context.mainNarrative.storyBeats = await addEventLinksToBeats(
+      context.mainNarrative.storyBeats,
+      context.expandedEvents
+    );
   }
 
   // Phase 4.5: People Expansion

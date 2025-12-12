@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
 import { buildPhase3NarrativePrompt } from '@/lib/generation/prompts';
+import { addEventLinksToBeats } from './add-event-links';
 import type { GenerationContext, MainNarrative } from '@/lib/generation/types';
-import { safeJsonParse, slugify } from '@/lib/utils';
+import { safeJsonParse } from '@/lib/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -48,52 +49,13 @@ export async function executePhase3Narrative(context: GenerationContext): Promis
   const prompt = buildPhase3NarrativePrompt(context);
   const parsed = await callJsonCompletion(prompt);
 
-  const storyBeats = Array.isArray(parsed.storyBeats) ? parsed.storyBeats : [];
+  let storyBeats = Array.isArray(parsed.storyBeats) ? parsed.storyBeats : [];
 
-  const skeletonEventSlugs = new Set(
-    (context.skeleton?.events || [])
-      .map(event => slugify((event as any).slug ?? event.title ?? ''))
-      .filter(Boolean)
-  );
-
-  storyBeats.forEach((beat: any, beatIndex: number) => {
-    (beat?.eventLinks || []).forEach((link: any) => {
-      if (!link?.eventSlug) return;
-      if (!skeletonEventSlugs.has(link.eventSlug)) {
-        console.warn(
-          `⚠️  Event link slug not found in skeleton (beat ${beatIndex + 1}): ${link.eventSlug}`
-        );
-      }
-    });
-  });
-
-  console.log(`\n=== EVENT LINKS SUMMARY ===`);
-  let totalLinks = 0;
-  let validLinks = 0;
-  const invalidLinks: string[] = [];
-
-  storyBeats.forEach((beat: any, beatIndex: number) => {
-    const links = beat?.eventLinks || [];
-    totalLinks += links.length;
-
-    links.forEach((link: any) => {
-      if (link?.eventSlug && skeletonEventSlugs.has(link.eventSlug)) {
-        validLinks++;
-      } else if (link?.eventSlug) {
-        invalidLinks.push(`Beat ${beatIndex + 1}: "${link.eventSlug}"`);
-      }
-    });
-
-    console.log(`   Beat ${beatIndex + 1} "${beat?.title || 'untitled'}": ${links.length} links`);
-  });
-
-  console.log(`Total eventLinks: ${totalLinks}`);
-  console.log(`Valid (matching skeleton): ${validLinks}`);
-  console.log(`Invalid slugs: ${invalidLinks.length}`);
-  if (invalidLinks.length > 0) {
-    console.log(`   Invalid:`, invalidLinks.slice(0, 10).join(', '));
+  // Phase 3b: Add event links via GPT-5
+  if (context.skeleton && storyBeats.length > 0) {
+    console.log('\n🔗 Phase 3b: Adding event links to narrative...');
+    storyBeats = await addEventLinksToBeats(storyBeats, context.skeleton);
   }
-  console.log(`=== END EVENT LINKS SUMMARY ===\n`);
 
   return {
     pageTitle: parsed.pageTitle || '',

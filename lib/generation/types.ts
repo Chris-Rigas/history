@@ -87,7 +87,7 @@ export interface StoryBeat {
   beatType: string;
   title: string;
   paragraphs: string[];
-  eventLinks: EventLink[];
+  eventLinks?: EventLink[];  // Make optional since added post-generation
 }
 
 export interface ExpandedTheme {

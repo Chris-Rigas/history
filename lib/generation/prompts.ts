@@ -933,6 +933,12 @@ You are writing in the tradition of Barbara Tuchman: history as compelling narra
 OUTPUT REQUIREMENTS
 ═══════════════════════════════════════════════════════════════════════════════
 
+SLUG GENERATION RULE:
+✓ ALL event slugs MUST include the year as a suffix
+✓ Format: slugify(title) + "-" + absolute_value(year)
+✓ Example: "Nero's Death" (68) → slug: "neros-death-68"
+✓ Example: "Augustus Settlement" (-27) → slug: "augustus-settlement-27"
+
 For each event, produce:
 
 1. SUMMARY (the hook - 2-3 sentences, 50-80 words)
@@ -1191,7 +1197,7 @@ Return JSON array:
   "expandedEvents": [
     {
       "title": "Event title (must match input)",
-      "slug": "event-slug",
+      "slug": "event-slug (format: {slugified-title}-{absolute year})",
       "year": -192,
       "summary": "2-3 sentence hook...",
       "description": "Flowing prose, 600-800 words, no section labels...",
@@ -1252,9 +1258,8 @@ export function buildPhase4_5PeoplePrompt(context: GenerationContext) {
       role: p.role,
     }));
 
-  // Simple event list (just titles and years)
   const eventsList = context.expandedEvents
-    .map(e => `- ${e.title} (${e.year})`)
+    .map(e => `- "${e.title}" (${e.year}) → slug: ${e.slug}`)
     .join('\n');
 
   return `You are generating biographical content for key figures in: "${describeSeed(context.seed)}"
@@ -1270,7 +1275,7 @@ CENTRAL QUESTION: ${context.mainNarrative.centralQuestion}
 
 STORY CHARACTER: ${context.mainNarrative.storyCharacter}
 
-EVENTS IN THIS TIMELINE:
+EVENTS IN THIS TIMELINE (with their exact database slugs):
 ${eventsList}
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -1322,6 +1327,24 @@ Return a single JSON object:
 }
 
 ═══════════════════════════════════════════════════════════════════════════════
+CRITICAL INSTRUCTIONS FOR relatedEventSlugs
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  IMPORTANT: Use the EXACT slug values shown after the → symbol in the events list above.
+
+DO NOT generate your own slugs from event titles.
+DO NOT add or modify year suffixes.
+COPY the slug values character-for-character from the list above.
+
+Example:
+✅ CORRECT: "relatedEventSlugs": ["neros-death-68"]
+❌ WRONG:   "relatedEventSlugs": ["neros-death"]
+❌ WRONG:   "relatedEventSlugs": ["neros-death-ends-dynasty-68"]
+
+Only include slugs for events where this person played a significant role.
+Aim for 3-6 related events per person.
+
+═══════════════════════════════════════════════════════════════════════════════
 DETAILED REQUIREMENTS
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1365,11 +1388,6 @@ PARAGRAPH 4 - LEGACY & SIGNIFICANCE (100-120 words):
 - How they're remembered historically
 - Their connection to the timeline's themes
 - What changed because of them?
-
-RELATED EVENT SLUGS:
-- Include ONLY events from the events list where this person DIRECTLY participated
-- Event slugs must match EXACTLY from the event titles above (convert to kebab-case)
-- Use 3-6 slugs per person
 
 ═══════════════════════════════════════════════════════════════════════════════
 WRITING STYLE

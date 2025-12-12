@@ -36,7 +36,8 @@ export async function saveExpandedEvents(
 
     const event = await createEvent({
       title: expandedEvent.title,
-      slug: expandedEvent.slug || slugify(expandedEvent.title),
+      slug:
+        expandedEvent.slug || `${slugify(expandedEvent.title)}-${Math.abs(expandedEvent.year)}`,
       start_year: expandedEvent.year,
       end_year: expandedEvent.endYear || null,
       location: null,

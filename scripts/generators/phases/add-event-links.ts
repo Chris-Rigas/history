@@ -18,7 +18,7 @@ async function callJsonCompletion(prompt: string): Promise<any> {
       },
       { role: 'user', content: prompt },
     ],
-    max_completion_tokens: 4000,
+    max_completion_tokens: 30000,
     temperature: 1, // GPT-5 only supports temperature: 1
   });
 

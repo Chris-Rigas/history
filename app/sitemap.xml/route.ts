@@ -8,21 +8,30 @@ export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://historical-timelines.com';
   
   try {
-    // Fetch all published timelines
+    // Fetch all timelines
     const timelines = await getAllTimelines();
-    const publishedTimelines = timelines.filter((t) => t.is_published !== false);
 
-    // Fetch all events from published timelines
+    // Fetch all events with their timeline relationships
     const { data: events } = await supabaseClient
-      .from('events')
-      .select('slug, updated_at, timeline_events!inner(timeline_id, timelines!inner(slug, is_published))')
-      .order('updated_at', { ascending: false });
+      .from('timeline_events')
+      .select(`
+        event_id,
+        timeline_id,
+        events!inner(slug, updated_at),
+        timelines!inner(slug)
+      `)
+      .order('events(updated_at)', { ascending: false });
 
-    // Fetch all people from published timelines
+    // Fetch all people with their timeline relationships
     const { data: people } = await supabaseClient
-      .from('people')
-      .select('slug, updated_at, timeline_people!inner(timeline_id, timelines!inner(slug, is_published))')
-      .order('updated_at', { ascending: false });
+      .from('timeline_people')
+      .select(`
+        person_id,
+        timeline_id,
+        people!inner(slug, updated_at),
+        timelines!inner(slug)
+      `)
+      .order('people(updated_at)', { ascending: false });
 
     // Build URL entries
     const urlEntries: string[] = [];
@@ -33,7 +42,7 @@ export async function GET() {
     urlEntries.push(createUrlEntry(`${baseUrl}/about`, new Date(), 'monthly', 0.5));
 
     // Timeline pages
-    publishedTimelines.forEach((timeline) => {
+    timelines.forEach((timeline) => {
       urlEntries.push(
         createUrlEntry(
           `${baseUrl}/timelines/${timeline.slug}`,
@@ -44,35 +53,41 @@ export async function GET() {
       );
     });
 
-    // Event pages - only from published timelines
-    (events || [])
-      .filter((event: any) => event.timeline_events?.[0]?.timelines?.is_published)
-      .forEach((event: any) => {
-        const timelineSlug = event.timeline_events[0].timelines.slug;
+    // Event pages
+    (events || []).forEach((item: any) => {
+      const timelineSlug = item.timelines?.slug;
+      const eventSlug = item.events?.slug;
+      const eventUpdatedAt = item.events?.updated_at;
+      
+      if (timelineSlug && eventSlug) {
         urlEntries.push(
           createUrlEntry(
-            `${baseUrl}/timelines/${timelineSlug}/events/${event.slug}`,
-            new Date(event.updated_at),
+            `${baseUrl}/timelines/${timelineSlug}/events/${eventSlug}`,
+            new Date(eventUpdatedAt),
             'weekly',
             0.7
           )
         );
-      });
+      }
+    });
 
-    // Person pages - only from published timelines
-    (people || [])
-      .filter((person: any) => person.timeline_people?.[0]?.timelines?.is_published)
-      .forEach((person: any) => {
-        const timelineSlug = person.timeline_people[0].timelines.slug;
+    // Person pages
+    (people || []).forEach((item: any) => {
+      const timelineSlug = item.timelines?.slug;
+      const personSlug = item.people?.slug;
+      const personUpdatedAt = item.people?.updated_at;
+      
+      if (timelineSlug && personSlug) {
         urlEntries.push(
           createUrlEntry(
-            `${baseUrl}/timelines/${timelineSlug}/people/${person.slug}`,
-            new Date(person.updated_at),
+            `${baseUrl}/timelines/${timelineSlug}/people/${personSlug}`,
+            new Date(personUpdatedAt),
             'monthly',
             0.6
           )
         );
-      });
+      }
+    });
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
